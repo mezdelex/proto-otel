@@ -15,7 +15,9 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 9
-      - name: Build
-        run: dotnet build ./CleanTemplate.sln
+      - name: Build Expenses
+        run: dotnet build ./src/Services/Expenses/Expenses.sln
+      - name: Build Notifications
+        run: dotnet build ./src/Services/Notifications/Notifications.sln
       - name: Test
-        run: dotnet test ./CleanTemplate.sln
+        run: dotnet test ./tests/UnitTests/UnitTests.csproj
