@@ -1,4 +1,4 @@
-# Protobuf + OpenTelemetry + Clean Architecture distributed system demo
+# Protobuf + OpenTelemetry + Clean Architecture
 
 <img width="812" height="401" alt="image" src="https://github.com/user-attachments/assets/14883824-a1be-4006-aea6-b263edc6ca0f" />
 
