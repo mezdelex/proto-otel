@@ -1,4 +1,7 @@
-# Proto OpenTelemetry Template
+# Protobuf + OpenTelemetry + Clean Architecture distributed system demo
+
+<img width="826" height="423" alt="image" src="https://github.com/user-attachments/assets/a7c0fa62-660f-4aa4-9d52-0759ffa373d6" />
+
 
 .NET9 Clean Architecture + DDD + CQRS + Specifications + AutoMapper + Domain Events + Testing + Identity + Redis + Protocol Buffers + OpenTelemetry + OpenSearch
 
