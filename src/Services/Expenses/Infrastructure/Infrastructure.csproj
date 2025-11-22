@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="ardalis.specification" Version="8.0.0" />
+        <PackageReference Include="ardalis.specification.entityframeworkcore" Version="8.0.0" />
+        <PackageReference Include="masstransit" Version="8.5.5" />
+        <PackageReference Include="masstransit.rabbitmq" Version="8.5.5" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.10" />
+        <PackageReference Include="microsoft.entityframeworkcore" Version="8.0.7" />
+        <PackageReference Include="microsoft.entityframeworkcore.sqlserver" Version="8.0.7" />
+        <PackageReference Include="microsoft.entityframeworkcore.tools" Version="8.0.7">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.13.1" />
+        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.13.1" />
+        <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.13.1" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.13.0" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.EntityFrameworkCore"
+            Version="1.13.0-beta.2" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.13.0" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.13.0" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.StackExchangeRedis"
+            Version="1.13.0-beta.1" />
+        <PackageReference Include="stackexchange.redis" Version="2.8.0" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Domain\Domain.csproj" />
+        <ProjectReference Include="..\Application\Application.csproj" />
+    </ItemGroup>
+</Project>

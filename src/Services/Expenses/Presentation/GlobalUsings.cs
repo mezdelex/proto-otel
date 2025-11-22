@@ -1,0 +1,12 @@
+global using System.Text.Json;
+global using System.Text.Json.Serialization;
+global using Application.Features.Commands;
+global using Application.Features.Queries;
+global using Domain.Constants;
+global using MediatR;
+global using Microsoft.AspNetCore.Builder;
+global using Microsoft.AspNetCore.Http;
+global using Microsoft.AspNetCore.Mvc;
+global using Microsoft.AspNetCore.Routing;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Logging;

@@ -1,0 +1,153 @@
+services:
+  rabbitmq:
+    image: rabbitmq:management
+    environment:
+      RABBITMQ_DEFAULT_USER: ${APP_USERNAME}
+      RABBITMQ_DEFAULT_PASS: ${APP_PASSWORD}
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    ports:
+      - 5672:5672
+      - 15672:15672
+    restart: always
+    volumes:
+      - .containers/brokers/rabbitmq/data/:/var/lib/rabbitmq
+      - .containers/brokers/rabbitmq/log/:/var/log/rabbitmq
+
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - .containers/cache/redis/data:/data
+      - .containers/cache/redis/config/redis.conf:/usr/local/etc/redis/redis.conf
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server
+    environment:
+      ACCEPT_EULA: Y
+      MSSQL_SA_PASSWORD: ${APP_PASSWORD}
+    ports:
+      - "1433:1433"
+    restart: always
+    volumes:
+      - .containers/ddbb/mssqlserver/data:/var/opt/mssql/data
+      - .containers/ddbb/mssqlserver/logs:/var/opt/mssql/log
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    ports:
+      - "4317:4317" # OTLP gRPC
+      - "4318:4318" # OTLP HTTP
+      - "13133:13133" # Health Check
+      - "1777:1777" # pprof
+      - "55679:55679" # zpages
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+
+  opensearch:
+    image: opensearchproject/opensearch
+    environment:
+      DISABLE_INSTALL_DEMO_CONFIG: true
+      DISABLE_SECURITY_DASHBOARDS_PLUGIN: true
+      DISABLE_SECURITY_PLUGIN: true
+      OPENSEARCH_JAVA_OPTS: -Xms512m -Xmx512m
+      bootstrap.memory_lock: true
+      cluster.name: opensearch-cluster
+      discovery.type: single-node
+      node.name: opensearch-node1
+    ports:
+      - "9200:9200"
+      - "9600:9600" # OpenSearch Performance Analyzer
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - .containers/opensearch/data:/usr/share/opensearch/data
+
+  data-prepper:
+    image: opensearchproject/data-prepper
+    depends_on:
+      otel-collector:
+        condition: service_started
+      opensearch:
+        condition: service_started
+    environment:
+      - "OPENSEARCH_ENDPOINT=http://opensearch:9200"
+    ports:
+      - "21890:21890"
+    volumes:
+      - ./data-prepper-pipelines.yaml:/usr/share/data-prepper/pipelines/pipelines.yaml
+      - ./data-prepper-config.yaml:/usr/share/data-prepper/config/data-prepper-config.yaml
+
+  opensearch-dashboards:
+    image: opensearchproject/opensearch-dashboards
+    depends_on:
+      opensearch:
+        condition: service_started
+    environment:
+      DISABLE_INSTALL_DEMO_CONFIG: true
+      DISABLE_SECURITY_DASHBOARDS_PLUGIN: true
+      DISABLE_SECURITY_PLUGIN: true
+      OPENSEARCH_HOSTS: '["http://opensearch:9200"]'
+    ports:
+      - "5601:5601"
+
+  expenses:
+    build:
+      context: .
+      dockerfile: ./src/Services/Expenses/Dockerfile
+    depends_on:
+      otel-collector:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      sqlserver:
+        condition: service_started
+    environment:
+      ASPNETCORE_HTTP_PORTS: 8000
+      ASPNETCORE_HTTPS_PORTS: 8100
+      ASPNETCORE_Kestrel__Certificates__Default__Password: ${APP_PASSWORD}
+      ASPNETCORE_Kestrel__Certificates__Default__Path: /app/localhost.pfx
+      DATABASE: ${APP_DATABASE_EXPENSES}
+      USERNAME: ${APP_USERNAME}
+      PASSWORD: ${APP_PASSWORD}
+    ports:
+      - "8000:8000"
+      - "8100:8100"
+    volumes:
+      - ${USERPROFILE}/.certs/localhost.pfx:/app/localhost.pfx
+
+  notifications:
+    build:
+      context: .
+      dockerfile: ./src/Services/Notifications/Dockerfile
+    depends_on:
+      otel-collector:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      sqlserver:
+        condition: service_started
+    environment:
+      ASPNETCORE_HTTP_PORTS: 8001
+      ASPNETCORE_HTTPS_PORTS: 8101
+      ASPNETCORE_Kestrel__Certificates__Default__Password: ${APP_PASSWORD}
+      ASPNETCORE_Kestrel__Certificates__Default__Path: /app/localhost.pfx
+      DATABASE: ${APP_DATABASE_NOTIFICATIONS}
+      USERNAME: ${APP_USERNAME}
+      PASSWORD: ${APP_PASSWORD}
+    ports:
+      - "8001:8001"
+      - "8101:8101"
+    volumes:
+      - ${USERPROFILE}/.certs/localhost.pfx:/app/localhost.pfx

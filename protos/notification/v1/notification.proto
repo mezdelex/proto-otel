@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package protos.notification.v1;
+
+import "protos/common/v1/enums.proto";
+
+option csharp_namespace = "Protos.Notification.v1.Notification";
+
+message NotificationEvent {
+  string entity_id = 1;
+  protos.common.v1.EntityType entity_type = 2;
+  string name = 3;
+  string description = 4;
+}

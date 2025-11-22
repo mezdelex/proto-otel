@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package protos.common.v1;
+
+option csharp_namespace = "Protos.Common.v1.Enums";
+
+enum EntityType {
+  ENTITY_TYPE_UNSPECIFIED = 0;
+  ENTITY_TYPE_CATEGORY = 1;
+  ENTITY_TYPE_EXPENSE = 2;
+}

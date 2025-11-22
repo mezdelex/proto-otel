@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
+        <IsTestProject>true</IsTestProject>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="autofixture" Version="4.18.1" />
+        <PackageReference Include="automapper" Version="13.0.1" />
+        <PackageReference Include="coverlet.collector" Version="6.0.0" />
+        <PackageReference Include="fluentassertions" Version="6.12.2" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+        <PackageReference Include="mockqueryable.moq" Version="7.0.3" />
+        <PackageReference Include="moq" Version="4.20.72" />
+        <PackageReference Include="queryinterceptor.entityframeworkcore" Version="8.0.9" />
+        <PackageReference Include="xunit" Version="2.5.3" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\Services\Expenses\Domain\Domain.csproj" />
+        <ProjectReference Include="..\..\src\Services\Expenses\Application\Application.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <Using Include="Xunit" />
+    </ItemGroup>
+</Project>

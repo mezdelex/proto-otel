@@ -1,0 +1,27 @@
+trace-pipeline:
+  workers: 4
+  delay: 100
+  source:
+    otel_trace_source:
+      ssl: false
+  processor:
+    - otel_traces:
+  sink:
+    - opensearch:
+        hosts: ["http://opensearch:9200"]
+        index_type: trace-analytics-raw
+        insecure: true
+
+# log-pipeline:
+#   workers: 4
+#   delay: 100
+#   source:
+#     otel_log_source:
+#       ssl: false
+#   processor:
+#     - otel_logs:
+#   sink:
+#     - opensearch:
+#         hosts: ["http://opensearch:9200"]
+#         index_type: log-analytics-standard
+#         insecure: true

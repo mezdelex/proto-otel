@@ -1,0 +1,11 @@
+global using Abstractions;
+global using MassTransit;
+global using MassTransit.Logging;
+global using MessageBrokers.RabbitMQ;
+global using Notifications.Consumers;
+global using OpenTelemetry.Exporter;
+global using OpenTelemetry.Metrics;
+global using OpenTelemetry.Resources;
+global using OpenTelemetry.Trace;
+global using Protos.Notification.v1.Notification;
+global using Serilog;
