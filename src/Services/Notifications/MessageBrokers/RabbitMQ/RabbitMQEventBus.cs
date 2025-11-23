@@ -1,4 +1,4 @@
-namespace MessageBrokers.RabbitMQ;
+namespace Notifications.MessageBrokers.RabbitMQ;
 
 public sealed class RabbitMQEventBus(IPublishEndpoint publishEndpoint) : IEventBus
 {

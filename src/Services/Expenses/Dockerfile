@@ -10,6 +10,6 @@ RUN dotnet publish ./src/Services/Expenses/WebApi/WebApi.csproj -c Release -o ou
 FROM mcr.microsoft.com/dotnet/aspnet:9.0
 WORKDIR /app
 COPY --from=build /app/out .
-EXPOSE 8000 8100
+EXPOSE 8001 8101
 
 ENTRYPOINT ["dotnet", "WebApi.dll"]

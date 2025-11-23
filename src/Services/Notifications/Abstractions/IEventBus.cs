@@ -1,4 +1,4 @@
-namespace Abstractions;
+namespace Notifications.Abstractions;
 
 public interface IEventBus
 {

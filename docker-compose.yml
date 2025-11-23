@@ -98,10 +98,10 @@ services:
     ports:
       - "5601:5601"
 
-  expenses:
+  gateway:
     build:
       context: .
-      dockerfile: ./src/Services/Expenses/Dockerfile
+      dockerfile: ./src/Gateway/Dockerfile
     depends_on:
       otel-collector:
         condition: service_started
@@ -116,12 +116,36 @@ services:
       ASPNETCORE_HTTPS_PORTS: 8100
       ASPNETCORE_Kestrel__Certificates__Default__Password: ${APP_PASSWORD}
       ASPNETCORE_Kestrel__Certificates__Default__Path: /app/localhost.pfx
+    ports:
+      - "8000:8000"
+      - "8100:8100"
+    volumes:
+      - ${USERPROFILE}/.certs/localhost.pfx:/app/localhost.pfx
+
+  expenses:
+    build:
+      context: .
+      dockerfile: ./src/Services/Expenses/Dockerfile
+    depends_on:
+      otel-collector:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      sqlserver:
+        condition: service_started
+    environment:
+      ASPNETCORE_HTTP_PORTS: 8001
+      ASPNETCORE_HTTPS_PORTS: 8101
+      ASPNETCORE_Kestrel__Certificates__Default__Password: ${APP_PASSWORD}
+      ASPNETCORE_Kestrel__Certificates__Default__Path: /app/localhost.pfx
       DATABASE: ${APP_DATABASE_EXPENSES}
       USERNAME: ${APP_USERNAME}
       PASSWORD: ${APP_PASSWORD}
     ports:
-      - "8000:8000"
-      - "8100:8100"
+      - "8001:8001"
+      - "8101:8101"
     volumes:
       - ${USERPROFILE}/.certs/localhost.pfx:/app/localhost.pfx
 
@@ -139,15 +163,14 @@ services:
       sqlserver:
         condition: service_started
     environment:
-      ASPNETCORE_HTTP_PORTS: 8001
-      ASPNETCORE_HTTPS_PORTS: 8101
+      ASPNETCORE_HTTP_PORTS: 8002
+      ASPNETCORE_HTTPS_PORTS: 8102
       ASPNETCORE_Kestrel__Certificates__Default__Password: ${APP_PASSWORD}
       ASPNETCORE_Kestrel__Certificates__Default__Path: /app/localhost.pfx
-      DATABASE: ${APP_DATABASE_NOTIFICATIONS}
       USERNAME: ${APP_USERNAME}
       PASSWORD: ${APP_PASSWORD}
     ports:
-      - "8001:8001"
-      - "8101:8101"
+      - "8002:8002"
+      - "8102:8102"
     volumes:
       - ${USERPROFILE}/.certs/localhost.pfx:/app/localhost.pfx

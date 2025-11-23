@@ -10,6 +10,6 @@ RUN dotnet publish ./src/Services/Notifications/Notifications.csproj -c Release 
 FROM mcr.microsoft.com/dotnet/aspnet:9.0
 WORKDIR /app
 COPY --from=build /app/out .
-EXPOSE 8001 8101
+EXPOSE 8002 8102
 
 ENTRYPOINT ["dotnet", "Notifications.dll"]

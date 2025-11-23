@@ -38,11 +38,9 @@ app.ApplyMigrations();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.UseHttpsRedirection();
-
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapIdentityApi<ApplicationUser>();
+app.MapGroup("/api/identity").MapIdentityApi<ApplicationUser>();
 
 app.MapCategoriesEndpoints();
 app.MapExpensesEndpoints();
