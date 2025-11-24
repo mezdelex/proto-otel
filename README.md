@@ -1,6 +1,6 @@
 # Protobuf + OpenTelemetry + Clean Architecture
 
-<img width="812" height="401" alt="image" src="https://github.com/user-attachments/assets/14883824-a1be-4006-aea6-b263edc6ca0f" />
+<img width="842" height="441" alt="image" src="https://github.com/user-attachments/assets/22f729d1-e93b-4089-86d8-0208c641e5af" />
 
 .NET9 Clean Architecture + DDD + CQRS + Specifications + AutoMapper + Domain Events + Testing + Identity + Redis + Protocol Buffers + OpenTelemetry + OpenSearch
 
