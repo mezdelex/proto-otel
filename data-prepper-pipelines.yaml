@@ -1,27 +1,54 @@
-trace-pipeline:
-  workers: 4
-  delay: 100
+version: 2
+
+otel-telemetry:
   source:
-    otel_trace_source:
+    otlp:
+      output_format: opensearch
       ssl: false
+  route:
+    - logs: 'getEventType() == "LOG"'
+    - metrics: 'getEventType() == "METRIC"'
+    - traces: 'getEventType() == "TRACE"'
+  sink:
+    - opensearch:
+        routes:
+          - logs
+        hosts: ["http://opensearch:9200"]
+        index: ss4o_logs-%{yyyy.MM.dd}
+        insecure: true
+    - pipeline:
+        name: otel-metrics
+        routes:
+          - metrics
+    - pipeline:
+        name: otel-traces
+        routes:
+          - traces
+
+otel-metrics:
+  source:
+    pipeline:
+      name: otel-telemetry
   processor:
-    - otel_traces:
+    - otel_metrics:
+        calculate_histogram_buckets: true
+        calculate_exponential_histogram_buckets: true
+        exponential_histogram_max_allowed_scale: 10
+        flatten_attributes: false
+  sink:
+    - opensearch:
+        hosts: ["http://opensearch:9200"]
+        index: metrics-otel-%{yyyy.MM.dd}
+        insecure: true
+
+otel-traces:
+  source:
+    pipeline:
+      name: otel-telemetry
+  processor:
+    - otel_trace_raw:
   sink:
     - opensearch:
         hosts: ["http://opensearch:9200"]
         index_type: trace-analytics-raw
         insecure: true
-
-# log-pipeline:
-#   workers: 4
-#   delay: 100
-#   source:
-#     otel_log_source:
-#       ssl: false
-#   processor:
-#     - otel_logs:
-#   sink:
-#     - opensearch:
-#         hosts: ["http://opensearch:9200"]
-#         index_type: log-analytics-standard
-#         insecure: true

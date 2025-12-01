@@ -15,7 +15,7 @@ exporters:
   debug:
     verbosity: detailed
   otlp/data-prepper:
-    endpoint: data-prepper:21890
+    endpoint: data-prepper:21893
     tls:
       insecure: true
 
@@ -30,15 +30,15 @@ extensions:
 service:
   extensions: [health_check, pprof, zpages]
   pipelines:
-    traces:
+    logs:
       receivers: [otlp]
       processors: [batch]
       exporters: [debug, otlp/data-prepper]
     metrics:
       receivers: [otlp]
       processors: [batch]
-      exporters: [debug]
-    logs:
+      exporters: [debug, otlp/data-prepper]
+    traces:
       receivers: [otlp]
       processors: [batch]
       exporters: [debug, otlp/data-prepper]

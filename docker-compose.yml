@@ -80,7 +80,7 @@ services:
     environment:
       - "OPENSEARCH_ENDPOINT=http://opensearch:9200"
     ports:
-      - "21890:21890"
+      - "21893:21893"
     volumes:
       - ./data-prepper-pipelines.yaml:/usr/share/data-prepper/pipelines/pipelines.yaml
       - ./data-prepper-config.yaml:/usr/share/data-prepper/config/data-prepper-config.yaml
