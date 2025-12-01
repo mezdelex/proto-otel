@@ -40,6 +40,13 @@ services:
   otel-collector:
     image: otel/opentelemetry-collector-contrib
     command: ["--config=/etc/otel-collector-config.yaml"]
+    depends_on:
+      gateway:
+        condition: service_started
+      expenses:
+        condition: service_started
+      notifications:
+        condition: service_started
     ports:
       - "4317:4317" # OTLP gRPC
       - "4318:4318" # OTLP HTTP
@@ -51,6 +58,9 @@ services:
 
   opensearch:
     image: opensearchproject/opensearch
+    depends_on:
+      otel-collector:
+        condition: service_started
     environment:
       DISABLE_INSTALL_DEMO_CONFIG: true
       DISABLE_SECURITY_DASHBOARDS_PLUGIN: true
@@ -103,8 +113,6 @@ services:
       context: .
       dockerfile: ./src/Gateway/Dockerfile
     depends_on:
-      otel-collector:
-        condition: service_started
       rabbitmq:
         condition: service_healthy
       redis:
@@ -127,8 +135,6 @@ services:
       context: .
       dockerfile: ./src/Services/Expenses/Dockerfile
     depends_on:
-      otel-collector:
-        condition: service_started
       rabbitmq:
         condition: service_healthy
       redis:
@@ -154,8 +160,6 @@ services:
       context: .
       dockerfile: ./src/Services/Notifications/Dockerfile
     depends_on:
-      otel-collector:
-        condition: service_started
       rabbitmq:
         condition: service_healthy
       redis:
