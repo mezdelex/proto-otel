@@ -1,4 +1,6 @@
-# Protobuf + OpenTelemetry + Clean Architecture
+# Distributed architecture using Protobuf + OpenTelemetry + Clean Architecture
+
+[YouTube showcase](https://www.youtube.com/watch?v=OzJtWV4tgKY)
 
 <img width="842" height="441" alt="image" src="https://github.com/user-attachments/assets/22f729d1-e93b-4089-86d8-0208c641e5af" />
 <img width="1913" height="891" alt="image" src="https://github.com/user-attachments/assets/9655e3ce-2739-4c7f-b3c6-d3139c83332e" />
