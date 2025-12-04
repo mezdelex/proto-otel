@@ -56,6 +56,21 @@ services:
     volumes:
       - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
 
+  data-prepper:
+    image: opensearchproject/data-prepper
+    depends_on:
+      otel-collector:
+        condition: service_started
+      opensearch:
+        condition: service_started
+    environment:
+      - "OPENSEARCH_ENDPOINT=http://opensearch:9200"
+    ports:
+      - "21893:21893"
+    volumes:
+      - ./data-prepper-pipelines.yaml:/usr/share/data-prepper/pipelines/pipelines.yaml
+      - ./data-prepper-config.yaml:/usr/share/data-prepper/config/data-prepper-config.yaml
+
   opensearch:
     image: opensearchproject/opensearch
     depends_on:
@@ -79,21 +94,6 @@ services:
         hard: -1
     volumes:
       - .containers/opensearch/data:/usr/share/opensearch/data
-
-  data-prepper:
-    image: opensearchproject/data-prepper
-    depends_on:
-      otel-collector:
-        condition: service_started
-      opensearch:
-        condition: service_started
-    environment:
-      - "OPENSEARCH_ENDPOINT=http://opensearch:9200"
-    ports:
-      - "21893:21893"
-    volumes:
-      - ./data-prepper-pipelines.yaml:/usr/share/data-prepper/pipelines/pipelines.yaml
-      - ./data-prepper-config.yaml:/usr/share/data-prepper/config/data-prepper-config.yaml
 
   opensearch-dashboards:
     image: opensearchproject/opensearch-dashboards
