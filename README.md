@@ -17,7 +17,7 @@
 <img width="1910" height="893" alt="image" src="https://github.com/user-attachments/assets/9d947830-3fff-4c0a-853c-41ad7938b07d" />
 <img width="1919" height="1027" alt="image" src="https://github.com/user-attachments/assets/eab831ce-7222-40b1-96c8-edb66f7a1078" />
 
-.NET9 Clean Architecture + DDD + CQRS + Specifications + AutoMapper + Domain Events + Testing + Identity + Redis + Protocol Buffers + OpenTelemetry + OpenSearch
+.NET 10 Clean Architecture + DDD + CQRS + Specifications + AutoMapper + Domain Events + Testing + Identity + Redis + Protocol Buffers + OpenTelemetry + OpenSearch
 
 ## Docker
 
