@@ -52,7 +52,6 @@ services:
       - "4318:4318" # OTLP HTTP
       - "13133:13133" # Health Check
       - "1777:1777" # pprof
-      - "55679:55679" # zpages
     volumes:
       - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
 

@@ -2,7 +2,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<IEventBus, RabbitMQEventBus>();
 
 builder.Services.AddMassTransit(busRegistrationConfigurator =>
 {

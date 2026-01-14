@@ -7,12 +7,13 @@ public sealed class NotificationEventConsumer(ILogger<NotificationEventConsumer>
 
     public Task Consume(ConsumeContext<NotificationEvent> context)
     {
-        _logger.LogInformation(
-            "Notification for: {entityType}, {name} and {description}",
-            context.Message.EntityType,
-            context.Message.Name,
-            context.Message.Description
-        );
+        if (_logger.IsEnabled(LogLevel.Information))
+            _logger.LogInformation(
+                "Notification for: {entityType}, {name} and {description}",
+                context.Message.EntityType,
+                context.Message.Name,
+                context.Message.Description
+            );
 
         return Task.CompletedTask;
     }
