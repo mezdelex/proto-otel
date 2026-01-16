@@ -1,3 +1,4 @@
+global using Gateway;
 global using OpenTelemetry.Exporter;
 global using OpenTelemetry.Metrics;
 global using OpenTelemetry.Resources;

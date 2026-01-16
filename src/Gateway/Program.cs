@@ -1,5 +1,19 @@
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(
+        GatewayConstants.DefaultCorsPolicy,
+        cpb =>
+        {
+            cpb.WithOrigins("http://localhost:4200")
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        }
+    );
+});
+
 builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
 builder.Services.AddOpenApi();
@@ -36,5 +50,7 @@ var app = builder.Build();
 app.MapOpenApi();
 
 app.MapReverseProxy();
+
+app.UseCors(GatewayConstants.DefaultCorsPolicy);
 
 app.Run();
