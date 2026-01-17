@@ -27,6 +27,7 @@ global using FluentAssertions;
 global using FluentValidation;
 global using FluentValidation.Results;
 global using Microsoft.EntityFrameworkCore.Query;
+global using Microsoft.Extensions.Logging;
 global using MockQueryable;
 global using Moq;
 global using UnitTests.Mocks;

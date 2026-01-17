@@ -23,7 +23,7 @@ public static class InfrastructureExtension
         );
         services.AddScoped<IEventBus, RabbitMQEventBus>();
         services.AddScoped<IRedisCache, RedisCache>();
-        services.AddScoped<ISpecificationEvaluator>(provider => new SpecificationEvaluator(true));
+        services.AddScoped<ISpecificationEvaluator>(provider => new SpecificationEvaluator());
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddMassTransit(busRegistrationConfigurator =>
         {

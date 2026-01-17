@@ -9,7 +9,8 @@ public sealed class ExpensesSpecification : Specification<Expense>
         DateTime? minDate = null,
         DateTime? maxDate = null,
         string? categoryId = null,
-        string? applicationUserId = null
+        string? applicationUserId = null,
+        Action<ISpecificationBuilder<Expense>>? includes = null
     )
     {
         if (!string.IsNullOrWhiteSpace(id))
@@ -53,6 +54,8 @@ public sealed class ExpensesSpecification : Specification<Expense>
         {
             Query.Where(x => x.ApplicationUserId.Equals(applicationUserId));
         }
+
+        includes?.Invoke(Query);
 
         Query.OrderBy(x => x.CategoryId).ThenBy(x => x.Name).ThenBy(x => x.Id);
     }

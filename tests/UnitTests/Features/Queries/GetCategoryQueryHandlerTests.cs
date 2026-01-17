@@ -3,6 +3,7 @@ namespace UnitTests.Features.Queries;
 public sealed class GetCategoryQueryHandlerTests
 {
     private readonly CancellationToken _cancellationToken;
+    private readonly ILoggerFactory _loggerFactory;
     private readonly IMapper _mapper;
     private readonly Mock<ICategoriesRepository> _repository;
     private readonly GetCategoryQueryHandler _handler;
@@ -10,11 +11,15 @@ public sealed class GetCategoryQueryHandlerTests
     public GetCategoryQueryHandlerTests()
     {
         _cancellationToken = new();
-        _mapper = new MapperConfiguration(c =>
-        {
-            c.AddProfile<CategoriesProfile>();
-            c.AddProfile<ExpensesProfile>();
-        }).CreateMapper();
+        _loggerFactory = new LoggerFactory();
+        _mapper = new MapperConfiguration(
+            c =>
+            {
+                c.AddProfile<CategoriesProfile>();
+                c.AddProfile<ExpensesProfile>();
+            },
+            _loggerFactory
+        ).CreateMapper();
         _repository = new();
 
         _handler = new GetCategoryQueryHandler(_repository.Object, _mapper);

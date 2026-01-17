@@ -8,6 +8,6 @@ public static class ApplicationExtension
 
         services.AddMediatR(configuration => configuration.RegisterServicesFromAssembly(assembly));
         services.AddValidatorsFromAssembly(assembly);
-        services.AddAutoMapper(assembly);
+        services.AddAutoMapper(mce => mce.AddMaps(assembly));
     }
 }

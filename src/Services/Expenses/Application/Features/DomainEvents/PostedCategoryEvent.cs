@@ -1,7 +1,11 @@
 namespace Application.Features.DomainEvents;
 
-public sealed record PostedCategoryEvent(string Id, string Name, string Description)
+public sealed record PostedCategoryEvent
 {
+    public string Id { get; init; } = string.Empty;
+    public string Name { get; init; } = string.Empty;
+    public string Description { get; init; } = string.Empty;
+
     public sealed class PostedCategoryEventConsumer(ILogger<PostedCategoryEventConsumer> logger)
         : IConsumer<PostedCategoryEvent>
     {
@@ -9,7 +13,10 @@ public sealed record PostedCategoryEvent(string Id, string Name, string Descript
 
         public Task Consume(ConsumeContext<PostedCategoryEvent> context)
         {
-            _logger.LogInformation("Category created: {@Category}", context.Message);
+            if (_logger.IsEnabled(LogLevel.Information))
+            {
+                _logger.LogInformation("Category created: {@Category}", context.Message);
+            }
 
             return Task.CompletedTask;
         }

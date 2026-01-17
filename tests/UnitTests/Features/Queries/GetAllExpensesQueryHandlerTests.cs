@@ -3,6 +3,7 @@ namespace UnitTests.Features.Queries;
 public sealed class GetAllExpensesQueryHandlerTests
 {
     private readonly CancellationToken _cancellationToken;
+    private readonly ILoggerFactory _loggerFactory;
     private readonly IMapper _mapper;
     private readonly Mock<IExpensesRepository> _repository;
     private readonly Mock<IRedisCache> _redisCache;
@@ -11,7 +12,11 @@ public sealed class GetAllExpensesQueryHandlerTests
     public GetAllExpensesQueryHandlerTests()
     {
         _cancellationToken = new();
-        _mapper = new MapperConfiguration(c => c.AddProfile<ExpensesProfile>()).CreateMapper();
+        _loggerFactory = new LoggerFactory();
+        _mapper = new MapperConfiguration(
+            c => c.AddProfile<ExpensesProfile>(),
+            _loggerFactory
+        ).CreateMapper();
         _repository = new();
         _redisCache = new();
 
@@ -38,7 +43,7 @@ public sealed class GetAllExpensesQueryHandlerTests
             $"{nameof(Expense)}#{request.Name}#{request.ContainedWord}#{request.MinDate}#{request.MaxDate}#{request.CategoryId}#{request.ApplicationUserId}#{request.Page}#{request.PageSize}";
         _repository
             .Setup(mock => mock.ApplySpecification(It.IsAny<ExpensesSpecification>()))
-            .Returns(expenses.BuildMock())
+            .Returns(expenses.ToList().BuildMock())
             .Verifiable();
         _redisCache
             .Setup(mock => mock.GetCachedData<PagedList<ExpenseDTO>>(redisKey))

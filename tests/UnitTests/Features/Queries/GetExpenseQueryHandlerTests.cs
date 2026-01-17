@@ -3,6 +3,7 @@ namespace UnitTests.Features.Queries;
 public sealed class GetExpenseQueryHandlerTests
 {
     private readonly CancellationToken _cancellationToken;
+    private readonly ILoggerFactory _loggerFactory;
     private readonly IMapper _mapper;
     private readonly Mock<IExpensesRepository> _repository;
     private readonly GetExpenseQueryHandler _handler;
@@ -10,7 +11,11 @@ public sealed class GetExpenseQueryHandlerTests
     public GetExpenseQueryHandlerTests()
     {
         _cancellationToken = new();
-        _mapper = new MapperConfiguration(c => c.AddProfile<ExpensesProfile>()).CreateMapper();
+        _loggerFactory = new LoggerFactory();
+        _mapper = new MapperConfiguration(
+            c => c.AddProfile<ExpensesProfile>(),
+            _loggerFactory
+        ).CreateMapper();
         _repository = new();
         _handler = new GetExpenseQueryHandler(_repository.Object, _mapper);
     }

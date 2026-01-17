@@ -5,6 +5,7 @@ public class CategoriesProfile : Profile
     public CategoriesProfile()
     {
         CreateMap<Category, CategoryDTO>();
+        CreateMap<Category, ExtraCategoryDTO>();
         CreateMap<Category, PatchedCategoryEvent>();
         CreateMap<Category, PostedCategoryEvent>();
         CreateMap<PatchCategoryCommand, Category>();

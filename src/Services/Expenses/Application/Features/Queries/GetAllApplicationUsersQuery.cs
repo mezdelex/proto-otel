@@ -39,7 +39,7 @@ public sealed record GetAllApplicationUsersQuery
                         containedWord: request.ContainedWord
                     )
                 )
-                .Select(c => _mapper.Map<ApplicationUserDTO>(c))
+                .Select(au => _mapper.Map<ApplicationUserDTO>(au))
                 .ToPagedListAsync(request.Page, request.PageSize, cancellationToken);
 
             await _redisCache.SetCachedData(

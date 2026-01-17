@@ -5,5 +5,6 @@ public class ApplicationUsersProfile : Profile
     public ApplicationUsersProfile()
     {
         CreateMap<ApplicationUser, ApplicationUserDTO>();
+        CreateMap<ApplicationUser, ExtraApplicationUserDTO>();
     }
 }

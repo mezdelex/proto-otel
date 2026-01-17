@@ -56,8 +56,6 @@ public static class ApplicationUsersEndpoints
     {
         try
         {
-            _logger.LogInformation("Inside logout");
-
             await context.SignOutAsync();
 
             return Results.NoContent();

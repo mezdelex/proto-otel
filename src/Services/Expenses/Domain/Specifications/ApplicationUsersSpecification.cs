@@ -5,7 +5,8 @@ public sealed class ApplicationUsersSpecification : Specification<ApplicationUse
     public ApplicationUsersSpecification(
         string? id = null,
         string? email = null,
-        string? containedWord = null
+        string? containedWord = null,
+        Action<ISpecificationBuilder<ApplicationUser>>? includes = null
     )
     {
         if (!string.IsNullOrWhiteSpace(id))
@@ -24,6 +25,8 @@ public sealed class ApplicationUsersSpecification : Specification<ApplicationUse
                 x.Email!.Contains(containedWord) || x.UserName!.Contains(containedWord)
             );
         }
+
+        includes?.Invoke(Query);
 
         Query.OrderBy(x => x.Email).ThenBy(x => x.Id);
     }

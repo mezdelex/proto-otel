@@ -4,6 +4,7 @@ public sealed class PostExpenseCommandHandlerTests
 {
     private readonly CancellationToken _cancellationToken;
     private readonly Mock<IValidator<PostExpenseCommand>> _validator;
+    private readonly ILoggerFactory _loggerFactory;
     private readonly IMapper _mapper;
     private readonly Mock<IExpensesRepository> _repository;
     private readonly Mock<IUnitOfWork> _uow;
@@ -15,7 +16,11 @@ public sealed class PostExpenseCommandHandlerTests
     {
         _cancellationToken = new();
         _validator = new();
-        _mapper = new MapperConfiguration(c => c.AddProfile<ExpensesProfile>()).CreateMapper();
+        _loggerFactory = new LoggerFactory();
+        _mapper = new MapperConfiguration(
+            c => c.AddProfile<ExpensesProfile>(),
+            _loggerFactory
+        ).CreateMapper();
         _repository = new();
         _uow = new();
         _redisCache = new();

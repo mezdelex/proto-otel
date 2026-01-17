@@ -5,8 +5,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="ardalis.specification" Version="8.0.0" />
-    <PackageReference Include="microsoft.aspnetcore.identity.entityframeworkcore" Version="8.0.7" />
-    <PackageReference Include="microsoft.entityframeworkcore" Version="8.0.7" />
+    <PackageReference Include="ardalis.specification" Version="9.3.1" />
+    <PackageReference Include="microsoft.aspnetcore.identity.entityframeworkcore" Version="10.0.2" />
+    <PackageReference Include="microsoft.entityframeworkcore" Version="10.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.2" />
   </ItemGroup>
 </Project>

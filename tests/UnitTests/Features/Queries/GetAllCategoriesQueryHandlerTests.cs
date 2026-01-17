@@ -3,6 +3,7 @@ namespace UnitTests.Features.Queries;
 public sealed class GetAllCategoriesQueryHandlerTests
 {
     private readonly CancellationToken _cancellationToken;
+    private readonly ILoggerFactory _loggerFactory;
     private readonly IMapper _mapper;
     private readonly Mock<ICategoriesRepository> _repository;
     private readonly Mock<IRedisCache> _redisCache;
@@ -11,11 +12,15 @@ public sealed class GetAllCategoriesQueryHandlerTests
     public GetAllCategoriesQueryHandlerTests()
     {
         _cancellationToken = new();
-        _mapper = new MapperConfiguration(c =>
-        {
-            c.AddProfile<CategoriesProfile>();
-            c.AddProfile<ExpensesProfile>();
-        }).CreateMapper();
+        _loggerFactory = new LoggerFactory();
+        _mapper = new MapperConfiguration(
+            c =>
+            {
+                c.AddProfile<CategoriesProfile>();
+                c.AddProfile<ExpensesProfile>();
+            },
+            _loggerFactory
+        ).CreateMapper();
         _repository = new();
         _redisCache = new();
 
@@ -44,7 +49,7 @@ public sealed class GetAllCategoriesQueryHandlerTests
             $"{nameof(Category)}#{request.Name}#{request.ContainedWord}#{request.Page}#{request.PageSize}";
         _repository
             .Setup(mock => mock.ApplySpecification(It.IsAny<CategoriesSpecification>()))
-            .Returns(categories.BuildMock())
+            .Returns(categories.ToList().BuildMock())
             .Verifiable();
         _redisCache
             .Setup(mock => mock.GetCachedData<PagedList<CategoryDTO>>(redisKey))

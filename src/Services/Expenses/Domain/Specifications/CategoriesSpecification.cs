@@ -5,7 +5,8 @@ public sealed class CategoriesSpecification : Specification<Category>
     public CategoriesSpecification(
         string? id = null,
         string? name = null,
-        string? containedWord = null
+        string? containedWord = null,
+        Action<ISpecificationBuilder<Category>>? includes = null
     )
     {
         if (!string.IsNullOrWhiteSpace(id))
@@ -25,6 +26,8 @@ public sealed class CategoriesSpecification : Specification<Category>
             );
         }
 
-        Query.Include(x => x.Expenses).OrderBy(x => x.Name).ThenBy(x => x.Id);
+        includes?.Invoke(Query);
+
+        Query.OrderBy(x => x.Name).ThenBy(x => x.Id);
     }
 }

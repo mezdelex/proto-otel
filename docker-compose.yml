@@ -141,13 +141,13 @@ services:
       sqlserver:
         condition: service_started
     environment:
-      ASPNETCORE_HTTP_PORTS: 8001
       ASPNETCORE_HTTPS_PORTS: 8101
+      ASPNETCORE_HTTP_PORTS: 8001
       ASPNETCORE_Kestrel__Certificates__Default__Password: ${APP_PASSWORD}
       ASPNETCORE_Kestrel__Certificates__Default__Path: /app/localhost.pfx
       DATABASE: ${APP_DATABASE_EXPENSES}
-      USERNAME: ${APP_USERNAME}
       PASSWORD: ${APP_PASSWORD}
+      USERNAME: ${APP_USERNAME}
     ports:
       - "8001:8001"
       - "8101:8101"
@@ -166,12 +166,12 @@ services:
       sqlserver:
         condition: service_started
     environment:
-      ASPNETCORE_HTTP_PORTS: 8002
       ASPNETCORE_HTTPS_PORTS: 8102
+      ASPNETCORE_HTTP_PORTS: 8002
       ASPNETCORE_Kestrel__Certificates__Default__Password: ${APP_PASSWORD}
       ASPNETCORE_Kestrel__Certificates__Default__Path: /app/localhost.pfx
-      USERNAME: ${APP_USERNAME}
       PASSWORD: ${APP_PASSWORD}
+      USERNAME: ${APP_USERNAME}
     ports:
       - "8002:8002"
       - "8102:8102"
