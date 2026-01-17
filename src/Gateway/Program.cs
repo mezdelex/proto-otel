@@ -47,10 +47,9 @@ builder.Host.UseSerilog(
 
 var app = builder.Build();
 
-app.MapOpenApi();
-
-app.MapReverseProxy();
-
 app.UseCors(GatewayConstants.DefaultCorsPolicy);
+
+app.MapOpenApi();
+app.MapReverseProxy();
 
 app.Run();

@@ -10,11 +10,14 @@ public static class ApplicationUsersEndpoints
 
         group.MapPost(Patterns.AllPattern, GetAllApplicationUsersQueryAsync).RequireAuthorization();
         group.MapGet(Patterns.IdPattern, GetApplicationUserQueryAsync).RequireAuthorization();
+        group
+            .MapGet(Patterns.LogoutPattern, LogoutApplicationUserQueryAsync)
+            .RequireAuthorization();
     }
 
     public static async Task<IResult> GetAllApplicationUsersQueryAsync(
-        [FromBody] GetAllApplicationUsersQuery query,
-        ISender sender
+        ISender sender,
+        [FromBody] GetAllApplicationUsersQuery query
     )
     {
         try
@@ -30,8 +33,8 @@ public static class ApplicationUsersEndpoints
     }
 
     public static async Task<IResult> GetApplicationUserQueryAsync(
-        [FromRoute] string id,
-        ISender sender
+        ISender sender,
+        [FromRoute] string id
     )
     {
         try
@@ -43,6 +46,27 @@ public static class ApplicationUsersEndpoints
             _logger.LogError(Errors.ErrorMessageTemplate, e, e.Message);
 
             return Results.NotFound(e.Message);
+        }
+    }
+
+    public static async Task<IResult> LogoutApplicationUserQueryAsync(
+        HttpContext context,
+        ISender sender
+    )
+    {
+        try
+        {
+            _logger.LogInformation("Inside logout");
+
+            await context.SignOutAsync();
+
+            return Results.NoContent();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(Errors.ErrorMessageTemplate, e, e.Message);
+
+            return Results.BadRequest(e.Message);
         }
     }
 }

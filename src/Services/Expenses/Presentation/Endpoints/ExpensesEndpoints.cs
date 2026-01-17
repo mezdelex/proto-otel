@@ -16,8 +16,8 @@ public static class ExpensesEndpoints
     }
 
     public static async Task<IResult> GetAllExpensesQueryAsync(
-        [FromBody] GetAllExpensesQuery query,
-        ISender sender
+        ISender sender,
+        [FromBody] GetAllExpensesQuery query
     )
     {
         try
@@ -32,7 +32,7 @@ public static class ExpensesEndpoints
         }
     }
 
-    public static async Task<IResult> GetExpenseQueryAsync([FromRoute] string id, ISender sender)
+    public static async Task<IResult> GetExpenseQueryAsync(ISender sender, [FromRoute] string id)
     {
         try
         {
@@ -47,8 +47,8 @@ public static class ExpensesEndpoints
     }
 
     public static async Task<IResult> PatchExpenseCommandAsync(
-        [FromBody] PatchExpenseCommand command,
-        ISender sender
+        ISender sender,
+        [FromBody] PatchExpenseCommand command
     )
     {
         try
@@ -66,8 +66,8 @@ public static class ExpensesEndpoints
     }
 
     public static async Task<IResult> PostExpenseCommandAsync(
-        [FromBody] PostExpenseCommand command,
-        ISender sender
+        ISender sender,
+        [FromBody] PostExpenseCommand command
     )
     {
         try
@@ -85,8 +85,8 @@ public static class ExpensesEndpoints
     }
 
     public static async Task<IResult> DeleteExpenseCommandAsync(
-        [FromRoute] string id,
-        ISender sender
+        ISender sender,
+        [FromRoute] string id
     )
     {
         try

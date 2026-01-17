@@ -4,8 +4,6 @@ global using Infrastructure.Contexts;
 global using Infrastructure.Extensions;
 global using Microsoft.AspNetCore.Authorization;
 global using Microsoft.AspNetCore.Identity;
-global using OpenTelemetry.Logs;
-global using OpenTelemetry.Resources;
 global using Presentation.Endpoints;
 global using Presentation.Extensions;
 global using Serilog;

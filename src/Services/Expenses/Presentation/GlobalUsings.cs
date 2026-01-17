@@ -4,6 +4,7 @@ global using Application.Features.Commands;
 global using Application.Features.Queries;
 global using Domain.Constants;
 global using MediatR;
+global using Microsoft.AspNetCore.Authentication;
 global using Microsoft.AspNetCore.Builder;
 global using Microsoft.AspNetCore.Http;
 global using Microsoft.AspNetCore.Mvc;

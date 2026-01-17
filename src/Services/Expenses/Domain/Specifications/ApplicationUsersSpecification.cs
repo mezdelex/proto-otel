@@ -25,6 +25,6 @@ public sealed class ApplicationUsersSpecification : Specification<ApplicationUse
             );
         }
 
-        Query.Include(x => x.Expenses).OrderBy(x => x.Email).ThenBy(x => x.Id);
+        Query.OrderBy(x => x.Email).ThenBy(x => x.Id);
     }
 }

@@ -16,8 +16,8 @@ public static class CategoriesEndpoints
     }
 
     public static async Task<IResult> GetAllCategoriesQueryAsync(
-        [FromBody] GetAllCategoriesQuery query,
-        ISender sender
+        ISender sender,
+        [FromBody] GetAllCategoriesQuery query
     )
     {
         try
@@ -32,7 +32,7 @@ public static class CategoriesEndpoints
         }
     }
 
-    public static async Task<IResult> GetCategoryQueryAsync([FromRoute] string id, ISender sender)
+    public static async Task<IResult> GetCategoryQueryAsync(ISender sender, [FromRoute] string id)
     {
         try
         {
@@ -47,8 +47,8 @@ public static class CategoriesEndpoints
     }
 
     public static async Task<IResult> PatchCategoryCommandAsync(
-        [FromBody] PatchCategoryCommand command,
-        ISender sender
+        ISender sender,
+        [FromBody] PatchCategoryCommand command
     )
     {
         try
@@ -66,8 +66,8 @@ public static class CategoriesEndpoints
     }
 
     public static async Task<IResult> PostCategoryCommandAsync(
-        [FromBody] PostCategoryCommand command,
-        ISender sender
+        ISender sender,
+        [FromBody] PostCategoryCommand command
     )
     {
         try
@@ -85,8 +85,8 @@ public static class CategoriesEndpoints
     }
 
     public static async Task<IResult> DeleteCategoryCommandAsync(
-        [FromRoute] string id,
-        ISender sender
+        ISender sender,
+        [FromRoute] string id
     )
     {
         try
