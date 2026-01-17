@@ -31,4 +31,9 @@
 
 `dotnet ef database update --project .\src\Services\Expenses\Infrastructure\Infrastructure.csproj --startup-project .\src\Services\Expenses\WebApi\WebApi.csproj` or just let `ApplyMigrations` extension migrate automatically on `run/watch`.
 
+## Updates
+`Get-ChildItem -Recurse -Filter *.csproj | ForEach-Object { dotnet package update --project .FullName }`
+<img width="1919" height="1021" alt="image" src="https://github.com/user-attachments/assets/4bafd04e-4596-4467-a313-97f48a4daf4b" />
+
+
 <sub>There's stuff that should've been ignored kept public on purpose, like docker-compose's `.env` variables, for discoverability purposes.</sub>
