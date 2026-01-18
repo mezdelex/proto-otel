@@ -5,6 +5,7 @@ public sealed class DeleteCategoryCommandHandlerTests
     private readonly CancellationToken _cancellationToken;
     private readonly Mock<ICategoriesRepository> _repository;
     private readonly Mock<IUnitOfWork> _uow;
+    private readonly Mock<IRedisCache> _redisCache;
     private readonly DeleteCategoryCommandHandler _handler;
 
     public DeleteCategoryCommandHandlerTests()
@@ -12,8 +13,13 @@ public sealed class DeleteCategoryCommandHandlerTests
         _cancellationToken = new();
         _repository = new();
         _uow = new();
+        _redisCache = new();
 
-        _handler = new DeleteCategoryCommandHandler(_repository.Object, _uow.Object);
+        _handler = new DeleteCategoryCommandHandler(
+            _repository.Object,
+            _uow.Object,
+            _redisCache.Object
+        );
     }
 
     [Theory]
@@ -28,6 +34,7 @@ public sealed class DeleteCategoryCommandHandlerTests
             .Setup(mock => mock.DeleteAsync(It.IsAny<string>(), _cancellationToken))
             .Verifiable();
         _uow.Setup(mock => mock.SaveChangesAsync(_cancellationToken)).Verifiable();
+        _redisCache.Setup(mock => mock.RemoveKeysByPattern(It.IsAny<string>())).Verifiable();
 
         // Act
         await _handler.Handle(deleteCategoryCommand, _cancellationToken);
@@ -38,5 +45,6 @@ public sealed class DeleteCategoryCommandHandlerTests
             Times.Once
         );
         _uow.Verify(mock => mock.SaveChangesAsync(_cancellationToken), Times.Once);
+        _redisCache.Verify(mock => mock.RemoveKeysByPattern(It.IsAny<string>()), Times.Once);
     }
 }

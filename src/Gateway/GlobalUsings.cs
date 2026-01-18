@@ -1,6 +1,15 @@
-global using Gateway;
+global using System.IdentityModel.Tokens.Jwt;
+global using System.Security.Claims;
+global using System.Text;
+global using Gateway.Constants;
+global using Gateway.Utils;
+global using Microsoft.AspNetCore.Authorization;
+global using Microsoft.AspNetCore.DataProtection;
+global using Microsoft.AspNetCore.Identity;
+global using Microsoft.IdentityModel.Tokens;
 global using OpenTelemetry.Exporter;
 global using OpenTelemetry.Metrics;
 global using OpenTelemetry.Resources;
 global using OpenTelemetry.Trace;
 global using Serilog;
+global using Yarp.ReverseProxy.Transforms;

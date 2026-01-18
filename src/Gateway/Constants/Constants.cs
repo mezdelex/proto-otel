@@ -1,6 +1,6 @@
-namespace Gateway;
+namespace Gateway.Constants;
 
-public static class GatewayConstants
+public static class Constants
 {
     public const string DefaultCorsPolicy = "DefaultCorsPolicy";
 }

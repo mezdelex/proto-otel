@@ -3,7 +3,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(
-        GatewayConstants.DefaultCorsPolicy,
+        Constants.DefaultCorsPolicy,
         cpb =>
         {
             cpb.WithOrigins("http://localhost:4200")
@@ -13,8 +13,31 @@ builder.Services.AddCors(options =>
         }
     );
 });
-
-builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
+builder
+    .Services.AddAuthentication(IdentityConstants.ApplicationScheme)
+    .AddCookie(IdentityConstants.ApplicationScheme);
+builder
+    .Services.AddReverseProxy()
+    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
+    .AddTransforms(tbc =>
+    {
+        tbc.AddRequestTransform(async rtc =>
+        {
+            if (rtc.HttpContext.User.Identity?.IsAuthenticated == true)
+            {
+                rtc.ProxyRequest.Headers.Authorization = new(
+                    "Bearer",
+                    TokenUtils.CreateGatewayToken(rtc.HttpContext.User, builder.Configuration)
+                );
+            }
+        });
+    });
+builder
+    .Services.AddDataProtection()
+    .PersistKeysToFileSystem(
+        new DirectoryInfo(builder.Configuration["APP_DATA_PROTECTION_KEY_PATH"] ?? string.Empty)
+    )
+    .SetApplicationName(nameof(DataProtectionProvider));
 
 builder.Services.AddOpenApi();
 
@@ -47,9 +70,10 @@ builder.Host.UseSerilog(
 
 var app = builder.Build();
 
-app.UseCors(GatewayConstants.DefaultCorsPolicy);
+app.UseCors(Constants.DefaultCorsPolicy);
+app.UseAuthentication();
+app.MapReverseProxy();
 
 app.MapOpenApi();
-app.MapReverseProxy();
 
 app.Run();

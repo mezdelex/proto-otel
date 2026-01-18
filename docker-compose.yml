@@ -119,15 +119,20 @@ services:
       sqlserver:
         condition: service_started
     environment:
-      ASPNETCORE_HTTP_PORTS: 8000
+      APP_DATA_PROTECTION_KEY_PATH: ${APP_DATA_PROTECTION_KEY_PATH}
       ASPNETCORE_HTTPS_PORTS: 8100
+      ASPNETCORE_HTTP_PORTS: 8000
       ASPNETCORE_Kestrel__Certificates__Default__Password: ${APP_PASSWORD}
       ASPNETCORE_Kestrel__Certificates__Default__Path: /app/localhost.pfx
+      AUDIENCES: ${APP_CLIENT_ID_EXPENSES}
+      CLIENT_ID: ${APP_CLIENT_ID_GATEWAY}
+      CLIENT_SECRET: ${APP_CLIENT_SECRET}
     ports:
       - "8000:8000"
       - "8100:8100"
     volumes:
       - ${USERPROFILE}/.certs/localhost.pfx:/app/localhost.pfx
+      - .containers/keys/:${APP_DATA_PROTECTION_KEY_PATH}
 
   expenses:
     build:
@@ -141,11 +146,15 @@ services:
       sqlserver:
         condition: service_started
     environment:
+      APP_DATA_PROTECTION_KEY_PATH: ${APP_DATA_PROTECTION_KEY_PATH}
       ASPNETCORE_HTTPS_PORTS: 8101
       ASPNETCORE_HTTP_PORTS: 8001
       ASPNETCORE_Kestrel__Certificates__Default__Password: ${APP_PASSWORD}
       ASPNETCORE_Kestrel__Certificates__Default__Path: /app/localhost.pfx
+      CLIENT_ID: ${APP_CLIENT_ID_EXPENSES}
+      CLIENT_SECRET: ${APP_CLIENT_SECRET}
       DATABASE: ${APP_DATABASE_EXPENSES}
+      ISSUER: ${APP_CLIENT_ID_GATEWAY}
       PASSWORD: ${APP_PASSWORD}
       USERNAME: ${APP_USERNAME}
     ports:
@@ -153,6 +162,7 @@ services:
       - "8101:8101"
     volumes:
       - ${USERPROFILE}/.certs/localhost.pfx:/app/localhost.pfx
+      - .containers/keys/:${APP_DATA_PROTECTION_KEY_PATH}
 
   notifications:
     build:

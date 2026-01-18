@@ -1,6 +1,6 @@
 namespace Presentation.Extensions;
 
-public static class PresentationExtensions
+public static class PresentationExtension
 {
     public static void AddPresentationDependencies(this IServiceCollection services)
     {
@@ -16,5 +16,8 @@ public static class PresentationExtensions
             options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             options.JsonSerializerOptions.WriteIndented = true;
         });
+
+        services.AddEndpointsApiExplorer();
+        services.AddSwaggerGen();
     }
 }

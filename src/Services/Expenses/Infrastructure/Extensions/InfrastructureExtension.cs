@@ -72,6 +72,58 @@ public static class InfrastructureExtension
                         options.Protocol = OtlpExportProtocol.Grpc;
                     })
             );
+        services
+            .AddAuthentication(IdentityConstants.ApplicationScheme)
+            .AddBearerToken(IdentityConstants.BearerScheme)
+            .AddCookie(IdentityConstants.ApplicationScheme)
+            .AddJwtBearer(jbo =>
+            {
+                jbo.TokenValidationParameters = new TokenValidationParameters
+                {
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(configuration["CLIENT_SECRET"] ?? string.Empty)
+                    ),
+                    ValidAudiences = [configuration["CLIENT_ID"]],
+                    ValidIssuer = configuration["ISSUER"],
+                    ValidateAudience = true,
+                    ValidateIssuer = true,
+                    ValidateIssuerSigningKey = true,
+                };
+            });
+        services.AddAuthorization(options =>
+        {
+            var defaultPolicy = new AuthorizationPolicyBuilder(
+                IdentityConstants.ApplicationScheme,
+                IdentityConstants.BearerScheme
+            )
+                .RequireAuthenticatedUser()
+                .Build();
+
+            options.AddPolicy(
+                nameof(Policies.JwtBearerPolicy),
+                new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
+                    .RequireAuthenticatedUser()
+                    .Build()
+            );
+
+            options.DefaultPolicy = defaultPolicy;
+        });
+        services
+            .AddIdentityCore<ApplicationUser>()
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddApiEndpoints();
+        services
+            .AddDataProtection()
+            .PersistKeysToFileSystem(
+                new DirectoryInfo(configuration["APP_DATA_PROTECTION_KEY_PATH"] ?? string.Empty)
+            )
+            .SetApplicationName(nameof(DataProtectionProvider));
+        services.ConfigureApplicationCookie(options =>
+        {
+            options.Cookie.HttpOnly = true;
+            options.Cookie.SameSite = SameSiteMode.None;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        });
 
         services.AddScoped<IApplicationUsersRepository, ApplicationUsersRepository>();
         services.AddScoped<ICategoriesRepository, CategoriesRepository>();

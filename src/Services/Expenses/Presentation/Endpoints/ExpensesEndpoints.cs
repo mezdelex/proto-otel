@@ -8,11 +8,15 @@ public static class ExpensesEndpoints
     {
         var group = builder.MapGroup(MapGroups.Expenses);
 
-        group.MapPost(Patterns.AllPattern, GetAllExpensesQueryAsync).RequireAuthorization();
+        group
+            .MapPost(Patterns.AllPattern, GetAllExpensesQueryAsync)
+            .RequireAuthorization(nameof(Policies.JwtBearerPolicy));
         group.MapGet(Patterns.IdPattern, GetExpenseQueryAsync).RequireAuthorization();
         group.MapPatch(string.Empty, PatchExpenseCommandAsync).RequireAuthorization();
         group.MapPost(string.Empty, PostExpenseCommandAsync).RequireAuthorization();
-        group.MapDelete(Patterns.IdPattern, DeleteExpenseCommandAsync).RequireAuthorization();
+        group
+            .MapDelete(Patterns.IdPattern, DeleteExpenseCommandAsync)
+            .RequireAuthorization(nameof(Policies.JwtBearerPolicy));
     }
 
     public static async Task<IResult> GetAllExpensesQueryAsync(

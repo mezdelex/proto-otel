@@ -5,6 +5,7 @@ public sealed class DeleteExpenseCommandHandlerTests
     private readonly CancellationToken _cancellationToken;
     private readonly Mock<IExpensesRepository> _repository;
     private readonly Mock<IUnitOfWork> _uow;
+    private readonly Mock<IRedisCache> _redisCache;
     private readonly DeleteExpenseCommandHandler _handler;
 
     public DeleteExpenseCommandHandlerTests()
@@ -12,8 +13,13 @@ public sealed class DeleteExpenseCommandHandlerTests
         _cancellationToken = new();
         _repository = new();
         _uow = new();
+        _redisCache = new();
 
-        _handler = new DeleteExpenseCommandHandler(_repository.Object, _uow.Object);
+        _handler = new DeleteExpenseCommandHandler(
+            _repository.Object,
+            _uow.Object,
+            _redisCache.Object
+        );
     }
 
     [Theory]
@@ -26,6 +32,7 @@ public sealed class DeleteExpenseCommandHandlerTests
             .Setup(mock => mock.DeleteAsync(It.IsAny<string>(), _cancellationToken))
             .Verifiable();
         _uow.Setup(mock => mock.SaveChangesAsync(_cancellationToken)).Verifiable();
+        _redisCache.Setup(mock => mock.RemoveKeysByPattern(It.IsAny<string>())).Verifiable();
 
         // Act
         await _handler.Handle(request, _cancellationToken);
@@ -36,5 +43,6 @@ public sealed class DeleteExpenseCommandHandlerTests
             Times.Once
         );
         _uow.Verify(mock => mock.SaveChangesAsync(_cancellationToken), Times.Once);
+        _redisCache.Verify(mock => mock.RemoveKeysByPattern(It.IsAny<string>()), Times.Once);
     }
 }
