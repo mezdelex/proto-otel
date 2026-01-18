@@ -10,6 +10,7 @@ public sealed class ExpensesSpecification : Specification<Expense>
         DateTime? maxDate = null,
         string? categoryId = null,
         string? applicationUserId = null,
+        string? email = null,
         Action<ISpecificationBuilder<Expense>>? includes = null
     )
     {
@@ -53,6 +54,13 @@ public sealed class ExpensesSpecification : Specification<Expense>
         if (!string.IsNullOrWhiteSpace(applicationUserId))
         {
             Query.Where(x => x.ApplicationUserId.Equals(applicationUserId));
+        }
+
+        if (!string.IsNullOrWhiteSpace(email))
+        {
+            Query.Where(x =>
+                x.ApplicationUser.Email != null && x.ApplicationUser.Email.Equals(email)
+            );
         }
 
         includes?.Invoke(Query);

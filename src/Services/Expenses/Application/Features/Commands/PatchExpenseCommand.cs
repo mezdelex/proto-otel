@@ -94,6 +94,17 @@ public sealed record PatchExpenseCommand(
                         CategoryConstraints.IdMaxLength
                     )
                 );
+
+            RuleFor(c => c.ApplicationUserId)
+                .NotEmpty()
+                .WithMessage(GenericValidationMessages.ShouldNotBeEmpty(nameof(ApplicationUserId)))
+                .MaximumLength(ApplicationUserConstraints.IdMaxLength)
+                .WithMessage(
+                    GenericValidationMessages.ShouldNotBeLongerThan(
+                        nameof(ApplicationUserId),
+                        ApplicationUserConstraints.IdMaxLength
+                    )
+                );
         }
     }
 }

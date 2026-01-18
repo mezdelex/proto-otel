@@ -40,7 +40,7 @@ public sealed class GetAllExpensesQueryHandlerTests
             PageSize = expenses.Count(),
         };
         var redisKey =
-            $"{nameof(Expense)}#{request.Name}#{request.ContainedWord}#{request.MinDate}#{request.MaxDate}#{request.CategoryId}#{request.ApplicationUserId}#{request.Page}#{request.PageSize}";
+            $"{nameof(Expense)}#{request.Name}#{request.ContainedWord}#{request.MinDate}#{request.MaxDate}#{request.CategoryId}#{request.ApplicationUserId}#{request.Email}#{request.Page}#{request.PageSize}";
         _repository
             .Setup(mock => mock.ApplySpecification(It.IsAny<ExpensesSpecification>()))
             .Returns(expenses.ToList().BuildMock())

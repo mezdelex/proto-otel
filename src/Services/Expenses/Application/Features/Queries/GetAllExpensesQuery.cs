@@ -8,6 +8,7 @@ public sealed record GetAllExpensesQuery : BaseRequest, IRequest<PagedList<Expen
     public DateTime? MaxDate { get; set; }
     public string? CategoryId { get; set; }
     public string? ApplicationUserId { get; set; }
+    public string? Email { get; set; }
 
     public sealed class GetAllExpensesQueryHandler(
         IExpensesRepository repository,
@@ -27,7 +28,7 @@ public sealed record GetAllExpensesQuery : BaseRequest, IRequest<PagedList<Expen
             _repository.SetAsNoTracking();
 
             var redisKey =
-                $"{nameof(Expense)}#{request.Name}#{request.ContainedWord}#{request.MinDate}#{request.MaxDate}#{request.CategoryId}#{request.ApplicationUserId}#{request.Page}#{request.PageSize}";
+                $"{nameof(Expense)}#{request.Name}#{request.ContainedWord}#{request.MinDate}#{request.MaxDate}#{request.CategoryId}#{request.ApplicationUserId}#{request.Email}#{request.Page}#{request.PageSize}";
             var cachedPagedExpenses = await _redisCache.GetCachedData<PagedList<ExpenseDTO>>(
                 redisKey
             );
@@ -42,7 +43,8 @@ public sealed record GetAllExpensesQuery : BaseRequest, IRequest<PagedList<Expen
                         minDate: request.MinDate,
                         maxDate: request.MaxDate,
                         categoryId: request.CategoryId,
-                        applicationUserId: request.ApplicationUserId
+                        applicationUserId: request.ApplicationUserId,
+                        email: request.Email
                     )
                 )
                 .Select(e => _mapper.Map<ExpenseDTO>(e))
@@ -63,24 +65,44 @@ public sealed record GetAllExpensesQuery : BaseRequest, IRequest<PagedList<Expen
         public GetAllExpensesQueryValidator()
         {
             RuleFor(x => x.Name)
-                .NotEmpty()
+                .MaximumLength(ExpenseConstraints.NameMaxLength)
                 .WithMessage(
                     GenericValidationMessages.ShouldNotBeLongerThan(
                         nameof(Name),
                         ExpenseConstraints.NameMaxLength
                     )
                 )
-                .When(x => x.Name is not null);
+                .When(x => !string.IsNullOrWhiteSpace(x.Name));
 
             RuleFor(x => x.ContainedWord)
-                .NotEmpty()
+                .MaximumLength(ExpenseConstraints.DescriptionMaxLength)
                 .WithMessage(
                     GenericValidationMessages.ShouldNotBeLongerThan(
                         nameof(ContainedWord),
                         ExpenseConstraints.DescriptionMaxLength
                     )
                 )
-                .When(x => x.Name is not null);
+                .When(x => !string.IsNullOrWhiteSpace(x.ContainedWord));
+
+            RuleFor(x => x.CategoryId)
+                .MaximumLength(CategoryConstraints.IdMaxLength)
+                .WithMessage(
+                    GenericValidationMessages.ShouldNotBeLongerThan(
+                        nameof(CategoryId),
+                        CategoryConstraints.IdMaxLength
+                    )
+                )
+                .When(x => !string.IsNullOrWhiteSpace(x.CategoryId));
+
+            RuleFor(x => x.ApplicationUserId)
+                .MaximumLength(ApplicationUserConstraints.IdMaxLength)
+                .WithMessage(
+                    GenericValidationMessages.ShouldNotBeLongerThan(
+                        nameof(ApplicationUserId),
+                        ApplicationUserConstraints.IdMaxLength
+                    )
+                )
+                .When(x => !string.IsNullOrWhiteSpace(x.ApplicationUserId));
         }
     }
 }

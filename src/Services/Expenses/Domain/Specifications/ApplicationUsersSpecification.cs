@@ -16,13 +16,14 @@ public sealed class ApplicationUsersSpecification : Specification<ApplicationUse
 
         if (!string.IsNullOrWhiteSpace(email))
         {
-            Query.Where(x => x.Email!.Equals(email));
+            Query.Where(x => x.Email != null && x.Email.Equals(email));
         }
 
         if (!string.IsNullOrWhiteSpace(containedWord))
         {
             Query.Where(x =>
-                x.Email!.Contains(containedWord) || x.UserName!.Contains(containedWord)
+                x.Email != null && x.Email.Contains(containedWord)
+                || x.UserName != null && x.UserName.Contains(containedWord)
             );
         }
 
