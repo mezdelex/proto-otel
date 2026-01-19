@@ -42,7 +42,7 @@ public sealed class GetAllCategoriesQueryHandlerTests
         {
             Name = categories.First().Name,
             ContainedWord = categories.First().Name,
-            Page = 1,
+            Page = 0,
             PageSize = categories.Count(),
         };
         var redisKey =
@@ -74,11 +74,11 @@ public sealed class GetAllCategoriesQueryHandlerTests
             .BeEquivalentTo(
                 new PagedList<CategoryDTO>(
                     [.. categories.Select(_mapper.Map<CategoryDTO>)],
-                    1,
+                    0,
                     categories.Count(),
                     categories.Count(),
                     false,
-                    false
+                    true
                 )
             );
         _repository.Verify(

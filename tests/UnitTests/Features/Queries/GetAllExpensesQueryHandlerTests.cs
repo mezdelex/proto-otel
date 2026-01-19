@@ -36,7 +36,7 @@ public sealed class GetAllExpensesQueryHandlerTests
             ContainedWord = expenses.First().Name,
             CategoryId = expenses.First().CategoryId,
             ApplicationUserId = expenses.First().ApplicationUserId,
-            Page = 1,
+            Page = 0,
             PageSize = expenses.Count(),
         };
         var redisKey =
@@ -68,11 +68,11 @@ public sealed class GetAllExpensesQueryHandlerTests
             .BeEquivalentTo(
                 new PagedList<ExpenseDTO>(
                     [.. expenses.Select(_mapper.Map<ExpenseDTO>)],
-                    1,
+                    0,
                     expenses.Count(),
                     expenses.Count(),
                     false,
-                    false
+                    true
                 )
             );
         _repository.Verify(

@@ -19,10 +19,7 @@ public static class Collections
     )
     {
         var totalCount = await query.CountAsync(cancellationToken);
-        var items = await query
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .ToListAsync(cancellationToken);
+        var items = await query.Skip(page * pageSize).Take(pageSize).ToListAsync(cancellationToken);
         var hasPreviousPage = page > 1;
         var hasNextPage = page * pageSize < totalCount;
 
@@ -36,7 +33,7 @@ public static class Collections
     )
     {
         var totalCount = enumerable.Count();
-        var items = enumerable.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+        var items = enumerable.Skip(page * pageSize).Take(pageSize).ToList();
         var hasPreviousPage = page > 1;
         var hasNextPage = page * pageSize < totalCount;
 
