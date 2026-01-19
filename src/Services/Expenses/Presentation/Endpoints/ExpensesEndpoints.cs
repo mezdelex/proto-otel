@@ -10,13 +10,13 @@ public static class ExpensesEndpoints
 
         group
             .MapPost(Patterns.AllPattern, GetAllExpensesQueryAsync)
-            .RequireAuthorization(nameof(Policies.JwtBearerPolicy));
+            .RequireAuthorization(nameof(Policies.AdminRolePolicy));
         group.MapGet(Patterns.IdPattern, GetExpenseQueryAsync).RequireAuthorization();
         group.MapPatch(string.Empty, PatchExpenseCommandAsync).RequireAuthorization();
         group.MapPost(string.Empty, PostExpenseCommandAsync).RequireAuthorization();
         group
             .MapDelete(Patterns.IdPattern, DeleteExpenseCommandAsync)
-            .RequireAuthorization(nameof(Policies.JwtBearerPolicy));
+            .RequireAuthorization(nameof(Policies.AdminRolePolicy));
     }
 
     public static async Task<IResult> GetAllExpensesQueryAsync(

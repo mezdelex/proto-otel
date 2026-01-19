@@ -2,5 +2,6 @@ namespace Domain.Enums;
 
 public enum Policies : byte
 {
-    JwtBearerPolicy = 1,
+    AdminRolePolicy = 1,
+    UserRolePolicy,
 }

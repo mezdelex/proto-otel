@@ -100,9 +100,18 @@ public static class InfrastructureExtension
                 .Build();
 
             options.AddPolicy(
-                nameof(Policies.JwtBearerPolicy),
+                nameof(Policies.AdminRolePolicy),
                 new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
                     .RequireAuthenticatedUser()
+                    .RequireRole(nameof(Roles.Admin))
+                    .Build()
+            );
+
+            options.AddPolicy(
+                nameof(Policies.UserRolePolicy),
+                new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
+                    .RequireAuthenticatedUser()
+                    .RequireRole([nameof(Roles.Admin), nameof(Roles.User)])
                     .Build()
             );
 
@@ -110,7 +119,9 @@ public static class InfrastructureExtension
         });
         services
             .AddIdentityCore<ApplicationUser>()
+            .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddClaimsPrincipalFactory<UserClaimsPrincipalFactory<ApplicationUser, IdentityRole>>()
             .AddApiEndpoints();
         services
             .AddDataProtection()
