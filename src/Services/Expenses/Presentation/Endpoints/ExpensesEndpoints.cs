@@ -10,10 +10,16 @@ public static class ExpensesEndpoints
 
         group
             .MapPost(Patterns.AllPattern, GetAllExpensesQueryAsync)
+            .RequireAuthorization(nameof(Policies.UserRolePolicy));
+        group
+            .MapGet(Patterns.IdPattern, GetExpenseQueryAsync)
+            .RequireAuthorization(nameof(Policies.UserRolePolicy));
+        group
+            .MapPatch(string.Empty, PatchExpenseCommandAsync)
             .RequireAuthorization(nameof(Policies.AdminRolePolicy));
-        group.MapGet(Patterns.IdPattern, GetExpenseQueryAsync).RequireAuthorization();
-        group.MapPatch(string.Empty, PatchExpenseCommandAsync).RequireAuthorization();
-        group.MapPost(string.Empty, PostExpenseCommandAsync).RequireAuthorization();
+        group
+            .MapPost(string.Empty, PostExpenseCommandAsync)
+            .RequireAuthorization(nameof(Policies.AdminRolePolicy));
         group
             .MapDelete(Patterns.IdPattern, DeleteExpenseCommandAsync)
             .RequireAuthorization(nameof(Policies.AdminRolePolicy));
