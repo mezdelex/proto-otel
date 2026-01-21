@@ -36,7 +36,7 @@ public class BaseRepository<TEntity>(
             await _context
                 .Set<TEntity>()
                 .FirstOrDefaultAsync(x => x.Id.Equals(entity.Id), cancellationToken)
-            ?? throw new NotFoundException(entity.Id);
+            ?? throw new NotFoundException(typeof(TEntity).Name);
 
         _context.Set<TEntity>().Entry(foundEntity).CurrentValues.SetValues(entity);
     }
@@ -47,7 +47,7 @@ public class BaseRepository<TEntity>(
             await _context
                 .Set<TEntity>()
                 .FirstOrDefaultAsync(x => x.Id.Equals(id), cancellationToken)
-            ?? throw new NotFoundException(id);
+            ?? throw new NotFoundException(typeof(TEntity).Name);
 
         _context.Set<TEntity>().Remove(foundEntity);
     }

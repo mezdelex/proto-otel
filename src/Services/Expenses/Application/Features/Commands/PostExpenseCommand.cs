@@ -4,13 +4,14 @@ public sealed record PostExpenseCommand(
     string Name,
     string Description,
     double Value,
-    string CategoryId,
-    string ApplicationUserId
+    string CategoryId
 ) : IRequest
 {
     public sealed class PostExpenseCommandHandler(
         IValidator<PostExpenseCommand> validator,
         IMapper mapper,
+        IHttpContextAccessor httpContextAccessor,
+        IApplicationUsersRepository applicationUsersRepository,
         IExpensesRepository repository,
         IUnitOfWork uow,
         IRedisCache redisCache,
@@ -19,6 +20,9 @@ public sealed record PostExpenseCommand(
     {
         private readonly IValidator<PostExpenseCommand> _validator = validator;
         private readonly IMapper _mapper = mapper;
+        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+        private readonly IApplicationUsersRepository _applicationUsersRepository =
+            applicationUsersRepository;
         private readonly IExpensesRepository _repository = repository;
         private readonly IUnitOfWork _uow = uow;
         private readonly IRedisCache _redisCache = redisCache;
@@ -28,16 +32,28 @@ public sealed record PostExpenseCommand(
         {
             var results = await _validator.ValidateAsync(request, cancellationToken);
             if (!results.IsValid)
+            {
                 throw new ValidationException(results.ToString().Replace("\r\n", " "));
+            }
+
+            var email = _httpContextAccessor.HttpContext.User.Identity?.Name;
+            var user =
+                await _applicationUsersRepository.GetBySpecAsync(
+                    new ApplicationUsersSpecification(email: email),
+                    cancellationToken
+                ) ?? throw new NotFoundException(nameof(ApplicationUser));
 
             var expenseToPost = _mapper.Map<Expense>(request);
+            expenseToPost.ApplicationUserId = user.Id;
 
             await _repository.PostAsync(expenseToPost, cancellationToken);
             await _uow.SaveChangesAsync(cancellationToken);
-            await _redisCache.RemoveKeysByPattern(nameof(Expense));
-            await _eventBus.PublishAsync(
-                _mapper.Map<PostedExpenseEvent>(expenseToPost),
-                cancellationToken
+            await Task.WhenAll(
+                _redisCache.RemoveKeysByPattern(nameof(Expense)),
+                _eventBus.PublishAsync(
+                    _mapper.Map<PostedExpenseEvent>(expenseToPost),
+                    cancellationToken
+                )
             );
         }
     }
@@ -80,17 +96,6 @@ public sealed record PostExpenseCommand(
                     GenericValidationMessages.ShouldNotBeLongerThan(
                         nameof(CategoryId),
                         CategoryConstraints.IdMaxLength
-                    )
-                );
-
-            RuleFor(c => c.ApplicationUserId)
-                .NotEmpty()
-                .WithMessage(GenericValidationMessages.ShouldNotBeEmpty(nameof(ApplicationUserId)))
-                .MaximumLength(ApplicationUserConstraints.IdMaxLength)
-                .WithMessage(
-                    GenericValidationMessages.ShouldNotBeLongerThan(
-                        nameof(ApplicationUserId),
-                        ApplicationUserConstraints.IdMaxLength
                     )
                 );
         }

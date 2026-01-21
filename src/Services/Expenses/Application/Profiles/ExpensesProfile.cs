@@ -10,6 +10,7 @@ public class ExpensesProfile : Profile
         CreateMap<Expense, PostedExpenseEvent>();
         CreateMap<PatchExpenseCommand, Expense>();
         CreateMap<PostExpenseCommand, Expense>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.NewGuid().ToString()));
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.NewGuid().ToString()))
+            .ForMember(dest => dest.Date, opt => opt.MapFrom(src => DateTime.UtcNow));
     }
 }

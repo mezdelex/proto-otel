@@ -19,7 +19,7 @@ public sealed record GetExpenseQuery(string Id) : IRequest<ExpenseDTO>
                 await _repository.GetBySpecAsync(
                     new ExpensesSpecification(id: request.Id),
                     cancellationToken
-                ) ?? throw new NotFoundException(request.Id);
+                ) ?? throw new NotFoundException(nameof(Expense));
 
             return _mapper.Map<ExpenseDTO>(expense);
         }

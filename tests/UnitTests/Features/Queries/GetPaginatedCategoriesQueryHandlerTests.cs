@@ -1,15 +1,15 @@
 namespace UnitTests.Features.Queries;
 
-public sealed class GetAllCategoriesQueryHandlerTests
+public sealed class GetPaginatedCategoriesQueryHandlerTests
 {
     private readonly CancellationToken _cancellationToken;
     private readonly ILoggerFactory _loggerFactory;
     private readonly IMapper _mapper;
     private readonly Mock<ICategoriesRepository> _repository;
     private readonly Mock<IRedisCache> _redisCache;
-    private readonly GetAllCategoriesQueryHandler _handler;
+    private readonly GetPaginatedCategoriesQueryHandler _handler;
 
-    public GetAllCategoriesQueryHandlerTests()
+    public GetPaginatedCategoriesQueryHandlerTests()
     {
         _cancellationToken = new();
         _loggerFactory = new LoggerFactory();
@@ -24,7 +24,7 @@ public sealed class GetAllCategoriesQueryHandlerTests
         _repository = new();
         _redisCache = new();
 
-        _handler = new GetAllCategoriesQueryHandler(
+        _handler = new GetPaginatedCategoriesQueryHandler(
             _repository.Object,
             _mapper,
             _redisCache.Object
@@ -33,12 +33,12 @@ public sealed class GetAllCategoriesQueryHandlerTests
 
     [Theory]
     [MemberData(nameof(CategoriesMock.GetCategories), MemberType = typeof(CategoriesMock))]
-    public async Task GetAllCategoriesQueryHandler_ShouldReturnPagedListOfRequestedCategoriesAsListOfCategoryDTOAndMetadata(
+    public async Task GetPaginatedCategoriesQueryHandler_ShouldReturnPaginatedCategoryDTO(
         IEnumerable<Category> categories
     )
     {
         // Arrange
-        var request = new GetAllCategoriesQuery
+        var request = new GetPaginatedCategoriesQuery
         {
             Name = categories.First().Name,
             ContainedWord = categories.First().Name,
@@ -52,13 +52,13 @@ public sealed class GetAllCategoriesQueryHandlerTests
             .Returns(categories.ToList().BuildMock())
             .Verifiable();
         _redisCache
-            .Setup(mock => mock.GetCachedData<PagedList<CategoryDTO>>(redisKey))
-            .ReturnsAsync((PagedList<CategoryDTO>)null!);
+            .Setup(mock => mock.GetCachedData<PaginatedList<CategoryDTO>>(redisKey))
+            .ReturnsAsync((PaginatedList<CategoryDTO>)null!);
         _redisCache
             .Setup(mock =>
                 mock.SetCachedData(
                     redisKey,
-                    It.IsAny<PagedList<CategoryDTO>>(),
+                    It.IsAny<PaginatedList<CategoryDTO>>(),
                     It.IsAny<DateTimeOffset>()
                 )
             )
@@ -72,7 +72,7 @@ public sealed class GetAllCategoriesQueryHandlerTests
         result
             .Should()
             .BeEquivalentTo(
-                new PagedList<CategoryDTO>(
+                new PaginatedList<CategoryDTO>(
                     [.. categories.Select(_mapper.Map<CategoryDTO>)],
                     0,
                     categories.Count(),
@@ -86,14 +86,14 @@ public sealed class GetAllCategoriesQueryHandlerTests
             Times.Once
         );
         _redisCache.Verify(
-            mock => mock.GetCachedData<PagedList<CategoryDTO>>(redisKey),
+            mock => mock.GetCachedData<PaginatedList<CategoryDTO>>(redisKey),
             Times.Once
         );
         _redisCache.Verify(
             mock =>
                 mock.SetCachedData(
                     redisKey,
-                    It.IsAny<PagedList<CategoryDTO>>(),
+                    It.IsAny<PaginatedList<CategoryDTO>>(),
                     It.IsAny<DateTimeOffset>()
                 ),
             Times.Once

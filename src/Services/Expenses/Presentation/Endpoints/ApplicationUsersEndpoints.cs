@@ -8,16 +8,18 @@ public static class ApplicationUsersEndpoints
     {
         var group = builder.MapGroup(MapGroups.ApplicationUsers);
 
-        group.MapPost(Patterns.AllPattern, GetAllApplicationUsersQueryAsync).RequireAuthorization();
+        group
+            .MapPost(Patterns.PaginatedPattern, GetPaginatedApplicationUsersQueryAsync)
+            .RequireAuthorization();
         group.MapGet(Patterns.IdPattern, GetApplicationUserQueryAsync).RequireAuthorization();
         group
             .MapGet(Patterns.LogoutPattern, LogoutApplicationUserQueryAsync)
             .RequireAuthorization();
     }
 
-    public static async Task<IResult> GetAllApplicationUsersQueryAsync(
+    public static async Task<IResult> GetPaginatedApplicationUsersQueryAsync(
         ISender sender,
-        [FromBody] GetAllApplicationUsersQuery query
+        [FromBody] GetPaginatedApplicationUsersQuery query
     )
     {
         try

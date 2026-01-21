@@ -37,9 +37,10 @@ public sealed class PatchExpenseCommandHandlerTests
     }
 
     [Theory]
-    [MemberData(nameof(ExpensesMock.GetExpenses), MemberType = typeof(ExpensesMock))]
+    [MemberData(nameof(ExpensesMock.GetExpensesWithUsers), MemberType = typeof(ExpensesMock))]
     public async Task PatchExpenseCommandHandler_ShouldPatchExpenseAndPublishEventAsync(
-        IEnumerable<Expense> expenses
+        IEnumerable<Expense> expenses,
+        IEnumerable<ApplicationUser> _
     )
     {
         // Arrange

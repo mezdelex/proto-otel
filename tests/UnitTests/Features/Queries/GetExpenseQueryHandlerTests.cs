@@ -21,9 +21,10 @@ public sealed class GetExpenseQueryHandlerTests
     }
 
     [Theory]
-    [MemberData(nameof(ExpensesMock.GetExpenses), MemberType = typeof(ExpensesMock))]
+    [MemberData(nameof(ExpensesMock.GetExpensesWithUsers), MemberType = typeof(ExpensesMock))]
     public async Task Handle_ValidIdGetExpenseQuery_ShouldReturnRequestedExpenseAsExpenseDTOAsync(
-        IEnumerable<Expense> expenses
+        IEnumerable<Expense> expenses,
+        IEnumerable<ApplicationUser> _
     )
     {
         // Arrange

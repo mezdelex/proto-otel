@@ -2,7 +2,7 @@ namespace Domain.Extensions;
 
 public static class Collections
 {
-    public sealed record PagedList<T>(
+    public sealed record PaginatedList<T>(
         IEnumerable<T> Items,
         int Page,
         int PageSize,
@@ -11,7 +11,7 @@ public static class Collections
         bool HasNextPage
     );
 
-    public static async Task<PagedList<T>> ToPagedListAsync<T>(
+    public static async Task<PaginatedList<T>> ToPaginatedListAsync<T>(
         this IQueryable<T> query,
         int page,
         int pageSize,
@@ -23,10 +23,10 @@ public static class Collections
         var hasPreviousPage = page > 1;
         var hasNextPage = page * pageSize < totalCount;
 
-        return new PagedList<T>(items, page, pageSize, totalCount, hasPreviousPage, hasNextPage);
+        return new PaginatedList<T>(items, page, pageSize, totalCount, hasPreviousPage, hasNextPage);
     }
 
-    public static PagedList<T> ToPagedList<T>(
+    public static PaginatedList<T> ToPaginatedList<T>(
         this IEnumerable<T> enumerable,
         int page,
         int pageSize
@@ -37,6 +37,6 @@ public static class Collections
         var hasPreviousPage = page > 1;
         var hasNextPage = page * pageSize < totalCount;
 
-        return new PagedList<T>(items, page, pageSize, totalCount, hasPreviousPage, hasNextPage);
+        return new PaginatedList<T>(items, page, pageSize, totalCount, hasPreviousPage, hasNextPage);
     }
 }

@@ -19,7 +19,7 @@ public sealed record GetCategoryQuery(string Id) : IRequest<CategoryDTO>
                 await _repository.GetBySpecAsync(
                     new CategoriesSpecification(id: request.Id),
                     cancellationToken
-                ) ?? throw new NotFoundException(request.Id);
+                ) ?? throw new NotFoundException(nameof(Category));
 
             return _mapper.Map<CategoryDTO>(category);
         }

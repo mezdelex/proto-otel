@@ -1,24 +1,24 @@
 namespace Application.Features.Queries;
 
-public sealed record GetAllApplicationUsersQuery
+public sealed record GetPaginatedApplicationUsersQuery
     : BaseRequest,
-        IRequest<PagedList<ApplicationUserDTO>>
+        IRequest<PaginatedList<ApplicationUserDTO>>
 {
     public string? Email { get; set; }
     public string? ContainedWord { get; set; }
 
-    public sealed class GetAllApplicationUsersQueryHandler(
+    public sealed class GetPaginatedApplicationUsersQueryHandler(
         IApplicationUsersRepository repository,
         IMapper mapper,
         IRedisCache redisCache
-    ) : IRequestHandler<GetAllApplicationUsersQuery, PagedList<ApplicationUserDTO>>
+    ) : IRequestHandler<GetPaginatedApplicationUsersQuery, PaginatedList<ApplicationUserDTO>>
     {
         private readonly IApplicationUsersRepository _repository = repository;
         private readonly IMapper _mapper = mapper;
         private readonly IRedisCache _redisCache = redisCache;
 
-        public async Task<PagedList<ApplicationUserDTO>> Handle(
-            GetAllApplicationUsersQuery request,
+        public async Task<PaginatedList<ApplicationUserDTO>> Handle(
+            GetPaginatedApplicationUsersQuery request,
             CancellationToken cancellationToken
         )
         {
@@ -26,13 +26,13 @@ public sealed record GetAllApplicationUsersQuery
 
             var redisKey =
                 $"{nameof(ApplicationUser)}#{request.Email}#{request.ContainedWord}#{request.Page}#{request.PageSize}";
-            var cachedPagedApplicationUsers = await _redisCache.GetCachedData<
-                PagedList<ApplicationUserDTO>
+            var cachedPaginatedApplicationUsers = await _redisCache.GetCachedData<
+                PaginatedList<ApplicationUserDTO>
             >(redisKey);
-            if (cachedPagedApplicationUsers != null)
-                return cachedPagedApplicationUsers;
+            if (cachedPaginatedApplicationUsers != null)
+                return cachedPaginatedApplicationUsers;
 
-            var pagedApplicationUsers = await _repository
+            var paginatedApplicationUsers = await _repository
                 .ApplySpecification(
                     new ApplicationUsersSpecification(
                         email: request.Email,
@@ -40,15 +40,15 @@ public sealed record GetAllApplicationUsersQuery
                     )
                 )
                 .Select(au => _mapper.Map<ApplicationUserDTO>(au))
-                .ToPagedListAsync(request.Page, request.PageSize, cancellationToken);
+                .ToPaginatedListAsync(request.Page, request.PageSize, cancellationToken);
 
             await _redisCache.SetCachedData(
                 redisKey,
-                pagedApplicationUsers,
+                paginatedApplicationUsers,
                 DateTimeOffset.Now.AddMinutes(5)
             );
 
-            return pagedApplicationUsers;
+            return paginatedApplicationUsers;
         }
     }
 }

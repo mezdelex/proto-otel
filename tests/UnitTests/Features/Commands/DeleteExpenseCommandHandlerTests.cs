@@ -23,8 +23,11 @@ public sealed class DeleteExpenseCommandHandlerTests
     }
 
     [Theory]
-    [MemberData(nameof(ExpensesMock.GetExpenses), MemberType = typeof(ExpensesMock))]
-    public async Task DeleteExpenseCommandHandler_ShouldDeleteExpense(IEnumerable<Expense> expenses)
+    [MemberData(nameof(ExpensesMock.GetExpensesWithUsers), MemberType = typeof(ExpensesMock))]
+    public async Task DeleteExpenseCommandHandler_ShouldDeleteExpense(
+        IEnumerable<Expense> expenses,
+        IEnumerable<ApplicationUser> _
+    )
     {
         // Arrange
         var request = new DeleteExpenseCommand(expenses.First().Id);

@@ -21,7 +21,7 @@ public sealed record GetApplicationUserQuery(string Id) : BaseRequest, IRequest<
                 await _repository.GetBySpecAsync(
                     new ApplicationUsersSpecification(id: request.Id),
                     cancellationToken
-                ) ?? throw new NotFoundException(request.Id);
+                ) ?? throw new NotFoundException(nameof(ApplicationUser));
 
             return _mapper.Map<ApplicationUserDTO>(applicationUser);
         }

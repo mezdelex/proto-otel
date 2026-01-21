@@ -8,16 +8,18 @@ public static class CategoriesEndpoints
     {
         var group = builder.MapGroup(MapGroups.Categories);
 
-        group.MapPost(Patterns.AllPattern, GetAllCategoriesQueryAsync).RequireAuthorization();
+        group
+            .MapPost(Patterns.PaginatedPattern, GetPaginatedCategoriesQueryAsync)
+            .RequireAuthorization();
         group.MapGet(Patterns.IdPattern, GetCategoryQueryAsync).RequireAuthorization();
         group.MapPatch(string.Empty, PatchCategoryCommandAsync).RequireAuthorization();
         group.MapPost(string.Empty, PostCategoryCommandAsync).RequireAuthorization();
         group.MapDelete(Patterns.IdPattern, DeleteCategoryCommandAsync).RequireAuthorization();
     }
 
-    public static async Task<IResult> GetAllCategoriesQueryAsync(
+    public static async Task<IResult> GetPaginatedCategoriesQueryAsync(
         ISender sender,
-        [FromBody] GetAllCategoriesQuery query
+        [FromBody] GetPaginatedCategoriesQuery query
     )
     {
         try

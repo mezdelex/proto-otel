@@ -1,6 +1,6 @@
 namespace Application.Features.Queries;
 
-public sealed record GetAllExpensesQuery : BaseRequest, IRequest<PagedList<ExpenseDTO>>
+public sealed record GetPaginatedExpensesQuery : BaseRequest, IRequest<PaginatedList<ExpenseDTO>>
 {
     public string? Name { get; set; }
     public string? ContainedWord { get; set; }
@@ -10,18 +10,18 @@ public sealed record GetAllExpensesQuery : BaseRequest, IRequest<PagedList<Expen
     public string? ApplicationUserId { get; set; }
     public string? Email { get; set; }
 
-    public sealed class GetAllExpensesQueryHandler(
+    public sealed class GetPaginatedExpensesQueryHandler(
         IExpensesRepository repository,
         IMapper mapper,
         IRedisCache redisCache
-    ) : IRequestHandler<GetAllExpensesQuery, PagedList<ExpenseDTO>>
+    ) : IRequestHandler<GetPaginatedExpensesQuery, PaginatedList<ExpenseDTO>>
     {
         private readonly IExpensesRepository _repository = repository;
         private readonly IMapper _mapper = mapper;
         private readonly IRedisCache _redisCache = redisCache;
 
-        public async Task<PagedList<ExpenseDTO>> Handle(
-            GetAllExpensesQuery request,
+        public async Task<PaginatedList<ExpenseDTO>> Handle(
+            GetPaginatedExpensesQuery request,
             CancellationToken cancellationToken
         )
         {
@@ -29,13 +29,13 @@ public sealed record GetAllExpensesQuery : BaseRequest, IRequest<PagedList<Expen
 
             var redisKey =
                 $"{nameof(Expense)}#{request.Name}#{request.ContainedWord}#{request.MinDate}#{request.MaxDate}#{request.CategoryId}#{request.ApplicationUserId}#{request.Email}#{request.Page}#{request.PageSize}";
-            var cachedPagedExpenses = await _redisCache.GetCachedData<PagedList<ExpenseDTO>>(
-                redisKey
-            );
-            if (cachedPagedExpenses != null)
-                return cachedPagedExpenses;
+            var cachedPaginatedExpenses = await _redisCache.GetCachedData<
+                PaginatedList<ExpenseDTO>
+            >(redisKey);
+            if (cachedPaginatedExpenses != null)
+                return cachedPaginatedExpenses;
 
-            var pagedExpenses = await _repository
+            var paginatedExpenses = await _repository
                 .ApplySpecification(
                     new ExpensesSpecification(
                         name: request.Name,
@@ -48,21 +48,21 @@ public sealed record GetAllExpensesQuery : BaseRequest, IRequest<PagedList<Expen
                     )
                 )
                 .Select(e => _mapper.Map<ExpenseDTO>(e))
-                .ToPagedListAsync(request.Page, request.PageSize, cancellationToken);
+                .ToPaginatedListAsync(request.Page, request.PageSize, cancellationToken);
 
             await _redisCache.SetCachedData(
                 redisKey,
-                pagedExpenses,
+                paginatedExpenses,
                 DateTimeOffset.Now.AddMinutes(5)
             );
 
-            return pagedExpenses;
+            return paginatedExpenses;
         }
     }
 
-    public class GetAllExpensesQueryValidator : AbstractValidator<GetAllExpensesQuery>
+    public class GetPaginatedExpensesQueryValidator : AbstractValidator<GetPaginatedExpensesQuery>
     {
-        public GetAllExpensesQueryValidator()
+        public GetPaginatedExpensesQueryValidator()
         {
             RuleFor(x => x.Name)
                 .MaximumLength(ExpenseConstraints.NameMaxLength)

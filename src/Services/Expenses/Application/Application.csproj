@@ -15,6 +15,7 @@
         </PackageReference>
         <PackageReference Include="masstransit" Version="8.5.7" />
         <PackageReference Include="mediatr" Version="14.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.9" />
         <PackageReference Include="microsoft.entityframeworkcore" Version="10.0.2" />
         <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.2" />
     </ItemGroup>
@@ -22,9 +23,7 @@
         <ProjectReference Include="..\Domain\Domain.csproj" />
     </ItemGroup>
     <ItemGroup>
-        <Protobuf ProtoRoot="..\..\..\..\"
-            Include="..\..\..\..\protos\notification\v1\notification.proto" GrpcServices="None" />
-        <Protobuf ProtoRoot="..\..\..\..\" Include="..\..\..\..\protos\common\v1\enums.proto"
-            GrpcServices="None" />
+        <Protobuf ProtoRoot="..\..\..\..\" Include="..\..\..\..\protos\notification\v1\notification.proto" GrpcServices="None" />
+        <Protobuf ProtoRoot="..\..\..\..\" Include="..\..\..\..\protos\common\v1\enums.proto" GrpcServices="None" />
     </ItemGroup>
 </Project>

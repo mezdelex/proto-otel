@@ -1,22 +1,22 @@
 namespace Application.Features.Queries;
 
-public sealed record GetAllCategoriesQuery : BaseRequest, IRequest<PagedList<CategoryDTO>>
+public sealed record GetPaginatedCategoriesQuery : BaseRequest, IRequest<PaginatedList<CategoryDTO>>
 {
     public string? Name { get; set; }
     public string? ContainedWord { get; set; }
 
-    public sealed class GetAllCategoriesQueryHandler(
+    public sealed class GetPaginatedCategoriesQueryHandler(
         ICategoriesRepository repository,
         IMapper mapper,
         IRedisCache redisCache
-    ) : IRequestHandler<GetAllCategoriesQuery, PagedList<CategoryDTO>>
+    ) : IRequestHandler<GetPaginatedCategoriesQuery, PaginatedList<CategoryDTO>>
     {
         private readonly ICategoriesRepository _repository = repository;
         private readonly IMapper _mapper = mapper;
         private readonly IRedisCache _redisCache = redisCache;
 
-        public async Task<PagedList<CategoryDTO>> Handle(
-            GetAllCategoriesQuery request,
+        public async Task<PaginatedList<CategoryDTO>> Handle(
+            GetPaginatedCategoriesQuery request,
             CancellationToken cancellationToken
         )
         {
@@ -24,13 +24,13 @@ public sealed record GetAllCategoriesQuery : BaseRequest, IRequest<PagedList<Cat
 
             var redisKey =
                 $"{nameof(Category)}#{request.Name}#{request.ContainedWord}#{request.Page}#{request.PageSize}";
-            var cachedPagedCategories = await _redisCache.GetCachedData<PagedList<CategoryDTO>>(
-                redisKey
-            );
-            if (cachedPagedCategories != null)
-                return cachedPagedCategories;
+            var cachedPaginatedCategories = await _redisCache.GetCachedData<
+                PaginatedList<CategoryDTO>
+            >(redisKey);
+            if (cachedPaginatedCategories != null)
+                return cachedPaginatedCategories;
 
-            var pagedCategories = await _repository
+            var paginatedCategories = await _repository
                 .ApplySpecification(
                     new CategoriesSpecification(
                         name: request.Name,
@@ -38,15 +38,15 @@ public sealed record GetAllCategoriesQuery : BaseRequest, IRequest<PagedList<Cat
                     )
                 )
                 .Select(c => _mapper.Map<CategoryDTO>(c))
-                .ToPagedListAsync(request.Page, request.PageSize, cancellationToken);
+                .ToPaginatedListAsync(request.Page, request.PageSize, cancellationToken);
 
             await _redisCache.SetCachedData(
                 redisKey,
-                pagedCategories,
+                paginatedCategories,
                 DateTimeOffset.Now.AddMinutes(5)
             );
 
-            return pagedCategories;
+            return paginatedCategories;
         }
     }
 }

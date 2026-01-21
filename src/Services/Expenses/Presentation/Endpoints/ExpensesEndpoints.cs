@@ -9,7 +9,7 @@ public static class ExpensesEndpoints
         var group = builder.MapGroup(MapGroups.Expenses);
 
         group
-            .MapPost(Patterns.AllPattern, GetAllExpensesQueryAsync)
+            .MapPost(Patterns.PaginatedPattern, GetPaginatedExpensesQueryAsync)
             .RequireAuthorization(nameof(Policies.UserRolePolicy));
         group
             .MapGet(Patterns.IdPattern, GetExpenseQueryAsync)
@@ -25,9 +25,9 @@ public static class ExpensesEndpoints
             .RequireAuthorization(nameof(Policies.AdminRolePolicy));
     }
 
-    public static async Task<IResult> GetAllExpensesQueryAsync(
+    public static async Task<IResult> GetPaginatedExpensesQueryAsync(
         ISender sender,
-        [FromBody] GetAllExpensesQuery query
+        [FromBody] GetPaginatedExpensesQuery query
     )
     {
         try

@@ -1,15 +1,15 @@
 namespace UnitTests.Features.Queries;
 
-public sealed class GetAllExpensesQueryHandlerTests
+public sealed class GetPaginatedExpensesQueryHandlerTests
 {
     private readonly CancellationToken _cancellationToken;
     private readonly ILoggerFactory _loggerFactory;
     private readonly IMapper _mapper;
     private readonly Mock<IExpensesRepository> _repository;
     private readonly Mock<IRedisCache> _redisCache;
-    private readonly GetAllExpensesQueryHandler _handler;
+    private readonly GetPaginatedExpensesQueryHandler _handler;
 
-    public GetAllExpensesQueryHandlerTests()
+    public GetPaginatedExpensesQueryHandlerTests()
     {
         _cancellationToken = new();
         _loggerFactory = new LoggerFactory();
@@ -20,17 +20,22 @@ public sealed class GetAllExpensesQueryHandlerTests
         _repository = new();
         _redisCache = new();
 
-        _handler = new GetAllExpensesQueryHandler(_repository.Object, _mapper, _redisCache.Object);
+        _handler = new GetPaginatedExpensesQueryHandler(
+            _repository.Object,
+            _mapper,
+            _redisCache.Object
+        );
     }
 
     [Theory]
-    [MemberData(nameof(ExpensesMock.GetExpenses), MemberType = typeof(ExpensesMock))]
-    public async Task GetAllExpensesQueryHandler_ShouldReturnPagedListOfRequestedExpensesAsListOfExpenseDTOAndMetadata(
-        IEnumerable<Expense> expenses
+    [MemberData(nameof(ExpensesMock.GetExpensesWithUsers), MemberType = typeof(ExpensesMock))]
+    public async Task GetPaginatedExpensesQueryHandler_ShouldReturnPaginatedExpenseDTO(
+        IEnumerable<Expense> expenses,
+        IEnumerable<ApplicationUser> _
     )
     {
         // Arrange
-        var request = new GetAllExpensesQuery
+        var request = new GetPaginatedExpensesQuery
         {
             Name = expenses.First().Name,
             ContainedWord = expenses.First().Name,
@@ -46,13 +51,13 @@ public sealed class GetAllExpensesQueryHandlerTests
             .Returns(expenses.ToList().BuildMock())
             .Verifiable();
         _redisCache
-            .Setup(mock => mock.GetCachedData<PagedList<ExpenseDTO>>(redisKey))
-            .ReturnsAsync((PagedList<ExpenseDTO>)null!);
+            .Setup(mock => mock.GetCachedData<PaginatedList<ExpenseDTO>>(redisKey))
+            .ReturnsAsync((PaginatedList<ExpenseDTO>)null!);
         _redisCache
             .Setup(mock =>
                 mock.SetCachedData(
                     redisKey,
-                    It.IsAny<PagedList<ExpenseDTO>>(),
+                    It.IsAny<PaginatedList<ExpenseDTO>>(),
                     It.IsAny<DateTimeOffset>()
                 )
             )
@@ -66,7 +71,7 @@ public sealed class GetAllExpensesQueryHandlerTests
         result
             .Should()
             .BeEquivalentTo(
-                new PagedList<ExpenseDTO>(
+                new PaginatedList<ExpenseDTO>(
                     [.. expenses.Select(_mapper.Map<ExpenseDTO>)],
                     0,
                     expenses.Count(),
@@ -79,12 +84,15 @@ public sealed class GetAllExpensesQueryHandlerTests
             mock => mock.ApplySpecification(It.IsAny<ExpensesSpecification>()),
             Times.Once
         );
-        _redisCache.Verify(mock => mock.GetCachedData<PagedList<ExpenseDTO>>(redisKey), Times.Once);
+        _redisCache.Verify(
+            mock => mock.GetCachedData<PaginatedList<ExpenseDTO>>(redisKey),
+            Times.Once
+        );
         _redisCache.Verify(
             mock =>
                 mock.SetCachedData(
                     redisKey,
-                    It.IsAny<PagedList<ExpenseDTO>>(),
+                    It.IsAny<PaginatedList<ExpenseDTO>>(),
                     It.IsAny<DateTimeOffset>()
                 ),
             Times.Once
