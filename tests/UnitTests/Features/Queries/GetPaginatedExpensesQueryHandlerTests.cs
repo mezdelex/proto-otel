@@ -29,7 +29,7 @@ public sealed class GetPaginatedExpensesQueryHandlerTests
 
     [Theory]
     [MemberData(nameof(ExpensesMock.GetExpensesWithUsers), MemberType = typeof(ExpensesMock))]
-    public async Task GetPaginatedExpensesQueryHandler_ShouldReturnPaginatedExpenseDTO(
+    public async Task GetPaginatedExpensesQueryHandler_ShouldReturnPaginatedListOfExpenseDTO(
         IEnumerable<Expense> expenses,
         IEnumerable<ApplicationUser> _
     )

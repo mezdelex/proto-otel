@@ -65,6 +65,6 @@ public sealed class ExpensesSpecification : Specification<Expense>
 
         includes?.Invoke(Query);
 
-        Query.OrderBy(x => x.CategoryId).ThenBy(x => x.Name).ThenBy(x => x.Id);
+        Query.OrderByDescending(x => x.Date).ThenBy(x => x.CategoryId).ThenBy(x => x.Id);
     }
 }

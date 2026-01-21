@@ -10,16 +10,44 @@ public static class CategoriesEndpoints
 
         group
             .MapPost(Patterns.PaginatedPattern, GetPaginatedCategoriesQueryAsync)
-            .RequireAuthorization();
-        group.MapGet(Patterns.IdPattern, GetCategoryQueryAsync).RequireAuthorization();
-        group.MapPatch(string.Empty, PatchCategoryCommandAsync).RequireAuthorization();
-        group.MapPost(string.Empty, PostCategoryCommandAsync).RequireAuthorization();
-        group.MapDelete(Patterns.IdPattern, DeleteCategoryCommandAsync).RequireAuthorization();
+            .RequireAuthorization(nameof(Policies.UserRolePolicy));
+        group
+            .MapPost(Patterns.ListPattern, GetCategoriesQueryAsync)
+            .RequireAuthorization(nameof(Policies.UserRolePolicy));
+        group
+            .MapGet(Patterns.IdPattern, GetCategoryQueryAsync)
+            .RequireAuthorization(nameof(Policies.UserRolePolicy));
+        group
+            .MapPatch(string.Empty, PatchCategoryCommandAsync)
+            .RequireAuthorization(nameof(Policies.AdminRolePolicy));
+        group
+            .MapPost(string.Empty, PostCategoryCommandAsync)
+            .RequireAuthorization(nameof(Policies.AdminRolePolicy));
+        group
+            .MapDelete(Patterns.IdPattern, DeleteCategoryCommandAsync)
+            .RequireAuthorization(nameof(Policies.AdminRolePolicy));
     }
 
     public static async Task<IResult> GetPaginatedCategoriesQueryAsync(
         ISender sender,
         [FromBody] GetPaginatedCategoriesQuery query
+    )
+    {
+        try
+        {
+            return Results.Ok(await sender.Send(query));
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(Errors.ErrorMessageTemplate, e, e.Message);
+
+            return Results.BadRequest(e.Message);
+        }
+    }
+
+    public static async Task<IResult> GetCategoriesQueryAsync(
+        ISender sender,
+        [FromBody] GetCategoriesQuery query
     )
     {
         try

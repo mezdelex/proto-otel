@@ -7,6 +7,7 @@ global using Application.Repositories;
 global using Application.Requests;
 global using Ardalis.Specification;
 global using AutoMapper;
+global using AutoMapper.QueryableExtensions;
 global using Domain.Cache;
 global using Domain.Entities;
 global using Domain.Exceptions;

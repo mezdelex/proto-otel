@@ -9,6 +9,7 @@ global using static Application.Features.Commands.PostCategoryCommand;
 global using static Application.Features.Commands.PostExpenseCommand;
 global using Application.Features.DomainEvents;
 global using Application.Features.Queries;
+global using static Application.Features.Queries.GetCategoriesQuery;
 global using static Application.Features.Queries.GetCategoryQuery;
 global using static Application.Features.Queries.GetExpenseQuery;
 global using static Application.Features.Queries.GetPaginatedCategoriesQuery;

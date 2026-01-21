@@ -13,8 +13,6 @@ public sealed record GetCategoryQuery(string Id) : IRequest<CategoryDTO>
             CancellationToken cancellationToken
         )
         {
-            _repository.SetAsNoTracking();
-
             var category =
                 await _repository.GetBySpecAsync(
                     new CategoriesSpecification(id: request.Id),

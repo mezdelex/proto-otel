@@ -13,8 +13,6 @@ public sealed record GetExpenseQuery(string Id) : IRequest<ExpenseDTO>
             CancellationToken cancellationToken
         )
         {
-            _repository.SetAsNoTracking();
-
             var expense =
                 await _repository.GetBySpecAsync(
                     new ExpensesSpecification(id: request.Id),

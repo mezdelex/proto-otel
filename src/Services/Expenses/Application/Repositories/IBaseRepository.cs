@@ -3,7 +3,6 @@ namespace Application.Repositories;
 public interface IBaseRepository<TEntity>
     where TEntity : class, IBaseEntity
 {
-    void SetAsNoTracking();
     IQueryable<TEntity> ApplySpecification(ISpecification<TEntity> specification);
     Task<TEntity?> GetBySpecAsync(
         ISpecification<TEntity> specification,

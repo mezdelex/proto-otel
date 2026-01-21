@@ -22,15 +22,15 @@ public sealed record GetPaginatedApplicationUsersQuery
             CancellationToken cancellationToken
         )
         {
-            _repository.SetAsNoTracking();
-
             var redisKey =
                 $"{nameof(ApplicationUser)}#{request.Email}#{request.ContainedWord}#{request.Page}#{request.PageSize}";
             var cachedPaginatedApplicationUsers = await _redisCache.GetCachedData<
                 PaginatedList<ApplicationUserDTO>
             >(redisKey);
             if (cachedPaginatedApplicationUsers != null)
+            {
                 return cachedPaginatedApplicationUsers;
+            }
 
             var paginatedApplicationUsers = await _repository
                 .ApplySpecification(
@@ -39,7 +39,8 @@ public sealed record GetPaginatedApplicationUsersQuery
                         containedWord: request.ContainedWord
                     )
                 )
-                .Select(au => _mapper.Map<ApplicationUserDTO>(au))
+                .AsNoTracking()
+                .ProjectTo<ApplicationUserDTO>(_mapper.ConfigurationProvider)
                 .ToPaginatedListAsync(request.Page, request.PageSize, cancellationToken);
 
             await _redisCache.SetCachedData(

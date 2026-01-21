@@ -9,11 +9,6 @@ public class BaseRepository<TEntity>(
     private readonly ApplicationDbContext _context = context;
     private readonly ISpecificationEvaluator _evaluator = evaluator;
 
-    public void SetAsNoTracking()
-    {
-        _context.Set<TEntity>().AsNoTracking();
-    }
-
     public IQueryable<TEntity> ApplySpecification(ISpecification<TEntity> specification) =>
         _evaluator.GetQuery(_context.Set<TEntity>().AsQueryable(), specification);
 

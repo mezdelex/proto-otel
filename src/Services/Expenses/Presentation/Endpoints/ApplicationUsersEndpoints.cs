@@ -10,11 +10,13 @@ public static class ApplicationUsersEndpoints
 
         group
             .MapPost(Patterns.PaginatedPattern, GetPaginatedApplicationUsersQueryAsync)
-            .RequireAuthorization();
-        group.MapGet(Patterns.IdPattern, GetApplicationUserQueryAsync).RequireAuthorization();
+            .RequireAuthorization(nameof(Policies.AdminRolePolicy));
+        group
+            .MapGet(Patterns.IdPattern, GetApplicationUserQueryAsync)
+            .RequireAuthorization(nameof(Policies.AdminRolePolicy));
         group
             .MapGet(Patterns.LogoutPattern, LogoutApplicationUserQueryAsync)
-            .RequireAuthorization();
+            .RequireAuthorization(nameof(Policies.UserRolePolicy));
     }
 
     public static async Task<IResult> GetPaginatedApplicationUsersQueryAsync(

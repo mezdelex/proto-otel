@@ -25,15 +25,15 @@ public sealed record GetPaginatedExpensesQuery : BaseRequest, IRequest<Paginated
             CancellationToken cancellationToken
         )
         {
-            _repository.SetAsNoTracking();
-
             var redisKey =
                 $"{nameof(Expense)}#{request.Name}#{request.ContainedWord}#{request.MinDate}#{request.MaxDate}#{request.CategoryId}#{request.ApplicationUserId}#{request.Email}#{request.Page}#{request.PageSize}";
             var cachedPaginatedExpenses = await _redisCache.GetCachedData<
                 PaginatedList<ExpenseDTO>
             >(redisKey);
             if (cachedPaginatedExpenses != null)
+            {
                 return cachedPaginatedExpenses;
+            }
 
             var paginatedExpenses = await _repository
                 .ApplySpecification(
@@ -47,7 +47,8 @@ public sealed record GetPaginatedExpensesQuery : BaseRequest, IRequest<Paginated
                         email: request.Email
                     )
                 )
-                .Select(e => _mapper.Map<ExpenseDTO>(e))
+                .AsNoTracking()
+                .ProjectTo<ExpenseDTO>(_mapper.ConfigurationProvider)
                 .ToPaginatedListAsync(request.Page, request.PageSize, cancellationToken);
 
             await _redisCache.SetCachedData(

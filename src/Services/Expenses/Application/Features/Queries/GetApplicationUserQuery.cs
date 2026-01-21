@@ -15,8 +15,6 @@ public sealed record GetApplicationUserQuery(string Id) : BaseRequest, IRequest<
             CancellationToken cancellationToken
         )
         {
-            _repository.SetAsNoTracking();
-
             var applicationUser =
                 await _repository.GetBySpecAsync(
                     new ApplicationUsersSpecification(id: request.Id),
