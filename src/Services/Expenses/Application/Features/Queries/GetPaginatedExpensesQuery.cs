@@ -1,6 +1,8 @@
 namespace Application.Features.Queries;
 
-public sealed record GetPaginatedExpensesQuery : BaseRequest, IRequest<PaginatedList<ExpenseDTO>>
+public sealed record GetPaginatedExpensesQuery
+    : BaseRequest,
+        IRequest<PaginatedList<ExtraExpenseDTO>>
 {
     public string? Name { get; set; }
     public string? ContainedWord { get; set; }
@@ -14,13 +16,13 @@ public sealed record GetPaginatedExpensesQuery : BaseRequest, IRequest<Paginated
         IExpensesRepository repository,
         IMapper mapper,
         IRedisCache redisCache
-    ) : IRequestHandler<GetPaginatedExpensesQuery, PaginatedList<ExpenseDTO>>
+    ) : IRequestHandler<GetPaginatedExpensesQuery, PaginatedList<ExtraExpenseDTO>>
     {
         private readonly IExpensesRepository _repository = repository;
         private readonly IMapper _mapper = mapper;
         private readonly IRedisCache _redisCache = redisCache;
 
-        public async Task<PaginatedList<ExpenseDTO>> Handle(
+        public async Task<PaginatedList<ExtraExpenseDTO>> Handle(
             GetPaginatedExpensesQuery request,
             CancellationToken cancellationToken
         )
@@ -28,7 +30,7 @@ public sealed record GetPaginatedExpensesQuery : BaseRequest, IRequest<Paginated
             var redisKey =
                 $"{nameof(Expense)}#{request.Name}#{request.ContainedWord}#{request.MinDate}#{request.MaxDate}#{request.CategoryId}#{request.ApplicationUserId}#{request.Email}#{request.Page}#{request.PageSize}";
             var cachedPaginatedExpenses = await _redisCache.GetCachedData<
-                PaginatedList<ExpenseDTO>
+                PaginatedList<ExtraExpenseDTO>
             >(redisKey);
             if (cachedPaginatedExpenses != null)
             {
@@ -44,11 +46,13 @@ public sealed record GetPaginatedExpensesQuery : BaseRequest, IRequest<Paginated
                         maxDate: request.MaxDate,
                         categoryId: request.CategoryId,
                         applicationUserId: request.ApplicationUserId,
-                        email: request.Email
+                        email: request.Email,
+                        includes: builder =>
+                            builder.Include(x => x.ApplicationUser).Include(x => x.Category)
                     )
                 )
                 .AsNoTracking()
-                .ProjectTo<ExpenseDTO>(_mapper.ConfigurationProvider)
+                .ProjectTo<ExtraExpenseDTO>(_mapper.ConfigurationProvider)
                 .ToPaginatedListAsync(request.Page, request.PageSize, cancellationToken);
 
             await _redisCache.SetCachedData(

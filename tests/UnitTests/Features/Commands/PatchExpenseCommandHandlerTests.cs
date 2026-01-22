@@ -49,6 +49,7 @@ public sealed class PatchExpenseCommandHandlerTests
             expenses.First().Name,
             expenses.First().Description,
             expenses.First().Value,
+            expenses.First().Date,
             expenses.First().CategoryId,
             expenses.First().ApplicationUserId
         );

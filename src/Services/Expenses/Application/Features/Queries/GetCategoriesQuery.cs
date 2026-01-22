@@ -47,4 +47,30 @@ public sealed record GetCategoriesQuery : IRequest<List<CategoryDTO>>
             return paginatedCategories;
         }
     }
+
+    public class GetCategoriesQueryValidator : AbstractValidator<GetCategoriesQuery>
+    {
+        public GetCategoriesQueryValidator()
+        {
+            RuleFor(x => x.Name)
+                .MaximumLength(CategoryConstraints.NameMaxLength)
+                .WithMessage(
+                    GenericValidationMessages.ShouldNotBeLongerThan(
+                        nameof(Name),
+                        CategoryConstraints.NameMaxLength
+                    )
+                )
+                .When(x => !string.IsNullOrWhiteSpace(x.Name));
+
+            RuleFor(x => x.ContainedWord)
+                .MaximumLength(CategoryConstraints.DescriptionMaxLength)
+                .WithMessage(
+                    GenericValidationMessages.ShouldNotBeLongerThan(
+                        nameof(ContainedWord),
+                        CategoryConstraints.DescriptionMaxLength
+                    )
+                )
+                .When(x => !string.IsNullOrWhiteSpace(x.ContainedWord));
+        }
+    }
 }

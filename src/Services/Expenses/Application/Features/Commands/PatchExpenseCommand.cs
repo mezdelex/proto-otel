@@ -5,6 +5,7 @@ public sealed record PatchExpenseCommand(
     string Name,
     string Description,
     double Value,
+    DateTime Date,
     string CategoryId,
     string ApplicationUserId
 ) : IRequest
@@ -83,6 +84,10 @@ public sealed record PatchExpenseCommand(
             RuleFor(c => c.Value)
                 .NotEmpty()
                 .WithMessage(GenericValidationMessages.ShouldNotBeEmpty(nameof(Value)));
+
+            RuleFor(c => c.Date)
+                .NotEmpty()
+                .WithMessage(GenericValidationMessages.ShouldNotBeEmpty(nameof(Date)));
 
             RuleFor(c => c.CategoryId)
                 .NotEmpty()
