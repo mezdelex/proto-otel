@@ -4,7 +4,7 @@ public sealed record PatchExpenseCommand(
     string Id,
     string Name,
     string Description,
-    double Value,
+    decimal Value,
     DateTime Date,
     string CategoryId,
     string ApplicationUserId

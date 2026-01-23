@@ -6,6 +6,6 @@ public static class MigrationExtension
     {
         app.ApplicationServices.CreateScope()
             .ServiceProvider.GetRequiredService<ApplicationDbContext>()
-            .Database.MigrateAsync();
+            .Database.Migrate();
     }
 }

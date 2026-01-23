@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250307230359_Initial")]
+    [Migration("20260123131515_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.7")
+                .HasAnnotation("ProductVersion", "10.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -42,30 +42,33 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Name")
+                        .IsUnique();
+
                     b.ToTable("Categories");
 
                     b.HasData(
                         new
                         {
-                            Id = "d94ad811-5089-4925-b9f2-5453f1808849",
+                            Id = "f5a8a867-27b1-477d-8f9c-59e354964951",
                             Description = "Groceries category.",
                             Name = "Groceries"
                         },
                         new
                         {
-                            Id = "6485d10c-4e98-4f59-af22-558f702a63f7",
+                            Id = "a9c12b73-0f1c-4b34-8975-57321689104c",
                             Description = "Transportation category.",
                             Name = "Transportation"
                         },
                         new
                         {
-                            Id = "ddc42823-b2de-47a2-8470-10eddb6248a6",
+                            Id = "8b3e5182-e3d4-42f5-8d91-384157d692a8",
                             Description = "Leisure category.",
                             Name = "Leisure"
                         },
                         new
                         {
-                            Id = "04dcf5ea-3420-4370-ab66-0e8652ead0f0",
+                            Id = "d42f928e-671c-4972-881b-5e8396123924",
                             Description = "Utilities category.",
                             Name = "Utilities"
                         });
@@ -85,7 +88,8 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
+                        .HasPrecision(3)
+                        .HasColumnType("datetime2(3)");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -97,8 +101,9 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(32)
                         .HasColumnType("nvarchar(32)");
 
-                    b.Property<double>("Value")
-                        .HasColumnType("float");
+                    b.Property<decimal>("Value")
+                        .HasPrecision(19, 4)
+                        .HasColumnType("decimal(19,4)");
 
                     b.HasKey("Id");
 
@@ -199,6 +204,22 @@ namespace Infrastructure.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "8f3e5182-e3d4-42f5-8d91-384157d692a8",
+                            ConcurrencyStamp = "66e3f2ae-65ec-4190-83c8-0a34368684af",
+                            Name = "Admin",
+                            NormalizedName = "ADMIN"
+                        },
+                        new
+                        {
+                            Id = "d52f928e-671c-4972-881b-5e8396123924",
+                            ConcurrencyStamp = "b7e7298d-b916-42eb-94a1-1df59171087b",
+                            Name = "User",
+                            NormalizedName = "USER"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

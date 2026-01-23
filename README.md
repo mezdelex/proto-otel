@@ -25,9 +25,17 @@
 
 ## Migrations
 
+> [!NOTE]
+>
+> Before running the command, use [SetLocalEnvironmentVariables](https://github.com/mezdelex/proto-otel/blob/main/SetLocalEnvironmentVariables.ps1)
+
 `dotnet ef migrations add <migration_name> --project .\src\Services\Expenses\Infrastructure\Infrastructure.csproj --startup-project .\src\Services\Expenses\WebApi\WebApi.csproj`
 
 ## Database
+
+> [!NOTE]
+>
+> Before running the command, use [SetLocalEnvironmentVariables](https://github.com/mezdelex/proto-otel/blob/main/SetLocalEnvironmentVariables.ps1)
 
 `dotnet ef database update --project .\src\Services\Expenses\Infrastructure\Infrastructure.csproj --startup-project .\src\Services\Expenses\WebApi\WebApi.csproj` or just let `ApplyMigrations` extension migrate automatically on `run/watch`.
 

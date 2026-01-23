@@ -3,7 +3,7 @@ namespace Application.Features.Commands;
 public sealed record PostExpenseCommand(
     string Name,
     string Description,
-    double Value,
+    decimal Value,
     string CategoryId
 ) : IRequest
 {

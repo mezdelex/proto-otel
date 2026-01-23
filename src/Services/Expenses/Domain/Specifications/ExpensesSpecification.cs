@@ -35,14 +35,14 @@ public sealed class ExpensesSpecification : Specification<Expense>
         if (minDate.HasValue)
         {
             Query.Where(x =>
-                x.Date.CompareTo(DateTimeConversors.NormalizeToUtc(minDate.Value)) >= 0
+                x.Date.CompareTo(DateTimeNormalizer.NormalizeToUtc(minDate.Value)) >= 0
             );
         }
 
         if (maxDate.HasValue)
         {
             Query.Where(x =>
-                x.Date.CompareTo(DateTimeConversors.NormalizeToUtc(maxDate.Value)) <= 0
+                x.Date.CompareTo(DateTimeNormalizer.NormalizeToUtc(maxDate.Value)) <= 0
             );
         }
 
