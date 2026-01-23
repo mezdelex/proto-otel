@@ -41,12 +41,12 @@ public sealed class GetPaginatedCategoriesQueryHandlerTests
         var request = new GetPaginatedCategoriesQuery
         {
             Name = categories.First().Name,
-            ContainedWord = categories.First().Name,
+            Keyword = categories.First().Name,
             Page = 0,
             PageSize = categories.Count(),
         };
         var redisKey =
-            $"{nameof(Category)}#{request.Name}#{request.ContainedWord}#{request.Page}#{request.PageSize}";
+            $"{nameof(Category)}#{request.Name}#{request.Keyword}#{request.Page}#{request.PageSize}";
         _repository
             .Setup(mock => mock.ApplySpecification(It.IsAny<CategoriesSpecification>()))
             .Returns(categories.ToList().BuildMock())

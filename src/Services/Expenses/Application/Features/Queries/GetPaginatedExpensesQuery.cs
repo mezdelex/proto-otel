@@ -5,7 +5,7 @@ public sealed record GetPaginatedExpensesQuery
         IRequest<PaginatedList<ExtraExpenseDTO>>
 {
     public string? Name { get; set; }
-    public string? ContainedWord { get; set; }
+    public string? Keyword { get; set; }
     public DateTime? MinDate { get; set; }
     public DateTime? MaxDate { get; set; }
     public string? CategoryId { get; set; }
@@ -28,7 +28,7 @@ public sealed record GetPaginatedExpensesQuery
         )
         {
             var redisKey =
-                $"{nameof(Expense)}#{request.Name}#{request.ContainedWord}#{request.MinDate}#{request.MaxDate}#{request.CategoryId}#{request.ApplicationUserId}#{request.Email}#{request.Page}#{request.PageSize}";
+                $"{nameof(Expense)}#{request.Name}#{request.Keyword}#{request.MinDate}#{request.MaxDate}#{request.CategoryId}#{request.ApplicationUserId}#{request.Email}#{request.Page}#{request.PageSize}";
             var cachedPaginatedExpenses = await _redisCache.GetCachedData<
                 PaginatedList<ExtraExpenseDTO>
             >(redisKey);
@@ -41,7 +41,7 @@ public sealed record GetPaginatedExpensesQuery
                 .ApplySpecification(
                     new ExpensesSpecification(
                         name: request.Name,
-                        containedWord: request.ContainedWord,
+                        keyword: request.Keyword,
                         minDate: request.MinDate,
                         maxDate: request.MaxDate,
                         categoryId: request.CategoryId,
@@ -79,15 +79,15 @@ public sealed record GetPaginatedExpensesQuery
                 )
                 .When(x => !string.IsNullOrWhiteSpace(x.Name));
 
-            RuleFor(x => x.ContainedWord)
+            RuleFor(x => x.Keyword)
                 .MaximumLength(ExpenseConstraints.DescriptionMaxLength)
                 .WithMessage(
                     GenericValidationMessages.ShouldNotBeLongerThan(
-                        nameof(ContainedWord),
+                        nameof(Keyword),
                         ExpenseConstraints.DescriptionMaxLength
                     )
                 )
-                .When(x => !string.IsNullOrWhiteSpace(x.ContainedWord));
+                .When(x => !string.IsNullOrWhiteSpace(x.Keyword));
 
             RuleFor(x => x.CategoryId)
                 .MaximumLength(CategoryConstraints.IdMaxLength)

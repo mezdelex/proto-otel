@@ -37,9 +37,9 @@ public sealed class GetCategoriesQueryHandlerTests
         var request = new GetCategoriesQuery
         {
             Name = categories.First().Name,
-            ContainedWord = categories.First().Name,
+            Keyword = categories.First().Name,
         };
-        var redisKey = $"{nameof(Category)}#{request.Name}#{request.ContainedWord}";
+        var redisKey = $"{nameof(Category)}#{request.Name}#{request.Keyword}";
         _repository
             .Setup(mock => mock.ApplySpecification(It.IsAny<CategoriesSpecification>()))
             .Returns(categories.ToList().BuildMock())

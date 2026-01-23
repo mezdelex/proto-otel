@@ -43,14 +43,14 @@ public sealed class GetPaginatedExpensesQueryHandlerTests
         var request = new GetPaginatedExpensesQuery
         {
             Name = expenses.First().Name,
-            ContainedWord = expenses.First().Name,
+            Keyword = expenses.First().Name,
             CategoryId = expenses.First().CategoryId,
             ApplicationUserId = expenses.First().ApplicationUserId,
             Page = 0,
             PageSize = expenses.Count(),
         };
         var redisKey =
-            $"{nameof(Expense)}#{request.Name}#{request.ContainedWord}#{request.MinDate}#{request.MaxDate}#{request.CategoryId}#{request.ApplicationUserId}#{request.Email}#{request.Page}#{request.PageSize}";
+            $"{nameof(Expense)}#{request.Name}#{request.Keyword}#{request.MinDate}#{request.MaxDate}#{request.CategoryId}#{request.ApplicationUserId}#{request.Email}#{request.Page}#{request.PageSize}";
         _repository
             .Setup(mock => mock.ApplySpecification(It.IsAny<ExpensesSpecification>()))
             .Returns(expenses.ToList().BuildMock())

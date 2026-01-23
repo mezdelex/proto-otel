@@ -5,7 +5,7 @@ public sealed record GetPaginatedApplicationUsersQuery
         IRequest<PaginatedList<ApplicationUserDTO>>
 {
     public string? Email { get; set; }
-    public string? ContainedWord { get; set; }
+    public string? Keyword { get; set; }
 
     public sealed class GetPaginatedApplicationUsersQueryHandler(
         IApplicationUsersRepository repository,
@@ -23,7 +23,7 @@ public sealed record GetPaginatedApplicationUsersQuery
         )
         {
             var redisKey =
-                $"{nameof(ApplicationUser)}#{request.Email}#{request.ContainedWord}#{request.Page}#{request.PageSize}";
+                $"{nameof(ApplicationUser)}#{request.Email}#{request.Keyword}#{request.Page}#{request.PageSize}";
             var cachedPaginatedApplicationUsers = await _redisCache.GetCachedData<
                 PaginatedList<ApplicationUserDTO>
             >(redisKey);
@@ -36,7 +36,7 @@ public sealed record GetPaginatedApplicationUsersQuery
                 .ApplySpecification(
                     new ApplicationUsersSpecification(
                         email: request.Email,
-                        containedWord: request.ContainedWord
+                        keyword: request.Keyword
                     )
                 )
                 .AsNoTracking()

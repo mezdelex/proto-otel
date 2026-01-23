@@ -3,7 +3,7 @@ namespace Application.Features.Queries;
 public sealed record GetCategoriesQuery : IRequest<List<CategoryDTO>>
 {
     public string? Name { get; set; }
-    public string? ContainedWord { get; set; }
+    public string? Keyword { get; set; }
 
     public sealed class GetCategoriesQueryHandler(
         ICategoriesRepository repository,
@@ -20,7 +20,7 @@ public sealed record GetCategoriesQuery : IRequest<List<CategoryDTO>>
             CancellationToken cancellationToken
         )
         {
-            var redisKey = $"{nameof(Category)}#{request.Name}#{request.ContainedWord}";
+            var redisKey = $"{nameof(Category)}#{request.Name}#{request.Keyword}";
             var cachedCategories = await _redisCache.GetCachedData<List<CategoryDTO>>(redisKey);
             if (cachedCategories != null)
             {
@@ -29,10 +29,7 @@ public sealed record GetCategoriesQuery : IRequest<List<CategoryDTO>>
 
             var paginatedCategories = await _repository
                 .ApplySpecification(
-                    new CategoriesSpecification(
-                        name: request.Name,
-                        containedWord: request.ContainedWord
-                    )
+                    new CategoriesSpecification(name: request.Name, keyword: request.Keyword)
                 )
                 .AsNoTracking()
                 .ProjectTo<CategoryDTO>(_mapper.ConfigurationProvider)
@@ -62,15 +59,15 @@ public sealed record GetCategoriesQuery : IRequest<List<CategoryDTO>>
                 )
                 .When(x => !string.IsNullOrWhiteSpace(x.Name));
 
-            RuleFor(x => x.ContainedWord)
+            RuleFor(x => x.Keyword)
                 .MaximumLength(CategoryConstraints.DescriptionMaxLength)
                 .WithMessage(
                     GenericValidationMessages.ShouldNotBeLongerThan(
-                        nameof(ContainedWord),
+                        nameof(Keyword),
                         CategoryConstraints.DescriptionMaxLength
                     )
                 )
-                .When(x => !string.IsNullOrWhiteSpace(x.ContainedWord));
+                .When(x => !string.IsNullOrWhiteSpace(x.Keyword));
         }
     }
 }

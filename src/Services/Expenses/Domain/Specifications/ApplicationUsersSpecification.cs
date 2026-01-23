@@ -5,7 +5,7 @@ public sealed class ApplicationUsersSpecification : Specification<ApplicationUse
     public ApplicationUsersSpecification(
         string? id = null,
         string? email = null,
-        string? containedWord = null,
+        string? keyword = null,
         Action<ISpecificationBuilder<ApplicationUser>>? includes = null
     )
     {
@@ -19,11 +19,11 @@ public sealed class ApplicationUsersSpecification : Specification<ApplicationUse
             Query.Where(x => x.Email != null && x.Email.Equals(email));
         }
 
-        if (!string.IsNullOrWhiteSpace(containedWord))
+        if (!string.IsNullOrWhiteSpace(keyword))
         {
             Query.Where(x =>
-                x.Email != null && x.Email.Contains(containedWord)
-                || x.UserName != null && x.UserName.Contains(containedWord)
+                x.Email != null && x.Email.Contains(keyword)
+                || x.UserName != null && x.UserName.Contains(keyword)
             );
         }
 

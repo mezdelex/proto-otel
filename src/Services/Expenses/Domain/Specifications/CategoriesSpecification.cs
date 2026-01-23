@@ -5,7 +5,7 @@ public sealed class CategoriesSpecification : Specification<Category>
     public CategoriesSpecification(
         string? id = null,
         string? name = null,
-        string? containedWord = null,
+        string? keyword = null,
         Action<ISpecificationBuilder<Category>>? includes = null
     )
     {
@@ -19,11 +19,9 @@ public sealed class CategoriesSpecification : Specification<Category>
             Query.Where(x => x.Name.Equals(name));
         }
 
-        if (!string.IsNullOrWhiteSpace(containedWord))
+        if (!string.IsNullOrWhiteSpace(keyword))
         {
-            Query.Where(x =>
-                x.Name.Contains(containedWord) || x.Description.Contains(containedWord)
-            );
+            Query.Where(x => x.Name.Contains(keyword) || x.Description.Contains(keyword));
         }
 
         includes?.Invoke(Query);

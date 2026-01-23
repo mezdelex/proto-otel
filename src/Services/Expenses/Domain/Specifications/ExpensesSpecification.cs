@@ -5,7 +5,7 @@ public sealed class ExpensesSpecification : Specification<Expense>
     public ExpensesSpecification(
         string? id = null,
         string? name = null,
-        string? containedWord = null,
+        string? keyword = null,
         DateTime? minDate = null,
         DateTime? maxDate = null,
         string? categoryId = null,
@@ -24,11 +24,9 @@ public sealed class ExpensesSpecification : Specification<Expense>
             Query.Where(x => x.Name.Equals(name));
         }
 
-        if (!string.IsNullOrWhiteSpace(containedWord))
+        if (!string.IsNullOrWhiteSpace(keyword))
         {
-            Query.Where(x =>
-                x.Name.Contains(containedWord) || x.Description.Contains(containedWord)
-            );
+            Query.Where(x => x.Name.Contains(keyword) || x.Description.Contains(keyword));
         }
 
         /*TODO: add TimeZoneOffset by passing the TimeZone in the request (recommended method)*/
