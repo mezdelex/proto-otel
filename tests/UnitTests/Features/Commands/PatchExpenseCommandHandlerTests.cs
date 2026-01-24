@@ -35,7 +35,113 @@ public sealed class PatchExpenseCommandHandlerTests
 
     [Theory]
     [MemberData(nameof(ExpensesMock.GetExpensesWithUsers), MemberType = typeof(ExpensesMock))]
-    public async Task PatchExpenseCommandHandler_ShouldPatchExpenseAndPublishEventAsync(
+    public async Task PatchExpenseCommandHandler_WhenExpenseToPatchNotFound_ShouldReturnNotFoundResultErrorAsync(
+        IReadOnlyList<Expense> expenses,
+        IReadOnlyList<ApplicationUser> _
+    )
+    {
+        // Arrange
+        var request = new PatchExpenseCommand(
+            expenses[0].Id,
+            expenses[0].Name,
+            expenses[0].Description,
+            expenses[0].Value,
+            expenses[0].Date,
+            expenses[0].CategoryId,
+            expenses[0].ApplicationUserId
+        );
+        _repository
+            .Setup(mock => mock.PatchAsync(It.IsAny<Expense>(), _cancellationToken))
+            .ReturnsAsync(
+                Result<Empty>.Error([
+                    new Error(
+                        Errors.NotFoundError,
+                        Errors.NotFoundErrorDetail(nameof(Expense)),
+                        ErrorTypes.NotFound
+                    ),
+                ])
+            )
+            .Verifiable();
+        _uow.Setup(mock => mock.SaveChangesAsync(_cancellationToken)).Verifiable();
+        _redisCache.Setup(mock => mock.RemoveKeysByPattern(It.IsAny<string>())).Verifiable();
+        _eventBus
+            .Setup(mock => mock.PublishAsync(It.IsAny<PatchedExpenseEvent>(), _cancellationToken))
+            .Verifiable();
+
+        // Act
+        var result = await _handler.Handle(request, _cancellationToken);
+
+        // Assert
+        result
+            .Should()
+            .BeEquivalentTo(
+                Result<Empty>.Error([
+                    new Error(
+                        Errors.NotFoundError,
+                        Errors.NotFoundErrorDetail(nameof(Expense)),
+                        ErrorTypes.NotFound
+                    ),
+                ])
+            );
+        _repository.Verify(
+            mock => mock.PatchAsync(It.IsAny<Expense>(), _cancellationToken),
+            Times.Once
+        );
+        _uow.Verify(mock => mock.SaveChangesAsync(_cancellationToken), Times.Never);
+        _redisCache.Verify(mock => mock.RemoveKeysByPattern(It.IsAny<string>()), Times.Never);
+        _eventBus.Verify(
+            mock => mock.PublishAsync(It.IsAny<PatchedExpenseEvent>(), _cancellationToken),
+            Times.Never
+        );
+    }
+
+    [Theory]
+    [MemberData(nameof(ExpensesMock.GetExpensesWithUsers), MemberType = typeof(ExpensesMock))]
+    public async Task PatchExpenseCommandHandler_WhenExceptionIsThrown_ShouldPropagateException(
+        IReadOnlyList<Expense> expenses,
+        IReadOnlyList<ApplicationUser> _
+    )
+    {
+        // Arrange
+        var request = new PatchExpenseCommand(
+            expenses[0].Id,
+            expenses[0].Name,
+            expenses[0].Description,
+            expenses[0].Value,
+            expenses[0].Date,
+            expenses[0].CategoryId,
+            expenses[0].ApplicationUserId
+        );
+        _repository
+            .Setup(mock => mock.PatchAsync(It.IsAny<Expense>(), _cancellationToken))
+            .ThrowsAsync(new Exception())
+            .Verifiable();
+        _uow.Setup(mock => mock.SaveChangesAsync(_cancellationToken)).Verifiable();
+        _redisCache.Setup(mock => mock.RemoveKeysByPattern(It.IsAny<string>())).Verifiable();
+        _eventBus
+            .Setup(mock => mock.PublishAsync(It.IsAny<PatchedExpenseEvent>(), _cancellationToken))
+            .Verifiable();
+
+        // Act & Assert
+        await _handler
+            .Invoking(x => x.Handle(request, _cancellationToken))
+            .Should()
+            .ThrowAsync<Exception>();
+        _repository.Verify(
+            mock => mock.PatchAsync(It.IsAny<Expense>(), _cancellationToken),
+            Times.Once
+        );
+        _uow.Verify(mock => mock.SaveChangesAsync(_cancellationToken), Times.Never);
+        _redisCache.Verify(mock => mock.RemoveKeysByPattern(It.IsAny<string>()), Times.Never);
+        _eventBus.Verify(
+            mock => mock.PublishAsync(It.IsAny<PatchedExpenseEvent>(), _cancellationToken),
+            Times.Never
+        );
+    }
+
+    [Theory]
+    [MemberData(nameof(ExpensesMock.GetExpensesWithUsers), MemberType = typeof(ExpensesMock))]
+    public async Task PatchExpenseCommandHandler_WhenValidCommand_ShouldPatchExpenseAndPublishEventAsync(
         IReadOnlyList<Expense> expenses,
         IReadOnlyList<ApplicationUser> _
     )
@@ -61,9 +167,10 @@ public sealed class PatchExpenseCommandHandlerTests
             .Verifiable();
 
         // Act
-        await _handler.Handle(request, _cancellationToken);
+        var result = await _handler.Handle(request, _cancellationToken);
 
         // Assert
+        result.Should().BeEquivalentTo(Result<Empty>.Success());
         _repository.Verify(
             mock => mock.PatchAsync(It.IsAny<Expense>(), _cancellationToken),
             Times.Once

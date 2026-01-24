@@ -29,7 +29,7 @@ public sealed class GetCategoriesQueryHandlerTests
 
     [Theory]
     [MemberData(nameof(CategoriesMock.GetCategories), MemberType = typeof(CategoriesMock))]
-    public async Task GetCategoriesQueryHandler_ShouldReturnListOfCategoryDTO(
+    public async Task GetCategoriesQueryHandler_WhenExceptionIsThrown_ShouldPropagateException(
         IReadOnlyList<Category> categories
     )
     {
@@ -40,13 +40,65 @@ public sealed class GetCategoriesQueryHandlerTests
             Keyword = categories[0].Name,
         };
         var redisKey = $"{nameof(Category)}#{request.Name}#{request.Keyword}";
+        _redisCache
+            .Setup(mock => mock.GetCachedData<List<CategoryDTO>>(redisKey))
+            .ReturnsAsync((List<CategoryDTO>)null!);
+        _repository
+            .Setup(mock => mock.ApplySpecification(It.IsAny<CategoriesSpecification>()))
+            .Throws(new Exception())
+            .Verifiable();
+        _redisCache
+            .Setup(mock =>
+                mock.SetCachedData(
+                    redisKey,
+                    It.IsAny<List<CategoryDTO>>(),
+                    It.IsAny<DateTimeOffset>()
+                )
+            )
+            .Returns(Task.CompletedTask)
+            .Verifiable();
+
+        // Act & Assert
+        await _handler
+            .Invoking(x => x.Handle(request, _cancellationToken))
+            .Should()
+            .ThrowAsync<Exception>();
+        _redisCache.Verify(mock => mock.GetCachedData<List<CategoryDTO>>(redisKey), Times.Once);
+        _repository.Verify(
+            mock => mock.ApplySpecification(It.IsAny<CategoriesSpecification>()),
+            Times.Once
+        );
+        _redisCache.Verify(
+            mock =>
+                mock.SetCachedData(
+                    redisKey,
+                    It.IsAny<List<CategoryDTO>>(),
+                    It.IsAny<DateTimeOffset>()
+                ),
+            Times.Never
+        );
+    }
+
+    [Theory]
+    [MemberData(nameof(CategoriesMock.GetCategories), MemberType = typeof(CategoriesMock))]
+    public async Task GetCategoriesQueryHandler_WhenValidQuery_ShouldReturnListOfCategoryDTO(
+        IReadOnlyList<Category> categories
+    )
+    {
+        // Arrange
+        var request = new GetCategoriesQuery
+        {
+            Name = categories[0].Name,
+            Keyword = categories[0].Name,
+        };
+        var redisKey = $"{nameof(Category)}#{request.Name}#{request.Keyword}";
+        _redisCache
+            .Setup(mock => mock.GetCachedData<List<CategoryDTO>>(redisKey))
+            .ReturnsAsync((List<CategoryDTO>)null!);
         _repository
             .Setup(mock => mock.ApplySpecification(It.IsAny<CategoriesSpecification>()))
             .Returns(categories.ToList().BuildMock())
             .Verifiable();
-        _redisCache
-            .Setup(mock => mock.GetCachedData<List<CategoryDTO>>(redisKey))
-            .ReturnsAsync((List<CategoryDTO>)null!);
         _redisCache
             .Setup(mock =>
                 mock.SetCachedData(
@@ -67,11 +119,11 @@ public sealed class GetCategoriesQueryHandlerTests
             .BeEquivalentTo(
                 Result<List<CategoryDTO>>.Success([.. categories.Select(_mapper.Map<CategoryDTO>)])
             );
+        _redisCache.Verify(mock => mock.GetCachedData<List<CategoryDTO>>(redisKey), Times.Once);
         _repository.Verify(
             mock => mock.ApplySpecification(It.IsAny<CategoriesSpecification>()),
             Times.Once
         );
-        _redisCache.Verify(mock => mock.GetCachedData<List<CategoryDTO>>(redisKey), Times.Once);
         _redisCache.Verify(
             mock =>
                 mock.SetCachedData(

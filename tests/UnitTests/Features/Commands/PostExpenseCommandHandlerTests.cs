@@ -41,7 +41,7 @@ public sealed class PostExpenseCommandHandlerTests
 
     [Theory]
     [MemberData(nameof(ExpensesMock.GetExpensesWithUsers), MemberType = typeof(ExpensesMock))]
-    public async Task PostExpenseCommandHandler_ShouldPostExpenseAndPublishEventAsync(
+    public async Task PostExpenseCommandHandler_WhenApplicationUserNotFound_ShouldReturnNotFoundResultErrorAsync(
         IReadOnlyList<Expense> expenses,
         IReadOnlyList<ApplicationUser> users
     )
@@ -61,7 +61,8 @@ public sealed class PostExpenseCommandHandlerTests
             .Setup(mock =>
                 mock.GetBySpecAsync(It.IsAny<ApplicationUsersSpecification>(), _cancellationToken)
             )
-            .ReturnsAsync(users[0]);
+            .ReturnsAsync(null as ApplicationUser)
+            .Verifiable();
         _repository
             .Setup(mock => mock.PostAsync(It.IsAny<Expense>(), _cancellationToken))
             .Verifiable();
@@ -72,9 +73,132 @@ public sealed class PostExpenseCommandHandlerTests
             .Verifiable();
 
         // Act
-        await _handler.Handle(request, _cancellationToken);
+        var result = await _handler.Handle(request, _cancellationToken);
 
         // Assert
+        result
+            .Should()
+            .BeEquivalentTo(
+                Result<Empty>.Error([
+                    new Error(
+                        Errors.NotFoundError,
+                        Errors.NotFoundErrorDetail(nameof(ApplicationUser)),
+                        ErrorTypes.NotFound
+                    ),
+                ])
+            );
+        _httpContextAccessor.Verify(mock => mock.HttpContext.User.Identity!.Name, Times.Once());
+        _applicationUserRepository.Verify(
+            mock =>
+                mock.GetBySpecAsync(It.IsAny<ApplicationUsersSpecification>(), _cancellationToken),
+            Times.Once
+        );
+        _repository.Verify(
+            mock => mock.PostAsync(It.IsAny<Expense>(), _cancellationToken),
+            Times.Never
+        );
+        _uow.Verify(mock => mock.SaveChangesAsync(_cancellationToken), Times.Never);
+        _redisCache.Verify(mock => mock.RemoveKeysByPattern(It.IsAny<string>()), Times.Never);
+        _eventBus.Verify(
+            mock => mock.PublishAsync(It.IsAny<PostedExpenseEvent>(), _cancellationToken),
+            Times.Never
+        );
+    }
+
+    [Theory]
+    [MemberData(nameof(ExpensesMock.GetExpensesWithUsers), MemberType = typeof(ExpensesMock))]
+    public async Task PostExpenseCommandHandler_WhenExceptionIsThrown_ShoulPropagateException(
+        IReadOnlyList<Expense> expenses,
+        IReadOnlyList<ApplicationUser> users
+    )
+    {
+        // Arrange
+        var request = new PostExpenseCommand(
+            expenses[0].Name,
+            expenses[0].Description,
+            expenses[0].Value,
+            expenses[0].CategoryId
+        );
+        _httpContextAccessor
+            .Setup(mock => mock.HttpContext.User.Identity!.Name)
+            .Returns(users[0].Email)
+            .Verifiable();
+        _applicationUserRepository
+            .Setup(mock =>
+                mock.GetBySpecAsync(It.IsAny<ApplicationUsersSpecification>(), _cancellationToken)
+            )
+            .ThrowsAsync(new Exception())
+            .Verifiable();
+        _repository
+            .Setup(mock => mock.PostAsync(It.IsAny<Expense>(), _cancellationToken))
+            .Verifiable();
+        _uow.Setup(mock => mock.SaveChangesAsync(_cancellationToken)).Verifiable();
+        _redisCache.Setup(mock => mock.RemoveKeysByPattern(It.IsAny<string>())).Verifiable();
+        _eventBus
+            .Setup(mock => mock.PublishAsync(It.IsAny<PostedExpenseEvent>(), _cancellationToken))
+            .Verifiable();
+
+        // Act & Assert
+        await _handler
+            .Invoking(x => x.Handle(request, _cancellationToken))
+            .Should()
+            .ThrowAsync<Exception>();
+        _httpContextAccessor.Verify(mock => mock.HttpContext.User.Identity!.Name, Times.Once());
+        _applicationUserRepository.Verify(
+            mock =>
+                mock.GetBySpecAsync(It.IsAny<ApplicationUsersSpecification>(), _cancellationToken),
+            Times.Once
+        );
+        _repository.Verify(
+            mock => mock.PostAsync(It.IsAny<Expense>(), _cancellationToken),
+            Times.Never
+        );
+        _uow.Verify(mock => mock.SaveChangesAsync(_cancellationToken), Times.Never);
+        _redisCache.Verify(mock => mock.RemoveKeysByPattern(It.IsAny<string>()), Times.Never);
+        _eventBus.Verify(
+            mock => mock.PublishAsync(It.IsAny<PostedExpenseEvent>(), _cancellationToken),
+            Times.Never
+        );
+    }
+
+    [Theory]
+    [MemberData(nameof(ExpensesMock.GetExpensesWithUsers), MemberType = typeof(ExpensesMock))]
+    public async Task PostExpenseCommandHandler_WhenValidCommand_ShouldPostExpenseAndPublishEventAsync(
+        IReadOnlyList<Expense> expenses,
+        IReadOnlyList<ApplicationUser> users
+    )
+    {
+        // Arrange
+        var request = new PostExpenseCommand(
+            expenses[0].Name,
+            expenses[0].Description,
+            expenses[0].Value,
+            expenses[0].CategoryId
+        );
+        _httpContextAccessor
+            .Setup(mock => mock.HttpContext.User.Identity!.Name)
+            .Returns(users[0].Email)
+            .Verifiable();
+        _applicationUserRepository
+            .Setup(mock =>
+                mock.GetBySpecAsync(It.IsAny<ApplicationUsersSpecification>(), _cancellationToken)
+            )
+            .ReturnsAsync(users[0])
+            .Verifiable();
+        _repository
+            .Setup(mock => mock.PostAsync(It.IsAny<Expense>(), _cancellationToken))
+            .Verifiable();
+        _uow.Setup(mock => mock.SaveChangesAsync(_cancellationToken)).Verifiable();
+        _redisCache.Setup(mock => mock.RemoveKeysByPattern(It.IsAny<string>())).Verifiable();
+        _eventBus
+            .Setup(mock => mock.PublishAsync(It.IsAny<PostedExpenseEvent>(), _cancellationToken))
+            .Verifiable();
+
+        // Act
+        var result = await _handler.Handle(request, _cancellationToken);
+
+        // Assert
+        result.Should().BeEquivalentTo(Result<Empty>.Success());
         _httpContextAccessor.Verify(mock => mock.HttpContext.User.Identity!.Name, Times.Once());
         _applicationUserRepository.Verify(
             mock =>

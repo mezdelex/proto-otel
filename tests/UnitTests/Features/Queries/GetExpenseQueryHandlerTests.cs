@@ -22,7 +22,71 @@ public sealed class GetExpenseQueryHandlerTests
 
     [Theory]
     [MemberData(nameof(ExpensesMock.GetExpensesWithUsers), MemberType = typeof(ExpensesMock))]
-    public async Task Handle_ValidIdGetExpenseQuery_ShouldReturnRequestedExpenseAsExpenseDTOAsync(
+    public async Task GetExpenseQuery_WhenExceptionIsThrown_ShouldPropagateException(
+        IReadOnlyList<Expense> expenses,
+        IReadOnlyList<ApplicationUser> _
+    )
+    {
+        // Arrange
+        var request = new GetExpenseQuery(expenses[0].Id);
+        _repository
+            .Setup(mock =>
+                mock.GetBySpecAsync(It.IsAny<ExpensesSpecification>(), _cancellationToken)
+            )
+            .ThrowsAsync(new Exception())
+            .Verifiable();
+
+        // Act & Assert
+        await _handler
+            .Invoking(x => x.Handle(request, _cancellationToken))
+            .Should()
+            .ThrowAsync<Exception>();
+        _repository.Verify(
+            mock => mock.GetBySpecAsync(It.IsAny<ExpensesSpecification>(), _cancellationToken),
+            Times.Once
+        );
+    }
+
+    [Theory]
+    [MemberData(nameof(ExpensesMock.GetExpensesWithUsers), MemberType = typeof(ExpensesMock))]
+    public async Task GetExpenseQuery_WhenExpenseNotFound_ShouldReturnNotFoundResultErrorAsync(
+        IReadOnlyList<Expense> expenses,
+        IReadOnlyList<ApplicationUser> _
+    )
+    {
+        // Arrange
+        var request = new GetExpenseQuery(expenses[0].Id);
+        _repository
+            .Setup(mock =>
+                mock.GetBySpecAsync(It.IsAny<ExpensesSpecification>(), _cancellationToken)
+            )
+            .ReturnsAsync(null as Expense)
+            .Verifiable();
+
+        // Act
+        var result = await _handler.Handle(request, _cancellationToken);
+
+        // Assert
+        result
+            .Should()
+            .BeEquivalentTo(
+                Result<ExpenseDTO>.Error([
+                    new Error(
+                        Errors.NotFoundError,
+                        Errors.NotFoundErrorDetail(nameof(Expense)),
+                        ErrorTypes.NotFound
+                    ),
+                ])
+            );
+        _repository.Verify(
+            mock => mock.GetBySpecAsync(It.IsAny<ExpensesSpecification>(), _cancellationToken),
+            Times.Once
+        );
+    }
+
+    [Theory]
+    [MemberData(nameof(ExpensesMock.GetExpensesWithUsers), MemberType = typeof(ExpensesMock))]
+    public async Task GetExpenseQuery_WhenValidQuery_ShouldReturnExpenseDTOAsync(
         IReadOnlyList<Expense> expenses,
         IReadOnlyList<ApplicationUser> _
     )

@@ -33,7 +33,7 @@ public sealed class GetPaginatedCategoriesQueryHandlerTests
 
     [Theory]
     [MemberData(nameof(CategoriesMock.GetCategories), MemberType = typeof(CategoriesMock))]
-    public async Task GetPaginatedCategoriesQueryHandler_ShouldReturnPaginatedListOfCategoryDTO(
+    public async Task GetPaginatedCategoriesQueryHandler_WhenExceptionIsThrown_ShouldPropagateException(
         IReadOnlyList<Category> categories
     )
     {
@@ -47,13 +47,71 @@ public sealed class GetPaginatedCategoriesQueryHandlerTests
         };
         var redisKey =
             $"{nameof(Category)}#{request.Name}#{request.Keyword}#{request.Page}#{request.PageSize}";
+        _redisCache
+            .Setup(mock => mock.GetCachedData<PaginatedList<CategoryDTO>>(redisKey))
+            .ReturnsAsync((PaginatedList<CategoryDTO>)null!);
+        _repository
+            .Setup(mock => mock.ApplySpecification(It.IsAny<CategoriesSpecification>()))
+            .Throws(new Exception())
+            .Verifiable();
+        _redisCache
+            .Setup(mock =>
+                mock.SetCachedData(
+                    redisKey,
+                    It.IsAny<PaginatedList<CategoryDTO>>(),
+                    It.IsAny<DateTimeOffset>()
+                )
+            )
+            .Returns(Task.CompletedTask)
+            .Verifiable();
+
+        // Act & Assert
+        await _handler
+            .Invoking(x => x.Handle(request, _cancellationToken))
+            .Should()
+            .ThrowAsync<Exception>();
+        _redisCache.Verify(
+            mock => mock.GetCachedData<PaginatedList<CategoryDTO>>(redisKey),
+            Times.Once
+        );
+        _repository.Verify(
+            mock => mock.ApplySpecification(It.IsAny<CategoriesSpecification>()),
+            Times.Once
+        );
+        _redisCache.Verify(
+            mock =>
+                mock.SetCachedData(
+                    redisKey,
+                    It.IsAny<PaginatedList<CategoryDTO>>(),
+                    It.IsAny<DateTimeOffset>()
+                ),
+            Times.Never
+        );
+    }
+
+    [Theory]
+    [MemberData(nameof(CategoriesMock.GetCategories), MemberType = typeof(CategoriesMock))]
+    public async Task GetPaginatedCategoriesQueryHandler_WhenValidQuery_ShouldReturnPaginatedListOfCategoryDTO(
+        IReadOnlyList<Category> categories
+    )
+    {
+        // Arrange
+        var request = new GetPaginatedCategoriesQuery
+        {
+            Name = categories[0].Name,
+            Keyword = categories[0].Name,
+            Page = 0,
+            PageSize = categories.Count,
+        };
+        var redisKey =
+            $"{nameof(Category)}#{request.Name}#{request.Keyword}#{request.Page}#{request.PageSize}";
+        _redisCache
+            .Setup(mock => mock.GetCachedData<PaginatedList<CategoryDTO>>(redisKey))
+            .ReturnsAsync((PaginatedList<CategoryDTO>)null!);
         _repository
             .Setup(mock => mock.ApplySpecification(It.IsAny<CategoriesSpecification>()))
             .Returns(categories.ToList().BuildMock())
             .Verifiable();
-        _redisCache
-            .Setup(mock => mock.GetCachedData<PaginatedList<CategoryDTO>>(redisKey))
-            .ReturnsAsync((PaginatedList<CategoryDTO>)null!);
         _redisCache
             .Setup(mock =>
                 mock.SetCachedData(
@@ -83,12 +141,12 @@ public sealed class GetPaginatedCategoriesQueryHandlerTests
                     )
                 )
             );
-        _repository.Verify(
-            mock => mock.ApplySpecification(It.IsAny<CategoriesSpecification>()),
-            Times.Once
-        );
         _redisCache.Verify(
             mock => mock.GetCachedData<PaginatedList<CategoryDTO>>(redisKey),
+            Times.Once
+        );
+        _repository.Verify(
+            mock => mock.ApplySpecification(It.IsAny<CategoriesSpecification>()),
             Times.Once
         );
         _redisCache.Verify(

@@ -35,7 +35,103 @@ public sealed class PatchCategoryCommandHandlerTests
 
     [Theory]
     [MemberData(nameof(CategoriesMock.GetCategories), MemberType = typeof(CategoriesMock))]
-    public async Task PatchCategoryCommandHandler_ShouldPatchCategoryAndPublishEventAsync(
+    public async Task PatchCategoryCommandHandler_WhenCategoryToPatchNotFound_ShouldReturnNotFoundResultErrorAsync(
+        IReadOnlyList<Category> categories
+    )
+    {
+        // Arrange
+        var request = new PatchCategoryCommand(
+            categories[0].Id,
+            categories[0].Name,
+            categories[0].Description
+        );
+        _repository
+            .Setup(mock => mock.PatchAsync(It.IsAny<Category>(), _cancellationToken))
+            .ReturnsAsync(
+                Result<Empty>.Error([
+                    new Error(
+                        Errors.NotFoundError,
+                        Errors.NotFoundErrorDetail(nameof(Category)),
+                        ErrorTypes.NotFound
+                    ),
+                ])
+            )
+            .Verifiable();
+        _uow.Setup(mock => mock.SaveChangesAsync(_cancellationToken)).Verifiable();
+        _redisCache.Setup(mock => mock.RemoveKeysByPattern(It.IsAny<string>())).Verifiable();
+        _eventBus
+            .Setup(mock => mock.PublishAsync(It.IsAny<PatchedCategoryEvent>(), _cancellationToken))
+            .Verifiable();
+
+        // Act
+        var result = await _handler.Handle(request, _cancellationToken);
+
+        // Assert
+        result
+            .Should()
+            .BeEquivalentTo(
+                Result<Empty>.Error([
+                    new Error(
+                        Errors.NotFoundError,
+                        Errors.NotFoundErrorDetail(nameof(Category)),
+                        ErrorTypes.NotFound
+                    ),
+                ])
+            );
+        _repository.Verify(
+            mock => mock.PatchAsync(It.IsAny<Category>(), _cancellationToken),
+            Times.Once
+        );
+        _uow.Verify(mock => mock.SaveChangesAsync(_cancellationToken), Times.Never);
+        _redisCache.Verify(mock => mock.RemoveKeysByPattern(It.IsAny<string>()), Times.Never);
+        _eventBus.Verify(
+            mock => mock.PublishAsync(It.IsAny<PatchedCategoryEvent>(), _cancellationToken),
+            Times.Never
+        );
+    }
+
+    [Theory]
+    [MemberData(nameof(CategoriesMock.GetCategories), MemberType = typeof(CategoriesMock))]
+    public async Task PatchCategoryCommandHandler_WhenExceptionIsThrown_ShouldPropagateException(
+        IReadOnlyList<Category> categories
+    )
+    {
+        // Arrange
+        var request = new PatchCategoryCommand(
+            categories[0].Id,
+            categories[0].Name,
+            categories[0].Description
+        );
+        _repository
+            .Setup(mock => mock.PatchAsync(It.IsAny<Category>(), _cancellationToken))
+            .ThrowsAsync(new Exception())
+            .Verifiable();
+        _uow.Setup(mock => mock.SaveChangesAsync(_cancellationToken)).Verifiable();
+        _redisCache.Setup(mock => mock.RemoveKeysByPattern(It.IsAny<string>())).Verifiable();
+        _eventBus
+            .Setup(mock => mock.PublishAsync(It.IsAny<PatchedCategoryEvent>(), _cancellationToken))
+            .Verifiable();
+
+        // Act & Assert
+        await _handler
+            .Invoking(x => x.Handle(request, _cancellationToken))
+            .Should()
+            .ThrowAsync<Exception>();
+        _repository.Verify(
+            mock => mock.PatchAsync(It.IsAny<Category>(), _cancellationToken),
+            Times.Once
+        );
+        _uow.Verify(mock => mock.SaveChangesAsync(_cancellationToken), Times.Never);
+        _redisCache.Verify(mock => mock.RemoveKeysByPattern(It.IsAny<string>()), Times.Never);
+        _eventBus.Verify(
+            mock => mock.PublishAsync(It.IsAny<PatchedCategoryEvent>(), _cancellationToken),
+            Times.Never
+        );
+    }
+
+    [Theory]
+    [MemberData(nameof(CategoriesMock.GetCategories), MemberType = typeof(CategoriesMock))]
+    public async Task PatchCategoryCommandHandler_WhenValidQuery_ShouldPatchCategoryAndPublishEventAsync(
         IReadOnlyList<Category> categories
     )
     {
@@ -56,9 +152,10 @@ public sealed class PatchCategoryCommandHandlerTests
             .Verifiable();
 
         // Act
-        await _handler.Handle(request, _cancellationToken);
+        var result = await _handler.Handle(request, _cancellationToken);
 
         // Assert
+        result.Should().BeEquivalentTo(Result<Empty>.Success());
         _repository.Verify(
             mock => mock.PatchAsync(It.IsAny<Category>(), _cancellationToken),
             Times.Once

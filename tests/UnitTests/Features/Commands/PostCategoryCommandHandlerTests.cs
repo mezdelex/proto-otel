@@ -35,7 +35,42 @@ public sealed class PostCategoryCommandHandlerTests
 
     [Theory]
     [MemberData(nameof(CategoriesMock.GetCategories), MemberType = typeof(CategoriesMock))]
-    public async Task PostCategoryCommandHandler_ShouldPostCategoryAndPublishEventAsync(
+    public async Task PostCategoryCommandHandler_WhenExceptionIsThrown_ShouldPropagateException(
+        IReadOnlyList<Category> categories
+    )
+    {
+        // Arrange
+        var request = new PostCategoryCommand(categories[0].Name, categories[0].Description);
+        _repository
+            .Setup(mock => mock.PostAsync(It.IsAny<Category>(), _cancellationToken))
+            .ThrowsAsync(new Exception())
+            .Verifiable();
+        _uow.Setup(mock => mock.SaveChangesAsync(_cancellationToken)).Verifiable();
+        _redisCache.Setup(mock => mock.RemoveKeysByPattern(It.IsAny<string>())).Verifiable();
+        _eventBus
+            .Setup(mock => mock.PublishAsync(It.IsAny<PostedCategoryEvent>(), _cancellationToken))
+            .Verifiable();
+
+        // Act & Assert
+        await _handler
+            .Invoking(x => x.Handle(request, _cancellationToken))
+            .Should()
+            .ThrowAsync<Exception>();
+        _repository.Verify(
+            mock => mock.PostAsync(It.IsAny<Category>(), _cancellationToken),
+            Times.Once
+        );
+        _uow.Verify(mock => mock.SaveChangesAsync(_cancellationToken), Times.Never);
+        _redisCache.Verify(mock => mock.RemoveKeysByPattern(It.IsAny<string>()), Times.Never);
+        _eventBus.Verify(
+            mock => mock.PublishAsync(It.IsAny<PostedCategoryEvent>(), _cancellationToken),
+            Times.Never
+        );
+    }
+
+    [Theory]
+    [MemberData(nameof(CategoriesMock.GetCategories), MemberType = typeof(CategoriesMock))]
+    public async Task PostCategoryCommandHandler_WhenValidCommand_ShouldPostCategoryAndPublishEventAsync(
         IReadOnlyList<Category> categories
     )
     {
@@ -51,9 +86,10 @@ public sealed class PostCategoryCommandHandlerTests
             .Verifiable();
 
         // Act
-        await _handler.Handle(request, _cancellationToken);
+        var result = await _handler.Handle(request, _cancellationToken);
 
         // Assert
+        result.Should().BeEquivalentTo(Result<Empty>.Success());
         _repository.Verify(
             mock => mock.PostAsync(It.IsAny<Category>(), _cancellationToken),
             Times.Once

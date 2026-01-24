@@ -47,8 +47,7 @@ public sealed record GetPaginatedExpensesQuery
                         categoryId: request.CategoryId,
                         applicationUserId: request.ApplicationUserId,
                         email: request.Email,
-                        includes: builder =>
-                            builder.Include(x => x.ApplicationUser).Include(x => x.Category)
+                        includes: _ => _.Include(x => x.ApplicationUser).Include(x => x.Category)
                     )
                 )
                 .AsNoTracking()

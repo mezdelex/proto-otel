@@ -20,4 +20,4 @@ jobs:
       - name: Build Notifications
         run: dotnet build ./src/Services/Notifications/Notifications.sln
       - name: Test
-        run: dotnet test ./tests/UnitTests/UnitTests.csproj
+        run: dotnet test ./tests/UnitTests/UnitTests.csproj -v q
