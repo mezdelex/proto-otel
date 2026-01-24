@@ -8,5 +8,4 @@ public static class Errors
 
     public const string ServerError = "Server Error";
     public const string ServerErrorDetail = "An unexpected error ocurred";
-    public const string ValidationError = "Validation Error";
 }

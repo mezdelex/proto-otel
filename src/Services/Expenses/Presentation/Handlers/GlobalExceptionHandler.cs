@@ -12,9 +12,9 @@ public sealed class GlobalExceptionHandler(ILogger logger) : IExceptionHandler
     {
         var problemDetails = new ProblemDetails
         {
+            Detail = Errors.ServerErrorDetail,
             Status = StatusCodes.Status500InternalServerError,
             Title = Errors.ServerError,
-            Detail = Errors.ServerErrorDetail,
         };
         httpContext.Response.StatusCode = problemDetails.Status.Value;
         await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
