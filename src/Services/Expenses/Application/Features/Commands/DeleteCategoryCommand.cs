@@ -1,22 +1,32 @@
 namespace Application.Features.Commands;
 
-public sealed record DeleteCategoryCommand(string Id) : IRequest
+public sealed record DeleteCategoryCommand(string Id) : IRequest<Result<Empty>>
 {
     public sealed class DeleteCategoryCommandHandler(
         ICategoriesRepository repository,
         IUnitOfWork uow,
         IRedisCache redisCache
-    ) : IRequestHandler<DeleteCategoryCommand>
+    ) : IRequestHandler<DeleteCategoryCommand, Result<Empty>>
     {
         private readonly ICategoriesRepository _repository = repository;
         private readonly IUnitOfWork _uow = uow;
         private readonly IRedisCache _redisCache = redisCache;
 
-        public async Task Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
+        public async Task<Result<Empty>> Handle(
+            DeleteCategoryCommand request,
+            CancellationToken cancellationToken
+        )
         {
-            await _repository.DeleteAsync(request.Id, cancellationToken);
+            var result = await _repository.DeleteAsync(request.Id, cancellationToken);
+            if (result.IsError)
+            {
+                return result;
+            }
+
             await _uow.SaveChangesAsync(cancellationToken);
             await _redisCache.RemoveKeysByPattern(nameof(Expense));
+
+            return Result<Empty>.Success();
         }
     }
 

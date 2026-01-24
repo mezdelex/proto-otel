@@ -1,25 +1,34 @@
 namespace Application.Features.Queries;
 
-public sealed record GetExpenseQuery(string Id) : IRequest<ExpenseDTO>
+public sealed record GetExpenseQuery(string Id) : IRequest<Result<ExpenseDTO>>
 {
     public sealed class GetExpenseQueryHandler(IExpensesRepository repository, IMapper mapper)
-        : IRequestHandler<GetExpenseQuery, ExpenseDTO>
+        : IRequestHandler<GetExpenseQuery, Result<ExpenseDTO>>
     {
         private readonly IExpensesRepository _repository = repository;
         private readonly IMapper _mapper = mapper;
 
-        public async Task<ExpenseDTO> Handle(
+        public async Task<Result<ExpenseDTO>> Handle(
             GetExpenseQuery request,
             CancellationToken cancellationToken
         )
         {
-            var expense =
-                await _repository.GetBySpecAsync(
-                    new ExpensesSpecification(id: request.Id),
-                    cancellationToken
-                ) ?? throw new NotFoundException(nameof(Expense));
+            var expense = await _repository.GetBySpecAsync(
+                new ExpensesSpecification(id: request.Id),
+                cancellationToken
+            );
+            if (expense is null)
+            {
+                return Result<ExpenseDTO>.Error([
+                    new Error(
+                        Errors.NotFoundError,
+                        Errors.NotFoundErrorDetail(nameof(Expense)),
+                        ErrorTypes.NotFound
+                    ),
+                ]);
+            }
 
-            return _mapper.Map<ExpenseDTO>(expense);
+            return Result<ExpenseDTO>.Success(_mapper.Map<ExpenseDTO>(expense));
         }
     }
 

@@ -3,11 +3,10 @@ namespace UnitTests.Features.Commands;
 public sealed class PostExpenseCommandHandlerTests
 {
     private readonly CancellationToken _cancellationToken;
-    private readonly Mock<IValidator<PostExpenseCommand>> _validator;
-    private readonly ILoggerFactory _loggerFactory;
-    private readonly IMapper _mapper;
     private readonly Mock<IHttpContextAccessor> _httpContextAccessor;
     private readonly Mock<IApplicationUsersRepository> _applicationUserRepository;
+    private readonly ILoggerFactory _loggerFactory;
+    private readonly IMapper _mapper;
     private readonly Mock<IExpensesRepository> _repository;
     private readonly Mock<IUnitOfWork> _uow;
     private readonly Mock<IRedisCache> _redisCache;
@@ -17,24 +16,22 @@ public sealed class PostExpenseCommandHandlerTests
     public PostExpenseCommandHandlerTests()
     {
         _cancellationToken = new();
-        _validator = new();
+        _httpContextAccessor = new();
+        _applicationUserRepository = new();
         _loggerFactory = new LoggerFactory();
         _mapper = new MapperConfiguration(
             c => c.AddProfile<ExpensesProfile>(),
             _loggerFactory
         ).CreateMapper();
-        _httpContextAccessor = new();
-        _applicationUserRepository = new();
         _repository = new();
         _uow = new();
         _redisCache = new();
         _eventBus = new();
 
         _handler = new PostExpenseCommandHandler(
-            _validator.Object,
-            _mapper,
             _httpContextAccessor.Object,
             _applicationUserRepository.Object,
+            _mapper,
             _repository.Object,
             _uow.Object,
             _redisCache.Object,
@@ -56,10 +53,6 @@ public sealed class PostExpenseCommandHandlerTests
             expenses.First().Value,
             expenses.First().CategoryId
         );
-        _validator
-            .Setup(mock => mock.ValidateAsync(request, _cancellationToken))
-            .ReturnsAsync(new ValidationResult())
-            .Verifiable();
         _httpContextAccessor
             .Setup(mock => mock.HttpContext.User.Identity!.Name)
             .Returns(users.First().Email)
@@ -82,10 +75,6 @@ public sealed class PostExpenseCommandHandlerTests
         await _handler.Handle(request, _cancellationToken);
 
         // Assert
-        _validator.Verify(
-            mock => mock.ValidateAsync(It.IsAny<PostExpenseCommand>(), _cancellationToken),
-            Times.Once
-        );
         _httpContextAccessor.Verify(mock => mock.HttpContext.User.Identity!.Name, Times.Once());
         _applicationUserRepository.Verify(
             mock =>

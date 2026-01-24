@@ -2,134 +2,41 @@ namespace Presentation.Endpoints;
 
 public static class CategoriesEndpoints
 {
-    private static readonly ILogger _logger = new LoggerFactory().CreateLogger("Categories");
-
     public static void MapCategoriesEndpoints(this IEndpointRouteBuilder builder)
     {
         var group = builder.MapGroup(MapGroups.Categories);
+        var adminGroup = group.RequireAuthorization(nameof(Policies.AdminRolePolicy));
+        var userGroup = group.RequireAuthorization(nameof(Policies.UserRolePolicy));
 
-        group
-            .MapPost(Patterns.PaginatedPattern, GetPaginatedCategoriesQueryAsync)
-            .RequireAuthorization(nameof(Policies.UserRolePolicy));
-        group
-            .MapPost(Patterns.ListPattern, GetCategoriesQueryAsync)
-            .RequireAuthorization(nameof(Policies.UserRolePolicy));
-        group
-            .MapGet(Patterns.IdPattern, GetCategoryQueryAsync)
-            .RequireAuthorization(nameof(Policies.UserRolePolicy));
-        group
-            .MapPatch(string.Empty, PatchCategoryCommandAsync)
-            .RequireAuthorization(nameof(Policies.AdminRolePolicy));
-        group
-            .MapPost(string.Empty, PostCategoryCommandAsync)
-            .RequireAuthorization(nameof(Policies.AdminRolePolicy));
-        group
-            .MapDelete(Patterns.IdPattern, DeleteCategoryCommandAsync)
-            .RequireAuthorization(nameof(Policies.AdminRolePolicy));
-    }
+        userGroup.MapPost(
+            Patterns.PaginatedPattern,
+            async (ISender s, GetPaginatedCategoriesQuery q) => (await s.Send(q)).ToResponse()
+        );
 
-    public static async Task<IResult> GetPaginatedCategoriesQueryAsync(
-        ISender sender,
-        [FromBody] GetPaginatedCategoriesQuery query
-    )
-    {
-        try
-        {
-            return Results.Ok(await sender.Send(query));
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(Errors.ErrorMessageTemplate, e, e.Message);
+        userGroup.MapPost(
+            Patterns.ListPattern,
+            async (ISender s, GetCategoriesQuery q) => (await s.Send(q)).ToResponse()
+        );
 
-            return Results.BadRequest(e.Message);
-        }
-    }
+        userGroup.MapGet(
+            Patterns.IdPattern,
+            async (ISender s, string id) => (await s.Send(new GetCategoryQuery(id))).ToResponse()
+        );
 
-    public static async Task<IResult> GetCategoriesQueryAsync(
-        ISender sender,
-        [FromBody] GetCategoriesQuery query
-    )
-    {
-        try
-        {
-            return Results.Ok(await sender.Send(query));
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(Errors.ErrorMessageTemplate, e, e.Message);
+        adminGroup.MapPatch(
+            string.Empty,
+            async (ISender s, PatchCategoryCommand c) => (await s.Send(c)).ToResponse()
+        );
 
-            return Results.BadRequest(e.Message);
-        }
-    }
+        adminGroup.MapPost(
+            string.Empty,
+            async (ISender s, PostCategoryCommand c) => (await s.Send(c)).ToResponse()
+        );
 
-    public static async Task<IResult> GetCategoryQueryAsync(ISender sender, [FromRoute] string id)
-    {
-        try
-        {
-            return Results.Ok(await sender.Send(new GetCategoryQuery(id)));
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(Errors.ErrorMessageTemplate, e, e.Message);
-
-            return Results.NotFound(e.Message);
-        }
-    }
-
-    public static async Task<IResult> PatchCategoryCommandAsync(
-        ISender sender,
-        [FromBody] PatchCategoryCommand command
-    )
-    {
-        try
-        {
-            await sender.Send(command);
-
-            return Results.NoContent();
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(Errors.ErrorMessageTemplate, e, e.Message);
-
-            return Results.BadRequest(e.Message);
-        }
-    }
-
-    public static async Task<IResult> PostCategoryCommandAsync(
-        ISender sender,
-        [FromBody] PostCategoryCommand command
-    )
-    {
-        try
-        {
-            await sender.Send(command);
-
-            return Results.NoContent();
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(Errors.ErrorMessageTemplate, e, e.Message);
-
-            return Results.BadRequest(e.Message);
-        }
-    }
-
-    public static async Task<IResult> DeleteCategoryCommandAsync(
-        ISender sender,
-        [FromRoute] string id
-    )
-    {
-        try
-        {
-            await sender.Send(new DeleteCategoryCommand(id));
-
-            return Results.NoContent();
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(Errors.ErrorMessageTemplate, e, e.Message);
-
-            return Results.BadRequest(e.Message);
-        }
+        adminGroup.MapDelete(
+            Patterns.IdPattern,
+            async (ISender s, string id) =>
+                (await s.Send(new DeleteCategoryCommand(id))).ToResponse()
+        );
     }
 }

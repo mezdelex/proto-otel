@@ -17,6 +17,7 @@ global using static Application.Features.Queries.GetPaginatedExpensesQuery;
 global using Application.Features.Shared;
 global using Application.Profiles;
 global using Application.Repositories;
+global using Application.Responses;
 global using AutoFixture;
 global using AutoMapper;
 global using Domain.Cache;

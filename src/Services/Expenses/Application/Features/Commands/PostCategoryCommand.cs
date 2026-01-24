@@ -1,48 +1,49 @@
 namespace Application.Features.Commands;
 
-public sealed record PostCategoryCommand(string Name, string Description) : IRequest
+public sealed record PostCategoryCommand(string Name, string Description) : IRequest<Result<Empty>>
 {
     public sealed class PostCategoryCommandHandler(
-        IValidator<PostCategoryCommand> validator,
         IMapper mapper,
         ICategoriesRepository repository,
         IUnitOfWork uow,
         IRedisCache redisCache,
         IEventBus eventBus
-    ) : IRequestHandler<PostCategoryCommand>
+    ) : IRequestHandler<PostCategoryCommand, Result<Empty>>
     {
-        private readonly IValidator<PostCategoryCommand> _validator = validator;
         private readonly IMapper _mapper = mapper;
         private readonly ICategoriesRepository _repository = repository;
         private readonly IUnitOfWork _uow = uow;
         private readonly IRedisCache _redisCache = redisCache;
         private readonly IEventBus _eventBus = eventBus;
 
-        public async Task Handle(PostCategoryCommand request, CancellationToken cancellationToken)
+        public async Task<Result<Empty>> Handle(
+            PostCategoryCommand request,
+            CancellationToken cancellationToken
+        )
         {
-            var results = await _validator.ValidateAsync(request, cancellationToken);
-            if (!results.IsValid)
-                throw new ValidationException(results.ToString().Replace("\r\n", " "));
-
             var categoryToPost = _mapper.Map<Category>(request);
 
             await _repository.PostAsync(categoryToPost, cancellationToken);
             await _uow.SaveChangesAsync(cancellationToken);
-            await _redisCache.RemoveKeysByPattern(nameof(Category));
-            await _eventBus.PublishAsync(
-                _mapper.Map<PostedCategoryEvent>(categoryToPost),
-                cancellationToken
-            );
-            await _eventBus.PublishAsync(
-                new NotificationEvent
-                {
-                    EntityId = categoryToPost.Id,
-                    EntityType = EntityType.Category,
-                    Name = categoryToPost.Name,
-                    Description = categoryToPost.Description,
-                },
-                cancellationToken
-            );
+            await Task.WhenAll([
+                _redisCache.RemoveKeysByPattern(nameof(Category)),
+                _eventBus.PublishAsync(
+                    _mapper.Map<PostedCategoryEvent>(categoryToPost),
+                    cancellationToken
+                ),
+                _eventBus.PublishAsync(
+                    new NotificationEvent
+                    {
+                        EntityId = categoryToPost.Id,
+                        EntityType = EntityType.Category,
+                        Name = categoryToPost.Name,
+                        Description = categoryToPost.Description,
+                    },
+                    cancellationToken
+                ),
+            ]);
+
+            return Result<Empty>.Success();
         }
     }
 

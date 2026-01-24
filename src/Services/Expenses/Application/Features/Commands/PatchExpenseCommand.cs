@@ -8,39 +8,45 @@ public sealed record PatchExpenseCommand(
     DateTime Date,
     string CategoryId,
     string ApplicationUserId
-) : IRequest
+) : IRequest<Result<Empty>>
 {
     public sealed class PatchExpenseCommandHandler(
-        IValidator<PatchExpenseCommand> validator,
         IMapper mapper,
         IExpensesRepository repository,
         IUnitOfWork uow,
         IRedisCache redisCache,
         IEventBus eventBus
-    ) : IRequestHandler<PatchExpenseCommand>
+    ) : IRequestHandler<PatchExpenseCommand, Result<Empty>>
     {
-        private readonly IValidator<PatchExpenseCommand> _validator = validator;
         private readonly IMapper _mapper = mapper;
         private readonly IExpensesRepository _repository = repository;
         private readonly IUnitOfWork _uow = uow;
         private readonly IRedisCache _redisCache = redisCache;
         private readonly IEventBus _eventBus = eventBus;
 
-        public async Task Handle(PatchExpenseCommand request, CancellationToken cancellationToken)
+        public async Task<Result<Empty>> Handle(
+            PatchExpenseCommand request,
+            CancellationToken cancellationToken
+        )
         {
-            var results = await _validator.ValidateAsync(request, cancellationToken);
-            if (!results.IsValid)
-                throw new ValidationException(results.ToString().Replace("\r\n", " "));
-
             var expenseToPatch = _mapper.Map<Expense>(request);
 
-            await _repository.PatchAsync(expenseToPatch, cancellationToken);
+            var result = await _repository.PatchAsync(expenseToPatch, cancellationToken);
+            if (result.IsError)
+            {
+                return result;
+            }
+
             await _uow.SaveChangesAsync(cancellationToken);
-            await _redisCache.RemoveKeysByPattern(nameof(Expense));
-            await _eventBus.PublishAsync(
-                _mapper.Map<PatchedExpenseEvent>(expenseToPatch),
-                cancellationToken
-            );
+            await Task.WhenAll([
+                _redisCache.RemoveKeysByPattern(nameof(Expense)),
+                _eventBus.PublishAsync(
+                    _mapper.Map<PatchedExpenseEvent>(expenseToPatch),
+                    cancellationToken
+                ),
+            ]);
+
+            return Result<Empty>.Success();
         }
     }
 

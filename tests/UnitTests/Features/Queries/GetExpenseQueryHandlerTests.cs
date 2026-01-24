@@ -40,7 +40,9 @@ public sealed class GetExpenseQueryHandlerTests
         var result = await _handler.Handle(request, _cancellationToken);
 
         // Assert
-        result.Should().BeEquivalentTo(_mapper.Map<ExpenseDTO>(expenses.First()));
+        result
+            .Should()
+            .BeEquivalentTo(Result<ExpenseDTO>.Success(_mapper.Map<ExpenseDTO>(expenses.First())));
         _repository.Verify(
             mock => mock.GetBySpecAsync(It.IsAny<ExpensesSpecification>(), _cancellationToken),
             Times.Once

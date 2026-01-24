@@ -3,7 +3,6 @@ namespace UnitTests.Features.Commands;
 public sealed class PatchCategoryCommandHandlerTests
 {
     private readonly CancellationToken _cancellationToken;
-    private readonly Mock<IValidator<PatchCategoryCommand>> _validator;
     private readonly ILoggerFactory _loggerFactory;
     private readonly IMapper _mapper;
     private readonly Mock<ICategoriesRepository> _repository;
@@ -15,7 +14,6 @@ public sealed class PatchCategoryCommandHandlerTests
     public PatchCategoryCommandHandlerTests()
     {
         _cancellationToken = new();
-        _validator = new();
         _loggerFactory = new LoggerFactory();
         _mapper = new MapperConfiguration(
             c => c.AddProfile<CategoriesProfile>(),
@@ -27,7 +25,6 @@ public sealed class PatchCategoryCommandHandlerTests
         _eventBus = new();
 
         _handler = new PatchCategoryCommandHandler(
-            _validator.Object,
             _mapper,
             _repository.Object,
             _uow.Object,
@@ -48,12 +45,9 @@ public sealed class PatchCategoryCommandHandlerTests
             categories.First().Name,
             categories.First().Description
         );
-        _validator
-            .Setup(mock => mock.ValidateAsync(It.IsAny<PatchCategoryCommand>(), _cancellationToken))
-            .ReturnsAsync(new ValidationResult())
-            .Verifiable();
         _repository
             .Setup(mock => mock.PatchAsync(It.IsAny<Category>(), _cancellationToken))
+            .ReturnsAsync(Result<Empty>.Success())
             .Verifiable();
         _uow.Setup(mock => mock.SaveChangesAsync(_cancellationToken)).Verifiable();
         _redisCache.Setup(mock => mock.RemoveKeysByPattern(It.IsAny<string>())).Verifiable();
@@ -65,10 +59,6 @@ public sealed class PatchCategoryCommandHandlerTests
         await _handler.Handle(request, _cancellationToken);
 
         // Assert
-        _validator.Verify(
-            mock => mock.ValidateAsync(It.IsAny<PatchCategoryCommand>(), _cancellationToken),
-            Times.Once
-        );
         _repository.Verify(
             mock => mock.PatchAsync(It.IsAny<Category>(), _cancellationToken),
             Times.Once

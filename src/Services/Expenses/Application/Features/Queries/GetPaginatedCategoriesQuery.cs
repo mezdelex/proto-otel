@@ -1,21 +1,23 @@
 namespace Application.Features.Queries;
 
-public sealed record GetPaginatedCategoriesQuery : BaseRequest, IRequest<PaginatedList<CategoryDTO>>
+public sealed record GetPaginatedCategoriesQuery
+    : BaseRequest,
+        IRequest<Result<PaginatedList<CategoryDTO>>>
 {
     public string? Name { get; set; }
     public string? Keyword { get; set; }
 
     public sealed class GetPaginatedCategoriesQueryHandler(
+        IRedisCache redisCache,
         ICategoriesRepository repository,
-        IMapper mapper,
-        IRedisCache redisCache
-    ) : IRequestHandler<GetPaginatedCategoriesQuery, PaginatedList<CategoryDTO>>
+        IMapper mapper
+    ) : IRequestHandler<GetPaginatedCategoriesQuery, Result<PaginatedList<CategoryDTO>>>
     {
+        private readonly IRedisCache _redisCache = redisCache;
         private readonly ICategoriesRepository _repository = repository;
         private readonly IMapper _mapper = mapper;
-        private readonly IRedisCache _redisCache = redisCache;
 
-        public async Task<PaginatedList<CategoryDTO>> Handle(
+        public async Task<Result<PaginatedList<CategoryDTO>>> Handle(
             GetPaginatedCategoriesQuery request,
             CancellationToken cancellationToken
         )
@@ -27,7 +29,7 @@ public sealed record GetPaginatedCategoriesQuery : BaseRequest, IRequest<Paginat
             >(redisKey);
             if (cachedPaginatedCategories != null)
             {
-                return cachedPaginatedCategories;
+                return Result<PaginatedList<CategoryDTO>>.Success(cachedPaginatedCategories);
             }
 
             var paginatedCategories = await _repository
@@ -44,7 +46,34 @@ public sealed record GetPaginatedCategoriesQuery : BaseRequest, IRequest<Paginat
                 DateTimeOffset.Now.AddMinutes(5)
             );
 
-            return paginatedCategories;
+            return Result<PaginatedList<CategoryDTO>>.Success(paginatedCategories);
+        }
+    }
+
+    public class GetPaginatedCategoriesQueryValidator
+        : AbstractValidator<GetPaginatedCategoriesQuery>
+    {
+        public GetPaginatedCategoriesQueryValidator()
+        {
+            RuleFor(x => x.Name)
+                .MaximumLength(CategoryConstraints.NameMaxLength)
+                .WithMessage(
+                    GenericValidationMessages.ShouldNotBeLongerThan(
+                        nameof(Name),
+                        CategoryConstraints.NameMaxLength
+                    )
+                )
+                .When(x => !string.IsNullOrWhiteSpace(x.Name));
+
+            RuleFor(x => x.Keyword)
+                .MaximumLength(CategoryConstraints.DescriptionMaxLength)
+                .WithMessage(
+                    GenericValidationMessages.ShouldNotBeLongerThan(
+                        nameof(Keyword),
+                        CategoryConstraints.DescriptionMaxLength
+                    )
+                )
+                .When(x => !string.IsNullOrWhiteSpace(x.Keyword));
         }
     }
 }

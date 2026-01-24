@@ -1,38 +1,45 @@
 namespace Application.Features.Commands;
 
-public sealed record PatchCategoryCommand(string Id, string Name, string Description) : IRequest
+public sealed record PatchCategoryCommand(string Id, string Name, string Description)
+    : IRequest<Result<Empty>>
 {
     public sealed class PatchCategoryCommandHandler(
-        IValidator<PatchCategoryCommand> validator,
         IMapper mapper,
         ICategoriesRepository repository,
         IUnitOfWork uow,
         IRedisCache redisCache,
         IEventBus eventBus
-    ) : IRequestHandler<PatchCategoryCommand>
+    ) : IRequestHandler<PatchCategoryCommand, Result<Empty>>
     {
-        private readonly IValidator<PatchCategoryCommand> _validator = validator;
         private readonly IMapper _mapper = mapper;
         private readonly ICategoriesRepository _repository = repository;
         private readonly IUnitOfWork _uow = uow;
         private readonly IRedisCache _redisCache = redisCache;
         private readonly IEventBus _eventBus = eventBus;
 
-        public async Task Handle(PatchCategoryCommand request, CancellationToken cancellationToken)
+        public async Task<Result<Empty>> Handle(
+            PatchCategoryCommand request,
+            CancellationToken cancellationToken
+        )
         {
-            var results = await _validator.ValidateAsync(request, cancellationToken);
-            if (!results.IsValid)
-                throw new ValidationException(results.ToString().Replace("\r\n", " "));
-
             var categoryToPatch = _mapper.Map<Category>(request);
 
-            await _repository.PatchAsync(categoryToPatch, cancellationToken);
+            var result = await _repository.PatchAsync(categoryToPatch, cancellationToken);
+            if (result.IsError)
+            {
+                return result;
+            }
+
             await _uow.SaveChangesAsync(cancellationToken);
-            await _redisCache.RemoveKeysByPattern(nameof(Category));
-            await _eventBus.PublishAsync(
-                _mapper.Map<PatchedCategoryEvent>(categoryToPatch),
-                cancellationToken
-            );
+            await Task.WhenAll([
+                _redisCache.RemoveKeysByPattern(nameof(Category)),
+                _eventBus.PublishAsync(
+                    _mapper.Map<PatchedCategoryEvent>(categoryToPatch),
+                    cancellationToken
+                ),
+            ]);
+
+            return Result<Empty>.Success();
         }
     }
 

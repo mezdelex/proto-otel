@@ -44,7 +44,11 @@ public sealed class GetCategoryQueryHandlerTests
         var result = await _handler.Handle(request, _cancellationToken);
 
         // Assert
-        result.Should().BeEquivalentTo(_mapper.Map<CategoryDTO>(categories.First()));
+        result
+            .Should()
+            .BeEquivalentTo(
+                Result<CategoryDTO>.Success(_mapper.Map<CategoryDTO>(categories.First()))
+            );
         _repository.Verify(
             mock => mock.GetBySpecAsync(It.IsAny<CategoriesSpecification>(), _cancellationToken),
             Times.Once

@@ -2,22 +2,26 @@ namespace Application.Features.Queries;
 
 public sealed record GetPaginatedApplicationUsersQuery
     : BaseRequest,
-        IRequest<PaginatedList<ApplicationUserDTO>>
+        IRequest<Result<PaginatedList<ApplicationUserDTO>>>
 {
     public string? Email { get; set; }
     public string? Keyword { get; set; }
 
     public sealed class GetPaginatedApplicationUsersQueryHandler(
+        IRedisCache redisCache,
         IApplicationUsersRepository repository,
-        IMapper mapper,
-        IRedisCache redisCache
-    ) : IRequestHandler<GetPaginatedApplicationUsersQuery, PaginatedList<ApplicationUserDTO>>
+        IMapper mapper
+    )
+        : IRequestHandler<
+            GetPaginatedApplicationUsersQuery,
+            Result<PaginatedList<ApplicationUserDTO>>
+        >
     {
+        private readonly IRedisCache _redisCache = redisCache;
         private readonly IApplicationUsersRepository _repository = repository;
         private readonly IMapper _mapper = mapper;
-        private readonly IRedisCache _redisCache = redisCache;
 
-        public async Task<PaginatedList<ApplicationUserDTO>> Handle(
+        public async Task<Result<PaginatedList<ApplicationUserDTO>>> Handle(
             GetPaginatedApplicationUsersQuery request,
             CancellationToken cancellationToken
         )
@@ -29,7 +33,9 @@ public sealed record GetPaginatedApplicationUsersQuery
             >(redisKey);
             if (cachedPaginatedApplicationUsers != null)
             {
-                return cachedPaginatedApplicationUsers;
+                return Result<PaginatedList<ApplicationUserDTO>>.Success(
+                    cachedPaginatedApplicationUsers
+                );
             }
 
             var paginatedApplicationUsers = await _repository
@@ -49,7 +55,7 @@ public sealed record GetPaginatedApplicationUsersQuery
                 DateTimeOffset.Now.AddMinutes(5)
             );
 
-            return paginatedApplicationUsers;
+            return Result<PaginatedList<ApplicationUserDTO>>.Success(paginatedApplicationUsers);
         }
     }
 }

@@ -13,6 +13,6 @@ public interface IBaseRepository<TEntity>
         CancellationToken cancellationToken = default
     );
     Task PostAsync(TEntity entity, CancellationToken cancellationToken = default);
-    Task PatchAsync(TEntity entity, CancellationToken cancellationToken = default);
-    Task DeleteAsync(string id, CancellationToken cancellationToken = default);
+    Task<Result<Empty>> PatchAsync(TEntity entity, CancellationToken cancellationToken = default);
+    Task<Result<Empty>> DeleteAsync(string id, CancellationToken cancellationToken = default);
 }

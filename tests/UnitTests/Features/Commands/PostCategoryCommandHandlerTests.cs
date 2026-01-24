@@ -3,7 +3,6 @@ namespace UnitTests.Features.Commands;
 public sealed class PostCategoryCommandHandlerTests
 {
     private readonly CancellationToken _cancellationToken;
-    private readonly Mock<IValidator<PostCategoryCommand>> _validator;
     private readonly ILoggerFactory _loggerFactory;
     private readonly IMapper _mapper;
     private readonly Mock<ICategoriesRepository> _repository;
@@ -15,7 +14,6 @@ public sealed class PostCategoryCommandHandlerTests
     public PostCategoryCommandHandlerTests()
     {
         _cancellationToken = new();
-        _validator = new();
         _loggerFactory = new LoggerFactory();
         _mapper = new MapperConfiguration(
             c => c.AddProfile<CategoriesProfile>(),
@@ -27,7 +25,6 @@ public sealed class PostCategoryCommandHandlerTests
         _eventBus = new();
 
         _handler = new PostCategoryCommandHandler(
-            _validator.Object,
             _mapper,
             _repository.Object,
             _uow.Object,
@@ -47,10 +44,6 @@ public sealed class PostCategoryCommandHandlerTests
             categories.First().Name,
             categories.First().Description
         );
-        _validator
-            .Setup(mock => mock.ValidateAsync(request, _cancellationToken))
-            .ReturnsAsync(new ValidationResult())
-            .Verifiable();
         _repository
             .Setup(mock => mock.PostAsync(It.IsAny<Category>(), _cancellationToken))
             .Verifiable();
@@ -64,10 +57,6 @@ public sealed class PostCategoryCommandHandlerTests
         await _handler.Handle(request, _cancellationToken);
 
         // Assert
-        _validator.Verify(
-            mock => mock.ValidateAsync(It.IsAny<PostCategoryCommand>(), _cancellationToken),
-            Times.Once
-        );
         _repository.Verify(
             mock => mock.PostAsync(It.IsAny<Category>(), _cancellationToken),
             Times.Once

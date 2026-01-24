@@ -2,7 +2,7 @@ namespace Application.Features.Queries;
 
 public sealed record GetPaginatedExpensesQuery
     : BaseRequest,
-        IRequest<PaginatedList<ExtraExpenseDTO>>
+        IRequest<Result<PaginatedList<ExtraExpenseDTO>>>
 {
     public string? Name { get; set; }
     public string? Keyword { get; set; }
@@ -13,16 +13,16 @@ public sealed record GetPaginatedExpensesQuery
     public string? Email { get; set; }
 
     public sealed class GetPaginatedExpensesQueryHandler(
+        IRedisCache redisCache,
         IExpensesRepository repository,
-        IMapper mapper,
-        IRedisCache redisCache
-    ) : IRequestHandler<GetPaginatedExpensesQuery, PaginatedList<ExtraExpenseDTO>>
+        IMapper mapper
+    ) : IRequestHandler<GetPaginatedExpensesQuery, Result<PaginatedList<ExtraExpenseDTO>>>
     {
+        private readonly IRedisCache _redisCache = redisCache;
         private readonly IExpensesRepository _repository = repository;
         private readonly IMapper _mapper = mapper;
-        private readonly IRedisCache _redisCache = redisCache;
 
-        public async Task<PaginatedList<ExtraExpenseDTO>> Handle(
+        public async Task<Result<PaginatedList<ExtraExpenseDTO>>> Handle(
             GetPaginatedExpensesQuery request,
             CancellationToken cancellationToken
         )
@@ -34,7 +34,7 @@ public sealed record GetPaginatedExpensesQuery
             >(redisKey);
             if (cachedPaginatedExpenses != null)
             {
-                return cachedPaginatedExpenses;
+                return Result<PaginatedList<ExtraExpenseDTO>>.Success(cachedPaginatedExpenses);
             }
 
             var paginatedExpenses = await _repository
@@ -61,7 +61,7 @@ public sealed record GetPaginatedExpensesQuery
                 DateTimeOffset.Now.AddMinutes(5)
             );
 
-            return paginatedExpenses;
+            return Result<PaginatedList<ExtraExpenseDTO>>.Success(paginatedExpenses);
         }
     }
 

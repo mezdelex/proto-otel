@@ -32,6 +32,7 @@ public sealed class DeleteCategoryCommandHandlerTests
         var deleteCategoryCommand = new DeleteCategoryCommand(categories.First().Id);
         _repository
             .Setup(mock => mock.DeleteAsync(It.IsAny<string>(), _cancellationToken))
+            .ReturnsAsync(Result<Empty>.Success())
             .Verifiable();
         _uow.Setup(mock => mock.SaveChangesAsync(_cancellationToken)).Verifiable();
         _redisCache.Setup(mock => mock.RemoveKeysByPattern(It.IsAny<string>())).Verifiable();

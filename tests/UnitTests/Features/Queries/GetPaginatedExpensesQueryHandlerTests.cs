@@ -3,15 +3,17 @@ namespace UnitTests.Features.Queries;
 public sealed class GetPaginatedExpensesQueryHandlerTests
 {
     private readonly CancellationToken _cancellationToken;
-    private readonly ILoggerFactory _loggerFactory;
-    private readonly IMapper _mapper;
-    private readonly Mock<IExpensesRepository> _repository;
     private readonly Mock<IRedisCache> _redisCache;
+    private readonly Mock<IExpensesRepository> _repository;
+    private readonly IMapper _mapper;
+    private readonly ILoggerFactory _loggerFactory;
     private readonly GetPaginatedExpensesQueryHandler _handler;
 
     public GetPaginatedExpensesQueryHandlerTests()
     {
         _cancellationToken = new();
+        _redisCache = new();
+        _repository = new();
         _loggerFactory = new LoggerFactory();
         _mapper = new MapperConfiguration(
             c =>
@@ -22,13 +24,11 @@ public sealed class GetPaginatedExpensesQueryHandlerTests
             },
             _loggerFactory
         ).CreateMapper();
-        _repository = new();
-        _redisCache = new();
 
         _handler = new GetPaginatedExpensesQueryHandler(
+            _redisCache.Object,
             _repository.Object,
-            _mapper,
-            _redisCache.Object
+            _mapper
         );
     }
 
@@ -76,13 +76,15 @@ public sealed class GetPaginatedExpensesQueryHandlerTests
         result
             .Should()
             .BeEquivalentTo(
-                new PaginatedList<ExtraExpenseDTO>(
-                    [.. expenses.Select(_mapper.Map<ExtraExpenseDTO>)],
-                    0,
-                    expenses.Count(),
-                    expenses.Count(),
-                    false,
-                    true
+                Result<PaginatedList<ExtraExpenseDTO>>.Success(
+                    new PaginatedList<ExtraExpenseDTO>(
+                        [.. expenses.Select(_mapper.Map<ExtraExpenseDTO>)],
+                        0,
+                        expenses.Count(),
+                        expenses.Count(),
+                        false,
+                        true
+                    )
                 )
             );
         _repository.Verify(

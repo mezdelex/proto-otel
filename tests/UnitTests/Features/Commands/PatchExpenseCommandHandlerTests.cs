@@ -3,7 +3,6 @@ namespace UnitTests.Features.Commands;
 public sealed class PatchExpenseCommandHandlerTests
 {
     private readonly CancellationToken _cancellationToken;
-    private readonly Mock<IValidator<PatchExpenseCommand>> _validator;
     private readonly ILoggerFactory _loggerFactory;
     private readonly IMapper _mapper;
     private readonly Mock<IExpensesRepository> _repository;
@@ -15,7 +14,6 @@ public sealed class PatchExpenseCommandHandlerTests
     public PatchExpenseCommandHandlerTests()
     {
         _cancellationToken = new();
-        _validator = new();
         _loggerFactory = new LoggerFactory();
         _mapper = new MapperConfiguration(
             c => c.AddProfile<ExpensesProfile>(),
@@ -27,7 +25,6 @@ public sealed class PatchExpenseCommandHandlerTests
         _eventBus = new();
 
         _handler = new PatchExpenseCommandHandler(
-            _validator.Object,
             _mapper,
             _repository.Object,
             _uow.Object,
@@ -53,12 +50,9 @@ public sealed class PatchExpenseCommandHandlerTests
             expenses.First().CategoryId,
             expenses.First().ApplicationUserId
         );
-        _validator
-            .Setup(mock => mock.ValidateAsync(It.IsAny<PatchExpenseCommand>(), _cancellationToken))
-            .ReturnsAsync(new ValidationResult())
-            .Verifiable();
         _repository
             .Setup(mock => mock.PatchAsync(It.IsAny<Expense>(), _cancellationToken))
+            .ReturnsAsync(Result<Empty>.Success())
             .Verifiable();
         _uow.Setup(mock => mock.SaveChangesAsync(_cancellationToken)).Verifiable();
         _redisCache.Setup(mock => mock.RemoveKeysByPattern(It.IsAny<string>())).Verifiable();
@@ -70,10 +64,6 @@ public sealed class PatchExpenseCommandHandlerTests
         await _handler.Handle(request, _cancellationToken);
 
         // Assert
-        _validator.Verify(
-            mock => mock.ValidateAsync(It.IsAny<PatchExpenseCommand>(), _cancellationToken),
-            Times.Once
-        );
         _repository.Verify(
             mock => mock.PatchAsync(It.IsAny<Expense>(), _cancellationToken),
             Times.Once

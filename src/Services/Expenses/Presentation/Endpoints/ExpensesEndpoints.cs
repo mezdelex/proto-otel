@@ -2,114 +2,41 @@ namespace Presentation.Endpoints;
 
 public static class ExpensesEndpoints
 {
-    private static readonly ILogger _logger = new LoggerFactory().CreateLogger("Expenses");
-
     public static void MapExpensesEndpoints(this IEndpointRouteBuilder builder)
     {
         var group = builder.MapGroup(MapGroups.Expenses);
+        var adminGroup = group.RequireAuthorization(nameof(Policies.AdminRolePolicy));
+        var userGroup = group.RequireAuthorization(nameof(Policies.UserRolePolicy));
 
-        group
-            .MapPost(Patterns.PaginatedPattern, GetPaginatedExpensesQueryAsync)
-            .RequireAuthorization(nameof(Policies.UserRolePolicy));
-        group
-            .MapGet(Patterns.IdPattern, GetExpenseQueryAsync)
-            .RequireAuthorization(nameof(Policies.UserRolePolicy));
-        group
-            .MapPatch(string.Empty, PatchExpenseCommandAsync)
-            .RequireAuthorization(nameof(Policies.AdminRolePolicy));
-        group
-            .MapPost(string.Empty, PostExpenseCommandAsync)
-            .RequireAuthorization(nameof(Policies.AdminRolePolicy));
-        group
-            .MapDelete(Patterns.IdPattern, DeleteExpenseCommandAsync)
-            .RequireAuthorization(nameof(Policies.AdminRolePolicy));
-    }
+        userGroup.MapPost(
+            Patterns.PaginatedPattern,
+            async (ISender s, GetPaginatedExpensesQuery q) => (await s.Send(q)).ToResponse()
+        );
 
-    public static async Task<IResult> GetPaginatedExpensesQueryAsync(
-        ISender sender,
-        [FromBody] GetPaginatedExpensesQuery query
-    )
-    {
-        try
-        {
-            return Results.Ok(await sender.Send(query));
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(Errors.ErrorMessageTemplate, e, e.Message);
+        userGroup.MapPost(
+            Patterns.ListPattern,
+            async (ISender s, GetExpenseQuery q) => (await s.Send(q)).ToResponse()
+        );
 
-            return Results.BadRequest(e.Message);
-        }
-    }
+        userGroup.MapGet(
+            Patterns.IdPattern,
+            async (ISender s, string id) => (await s.Send(new GetExpenseQuery(id))).ToResponse()
+        );
 
-    public static async Task<IResult> GetExpenseQueryAsync(ISender sender, [FromRoute] string id)
-    {
-        try
-        {
-            return Results.Ok(await sender.Send(new GetExpenseQuery(id)));
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(Errors.ErrorMessageTemplate, e, e.Message);
+        adminGroup.MapPatch(
+            string.Empty,
+            async (ISender s, PatchExpenseCommand c) => (await s.Send(c)).ToResponse()
+        );
 
-            return Results.NotFound(e.Message);
-        }
-    }
+        adminGroup.MapPost(
+            string.Empty,
+            async (ISender s, PostExpenseCommand c) => (await s.Send(c)).ToResponse()
+        );
 
-    public static async Task<IResult> PatchExpenseCommandAsync(
-        ISender sender,
-        [FromBody] PatchExpenseCommand command
-    )
-    {
-        try
-        {
-            await sender.Send(command);
-
-            return Results.NoContent();
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(Errors.ErrorMessageTemplate, e, e.Message);
-
-            return Results.BadRequest(e.Message);
-        }
-    }
-
-    public static async Task<IResult> PostExpenseCommandAsync(
-        ISender sender,
-        [FromBody] PostExpenseCommand command
-    )
-    {
-        try
-        {
-            await sender.Send(command);
-
-            return Results.NoContent();
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(Errors.ErrorMessageTemplate, e, e.Message);
-
-            return Results.BadRequest(e.Message);
-        }
-    }
-
-    public static async Task<IResult> DeleteExpenseCommandAsync(
-        ISender sender,
-        [FromRoute] string id
-    )
-    {
-        try
-        {
-            await sender.Send(new DeleteExpenseCommand(id));
-
-            return Results.NoContent();
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(Errors.ErrorMessageTemplate, e, e.Message);
-
-            return Results.BadRequest(e.Message);
-        }
+        adminGroup.MapDelete(
+            Patterns.IdPattern,
+            async (ISender s, string id) =>
+                (await s.Send(new DeleteExpenseCommand(id))).ToResponse()
+        );
     }
 }

@@ -1,21 +1,21 @@
 namespace Application.Features.Queries;
 
-public sealed record GetCategoriesQuery : IRequest<List<CategoryDTO>>
+public sealed record GetCategoriesQuery : IRequest<Result<List<CategoryDTO>>>
 {
     public string? Name { get; set; }
     public string? Keyword { get; set; }
 
     public sealed class GetCategoriesQueryHandler(
+        IRedisCache redisCache,
         ICategoriesRepository repository,
-        IMapper mapper,
-        IRedisCache redisCache
-    ) : IRequestHandler<GetCategoriesQuery, List<CategoryDTO>>
+        IMapper mapper
+    ) : IRequestHandler<GetCategoriesQuery, Result<List<CategoryDTO>>>
     {
+        private readonly IRedisCache _redisCache = redisCache;
         private readonly ICategoriesRepository _repository = repository;
         private readonly IMapper _mapper = mapper;
-        private readonly IRedisCache _redisCache = redisCache;
 
-        public async Task<List<CategoryDTO>> Handle(
+        public async Task<Result<List<CategoryDTO>>> Handle(
             GetCategoriesQuery request,
             CancellationToken cancellationToken
         )
@@ -24,10 +24,10 @@ public sealed record GetCategoriesQuery : IRequest<List<CategoryDTO>>
             var cachedCategories = await _redisCache.GetCachedData<List<CategoryDTO>>(redisKey);
             if (cachedCategories != null)
             {
-                return cachedCategories;
+                return Result<List<CategoryDTO>>.Success(cachedCategories);
             }
 
-            var paginatedCategories = await _repository
+            var categories = await _repository
                 .ApplySpecification(
                     new CategoriesSpecification(name: request.Name, keyword: request.Keyword)
                 )
@@ -35,13 +35,9 @@ public sealed record GetCategoriesQuery : IRequest<List<CategoryDTO>>
                 .ProjectTo<CategoryDTO>(_mapper.ConfigurationProvider)
                 .ToListAsync(cancellationToken);
 
-            await _redisCache.SetCachedData(
-                redisKey,
-                paginatedCategories,
-                DateTimeOffset.Now.AddMinutes(5)
-            );
+            await _redisCache.SetCachedData(redisKey, categories, DateTimeOffset.Now.AddMinutes(5));
 
-            return paginatedCategories;
+            return Result<List<CategoryDTO>>.Success(categories);
         }
     }
 

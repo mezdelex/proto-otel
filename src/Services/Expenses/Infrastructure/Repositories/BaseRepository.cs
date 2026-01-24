@@ -25,25 +25,45 @@ public class BaseRepository<TEntity>(
     public async Task PostAsync(TEntity entity, CancellationToken cancellationToken) =>
         await _context.Set<TEntity>().AddAsync(entity, cancellationToken);
 
-    public async Task PatchAsync(TEntity entity, CancellationToken cancellationToken)
+    public async Task<Result<Empty>> PatchAsync(TEntity entity, CancellationToken cancellationToken)
     {
-        var foundEntity =
-            await _context
-                .Set<TEntity>()
-                .FirstOrDefaultAsync(x => x.Id.Equals(entity.Id), cancellationToken)
-            ?? throw new NotFoundException(typeof(TEntity).Name);
+        var foundEntity = await _context
+            .Set<TEntity>()
+            .FirstOrDefaultAsync(x => x.Id.Equals(entity.Id), cancellationToken);
+        if (foundEntity is null)
+        {
+            return Result<Empty>.Error([
+                new Error(
+                    Errors.NotFoundError,
+                    Errors.NotFoundErrorDetail(typeof(TEntity).Name),
+                    ErrorTypes.NotFound
+                ),
+            ]);
+        }
 
         _context.Set<TEntity>().Entry(foundEntity).CurrentValues.SetValues(entity);
+
+        return Result<Empty>.Success();
     }
 
-    public async Task DeleteAsync(string id, CancellationToken cancellationToken)
+    public async Task<Result<Empty>> DeleteAsync(string id, CancellationToken cancellationToken)
     {
-        var foundEntity =
-            await _context
-                .Set<TEntity>()
-                .FirstOrDefaultAsync(x => x.Id.Equals(id), cancellationToken)
-            ?? throw new NotFoundException(typeof(TEntity).Name);
+        var foundEntity = await _context
+            .Set<TEntity>()
+            .FirstOrDefaultAsync(x => x.Id.Equals(id), cancellationToken);
+        if (foundEntity is null)
+        {
+            return Result<Empty>.Error([
+                new Error(
+                    Errors.NotFoundError,
+                    Errors.NotFoundErrorDetail(typeof(TEntity).Name),
+                    ErrorTypes.NotFound
+                ),
+            ]);
+        }
 
         _context.Set<TEntity>().Remove(foundEntity);
+
+        return Result<Empty>.Success();
     }
 }

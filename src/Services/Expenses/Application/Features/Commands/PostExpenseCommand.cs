@@ -5,43 +5,47 @@ public sealed record PostExpenseCommand(
     string Description,
     decimal Value,
     string CategoryId
-) : IRequest
+) : IRequest<Result<Empty>>
 {
     public sealed class PostExpenseCommandHandler(
-        IValidator<PostExpenseCommand> validator,
-        IMapper mapper,
         IHttpContextAccessor httpContextAccessor,
         IApplicationUsersRepository applicationUsersRepository,
+        IMapper mapper,
         IExpensesRepository repository,
         IUnitOfWork uow,
         IRedisCache redisCache,
         IEventBus eventBus
-    ) : IRequestHandler<PostExpenseCommand>
+    ) : IRequestHandler<PostExpenseCommand, Result<Empty>>
     {
-        private readonly IValidator<PostExpenseCommand> _validator = validator;
-        private readonly IMapper _mapper = mapper;
         private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
         private readonly IApplicationUsersRepository _applicationUsersRepository =
             applicationUsersRepository;
+        private readonly IMapper _mapper = mapper;
         private readonly IExpensesRepository _repository = repository;
         private readonly IUnitOfWork _uow = uow;
         private readonly IRedisCache _redisCache = redisCache;
         private readonly IEventBus _eventBus = eventBus;
 
-        public async Task Handle(PostExpenseCommand request, CancellationToken cancellationToken)
+        public async Task<Result<Empty>> Handle(
+            PostExpenseCommand request,
+            CancellationToken cancellationToken
+        )
         {
-            var results = await _validator.ValidateAsync(request, cancellationToken);
-            if (!results.IsValid)
-            {
-                throw new ValidationException(results.ToString().Replace("\r\n", " "));
-            }
-
             var email = _httpContextAccessor.HttpContext.User.Identity?.Name;
-            var user =
-                await _applicationUsersRepository.GetBySpecAsync(
-                    new ApplicationUsersSpecification(email: email),
-                    cancellationToken
-                ) ?? throw new NotFoundException(nameof(ApplicationUser));
+            var user = await _applicationUsersRepository.GetBySpecAsync(
+                new ApplicationUsersSpecification(email: email),
+                cancellationToken
+            );
+            if (user is null)
+            {
+                return Result<Empty>.Error([
+                    new Error(
+                        Errors.NotFoundError,
+                        Errors.NotFoundErrorDetail(nameof(ApplicationUser)),
+                        ErrorTypes.NotFound
+                    ),
+                ]);
+            }
 
             var expenseToPost = _mapper.Map<Expense>(request);
             expenseToPost.ApplicationUserId = user.Id;
@@ -55,6 +59,8 @@ public sealed record PostExpenseCommand(
                     cancellationToken
                 )
             );
+
+            return Result<Empty>.Success();
         }
     }
 

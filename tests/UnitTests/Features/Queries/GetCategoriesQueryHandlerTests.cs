@@ -3,15 +3,17 @@ namespace UnitTests.Features.Queries;
 public sealed class GetCategoriesQueryHandlerTests
 {
     private readonly CancellationToken _cancellationToken;
+    private readonly Mock<IRedisCache> _redisCache;
+    private readonly Mock<ICategoriesRepository> _repository;
     private readonly ILoggerFactory _loggerFactory;
     private readonly IMapper _mapper;
-    private readonly Mock<ICategoriesRepository> _repository;
-    private readonly Mock<IRedisCache> _redisCache;
     private readonly GetCategoriesQueryHandler _handler;
 
     public GetCategoriesQueryHandlerTests()
     {
         _cancellationToken = new();
+        _redisCache = new();
+        _repository = new();
         _loggerFactory = new LoggerFactory();
         _mapper = new MapperConfiguration(
             c =>
@@ -21,10 +23,8 @@ public sealed class GetCategoriesQueryHandlerTests
             },
             _loggerFactory
         ).CreateMapper();
-        _repository = new();
-        _redisCache = new();
 
-        _handler = new GetCategoriesQueryHandler(_repository.Object, _mapper, _redisCache.Object);
+        _handler = new GetCategoriesQueryHandler(_redisCache.Object, _repository.Object, _mapper);
     }
 
     [Theory]
@@ -62,7 +62,11 @@ public sealed class GetCategoriesQueryHandlerTests
         var result = await _handler.Handle(request, _cancellationToken);
 
         // Assert
-        result.Should().BeEquivalentTo([.. categories.Select(_mapper.Map<CategoryDTO>)]);
+        result
+            .Should()
+            .BeEquivalentTo(
+                Result<List<CategoryDTO>>.Success([.. categories.Select(_mapper.Map<CategoryDTO>)])
+            );
         _repository.Verify(
             mock => mock.ApplySpecification(It.IsAny<CategoriesSpecification>()),
             Times.Once

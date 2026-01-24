@@ -33,6 +33,7 @@ public sealed class DeleteExpenseCommandHandlerTests
         var request = new DeleteExpenseCommand(expenses.First().Id);
         _repository
             .Setup(mock => mock.DeleteAsync(It.IsAny<string>(), _cancellationToken))
+            .ReturnsAsync(Result<Empty>.Success())
             .Verifiable();
         _uow.Setup(mock => mock.SaveChangesAsync(_cancellationToken)).Verifiable();
         _redisCache.Setup(mock => mock.RemoveKeysByPattern(It.IsAny<string>())).Verifiable();
