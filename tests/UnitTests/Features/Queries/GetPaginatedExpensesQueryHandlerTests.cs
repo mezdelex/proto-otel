@@ -35,19 +35,19 @@ public sealed class GetPaginatedExpensesQueryHandlerTests
     [Theory]
     [MemberData(nameof(ExpensesMock.GetExpensesWithUsers), MemberType = typeof(ExpensesMock))]
     public async Task GetPaginatedExpensesQueryHandler_ShouldReturnPaginatedListOfExtraExpenseDTO(
-        IEnumerable<Expense> expenses,
-        IEnumerable<ApplicationUser> _
+        IReadOnlyList<Expense> expenses,
+        IReadOnlyList<ApplicationUser> _
     )
     {
         // Arrange
         var request = new GetPaginatedExpensesQuery
         {
-            Name = expenses.First().Name,
-            Keyword = expenses.First().Name,
-            CategoryId = expenses.First().CategoryId,
-            ApplicationUserId = expenses.First().ApplicationUserId,
+            Name = expenses[0].Name,
+            Keyword = expenses[0].Name,
+            CategoryId = expenses[0].CategoryId,
+            ApplicationUserId = expenses[0].ApplicationUserId,
             Page = 0,
-            PageSize = expenses.Count(),
+            PageSize = expenses.Count,
         };
         var redisKey =
             $"{nameof(Expense)}#{request.Name}#{request.Keyword}#{request.MinDate}#{request.MaxDate}#{request.CategoryId}#{request.ApplicationUserId}#{request.Email}#{request.Page}#{request.PageSize}";
@@ -80,8 +80,8 @@ public sealed class GetPaginatedExpensesQueryHandlerTests
                     new PaginatedList<ExtraExpenseDTO>(
                         [.. expenses.Select(_mapper.Map<ExtraExpenseDTO>)],
                         0,
-                        expenses.Count(),
-                        expenses.Count(),
+                        expenses.Count,
+                        expenses.Count,
                         false,
                         true
                     )

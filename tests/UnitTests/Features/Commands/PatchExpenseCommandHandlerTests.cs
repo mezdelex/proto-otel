@@ -36,19 +36,19 @@ public sealed class PatchExpenseCommandHandlerTests
     [Theory]
     [MemberData(nameof(ExpensesMock.GetExpensesWithUsers), MemberType = typeof(ExpensesMock))]
     public async Task PatchExpenseCommandHandler_ShouldPatchExpenseAndPublishEventAsync(
-        IEnumerable<Expense> expenses,
-        IEnumerable<ApplicationUser> _
+        IReadOnlyList<Expense> expenses,
+        IReadOnlyList<ApplicationUser> _
     )
     {
         // Arrange
         var request = new PatchExpenseCommand(
-            expenses.First().Id,
-            expenses.First().Name,
-            expenses.First().Description,
-            expenses.First().Value,
-            expenses.First().Date,
-            expenses.First().CategoryId,
-            expenses.First().ApplicationUserId
+            expenses[0].Id,
+            expenses[0].Name,
+            expenses[0].Description,
+            expenses[0].Value,
+            expenses[0].Date,
+            expenses[0].CategoryId,
+            expenses[0].ApplicationUserId
         );
         _repository
             .Setup(mock => mock.PatchAsync(It.IsAny<Expense>(), _cancellationToken))

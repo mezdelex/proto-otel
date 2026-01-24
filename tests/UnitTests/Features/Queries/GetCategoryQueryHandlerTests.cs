@@ -28,16 +28,16 @@ public sealed class GetCategoryQueryHandlerTests
     [Theory]
     [MemberData(nameof(CategoriesMock.GetCategories), MemberType = typeof(CategoriesMock))]
     public async Task Handle_ValidIdGetCategoryQuery_ShouldReturnRequestedCategoryAsCategoryDTOAsync(
-        IEnumerable<Category> categories
+        IReadOnlyList<Category> categories
     )
     {
         // Arrange
-        var request = new GetCategoryQuery(categories.First().Id);
+        var request = new GetCategoryQuery(categories[0].Id);
         _repository
             .Setup(mock =>
                 mock.GetBySpecAsync(It.IsAny<CategoriesSpecification>(), _cancellationToken)
             )
-            .ReturnsAsync(categories.First())
+            .ReturnsAsync(categories[0])
             .Verifiable();
 
         // Act
@@ -46,9 +46,7 @@ public sealed class GetCategoryQueryHandlerTests
         // Assert
         result
             .Should()
-            .BeEquivalentTo(
-                Result<CategoryDTO>.Success(_mapper.Map<CategoryDTO>(categories.First()))
-            );
+            .BeEquivalentTo(Result<CategoryDTO>.Success(_mapper.Map<CategoryDTO>(categories[0])));
         _repository.Verify(
             mock => mock.GetBySpecAsync(It.IsAny<CategoriesSpecification>(), _cancellationToken),
             Times.Once

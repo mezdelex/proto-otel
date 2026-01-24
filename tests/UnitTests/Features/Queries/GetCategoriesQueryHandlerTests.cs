@@ -30,14 +30,14 @@ public sealed class GetCategoriesQueryHandlerTests
     [Theory]
     [MemberData(nameof(CategoriesMock.GetCategories), MemberType = typeof(CategoriesMock))]
     public async Task GetCategoriesQueryHandler_ShouldReturnListOfCategoryDTO(
-        IEnumerable<Category> categories
+        IReadOnlyList<Category> categories
     )
     {
         // Arrange
         var request = new GetCategoriesQuery
         {
-            Name = categories.First().Name,
-            Keyword = categories.First().Name,
+            Name = categories[0].Name,
+            Keyword = categories[0].Name,
         };
         var redisKey = $"{nameof(Category)}#{request.Name}#{request.Keyword}";
         _repository

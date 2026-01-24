@@ -42,26 +42,26 @@ public sealed class PostExpenseCommandHandlerTests
     [Theory]
     [MemberData(nameof(ExpensesMock.GetExpensesWithUsers), MemberType = typeof(ExpensesMock))]
     public async Task PostExpenseCommandHandler_ShouldPostExpenseAndPublishEventAsync(
-        IEnumerable<Expense> expenses,
-        IEnumerable<ApplicationUser> users
+        IReadOnlyList<Expense> expenses,
+        IReadOnlyList<ApplicationUser> users
     )
     {
         // Arrange
         var request = new PostExpenseCommand(
-            expenses.First().Name,
-            expenses.First().Description,
-            expenses.First().Value,
-            expenses.First().CategoryId
+            expenses[0].Name,
+            expenses[0].Description,
+            expenses[0].Value,
+            expenses[0].CategoryId
         );
         _httpContextAccessor
             .Setup(mock => mock.HttpContext.User.Identity!.Name)
-            .Returns(users.First().Email)
+            .Returns(users[0].Email)
             .Verifiable();
         _applicationUserRepository
             .Setup(mock =>
                 mock.GetBySpecAsync(It.IsAny<ApplicationUsersSpecification>(), _cancellationToken)
             )
-            .ReturnsAsync(users.First());
+            .ReturnsAsync(users[0]);
         _repository
             .Setup(mock => mock.PostAsync(It.IsAny<Expense>(), _cancellationToken))
             .Verifiable();

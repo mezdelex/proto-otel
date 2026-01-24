@@ -34,16 +34,16 @@ public sealed class GetPaginatedCategoriesQueryHandlerTests
     [Theory]
     [MemberData(nameof(CategoriesMock.GetCategories), MemberType = typeof(CategoriesMock))]
     public async Task GetPaginatedCategoriesQueryHandler_ShouldReturnPaginatedListOfCategoryDTO(
-        IEnumerable<Category> categories
+        IReadOnlyList<Category> categories
     )
     {
         // Arrange
         var request = new GetPaginatedCategoriesQuery
         {
-            Name = categories.First().Name,
-            Keyword = categories.First().Name,
+            Name = categories[0].Name,
+            Keyword = categories[0].Name,
             Page = 0,
-            PageSize = categories.Count(),
+            PageSize = categories.Count,
         };
         var redisKey =
             $"{nameof(Category)}#{request.Name}#{request.Keyword}#{request.Page}#{request.PageSize}";
@@ -76,8 +76,8 @@ public sealed class GetPaginatedCategoriesQueryHandlerTests
                     new PaginatedList<CategoryDTO>(
                         [.. categories.Select(_mapper.Map<CategoryDTO>)],
                         0,
-                        categories.Count(),
-                        categories.Count(),
+                        categories.Count,
+                        categories.Count,
                         false,
                         true
                     )

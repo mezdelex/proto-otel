@@ -25,12 +25,12 @@ public sealed class DeleteExpenseCommandHandlerTests
     [Theory]
     [MemberData(nameof(ExpensesMock.GetExpensesWithUsers), MemberType = typeof(ExpensesMock))]
     public async Task DeleteExpenseCommandHandler_ShouldDeleteExpense(
-        IEnumerable<Expense> expenses,
-        IEnumerable<ApplicationUser> _
+        IReadOnlyList<Expense> expenses,
+        IReadOnlyList<ApplicationUser> _
     )
     {
         // Arrange
-        var request = new DeleteExpenseCommand(expenses.First().Id);
+        var request = new DeleteExpenseCommand(expenses[0].Id);
         _repository
             .Setup(mock => mock.DeleteAsync(It.IsAny<string>(), _cancellationToken))
             .ReturnsAsync(Result<Empty>.Success())

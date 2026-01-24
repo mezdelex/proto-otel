@@ -36,14 +36,11 @@ public sealed class PostCategoryCommandHandlerTests
     [Theory]
     [MemberData(nameof(CategoriesMock.GetCategories), MemberType = typeof(CategoriesMock))]
     public async Task PostCategoryCommandHandler_ShouldPostCategoryAndPublishEventAsync(
-        IEnumerable<Category> categories
+        IReadOnlyList<Category> categories
     )
     {
         // Arrange
-        var request = new PostCategoryCommand(
-            categories.First().Name,
-            categories.First().Description
-        );
+        var request = new PostCategoryCommand(categories[0].Name, categories[0].Description);
         _repository
             .Setup(mock => mock.PostAsync(It.IsAny<Category>(), _cancellationToken))
             .Verifiable();

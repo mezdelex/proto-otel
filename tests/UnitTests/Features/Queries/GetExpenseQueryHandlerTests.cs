@@ -23,17 +23,17 @@ public sealed class GetExpenseQueryHandlerTests
     [Theory]
     [MemberData(nameof(ExpensesMock.GetExpensesWithUsers), MemberType = typeof(ExpensesMock))]
     public async Task Handle_ValidIdGetExpenseQuery_ShouldReturnRequestedExpenseAsExpenseDTOAsync(
-        IEnumerable<Expense> expenses,
-        IEnumerable<ApplicationUser> _
+        IReadOnlyList<Expense> expenses,
+        IReadOnlyList<ApplicationUser> _
     )
     {
         // Arrange
-        var request = new GetExpenseQuery(expenses.First().Id);
+        var request = new GetExpenseQuery(expenses[0].Id);
         _repository
             .Setup(mock =>
                 mock.GetBySpecAsync(It.IsAny<ExpensesSpecification>(), _cancellationToken)
             )
-            .ReturnsAsync(expenses.First())
+            .ReturnsAsync(expenses[0])
             .Verifiable();
 
         // Act
@@ -42,7 +42,7 @@ public sealed class GetExpenseQueryHandlerTests
         // Assert
         result
             .Should()
-            .BeEquivalentTo(Result<ExpenseDTO>.Success(_mapper.Map<ExpenseDTO>(expenses.First())));
+            .BeEquivalentTo(Result<ExpenseDTO>.Success(_mapper.Map<ExpenseDTO>(expenses[0])));
         _repository.Verify(
             mock => mock.GetBySpecAsync(It.IsAny<ExpensesSpecification>(), _cancellationToken),
             Times.Once

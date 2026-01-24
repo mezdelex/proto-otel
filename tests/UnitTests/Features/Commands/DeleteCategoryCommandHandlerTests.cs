@@ -25,11 +25,11 @@ public sealed class DeleteCategoryCommandHandlerTests
     [Theory]
     [MemberData(nameof(CategoriesMock.GetCategories), MemberType = typeof(CategoriesMock))]
     public async Task DeleteCategoryCommandHandler_ShouldDeleteCategory(
-        IEnumerable<Category> categories
+        IReadOnlyList<Category> categories
     )
     {
         // Arrange
-        var deleteCategoryCommand = new DeleteCategoryCommand(categories.First().Id);
+        var deleteCategoryCommand = new DeleteCategoryCommand(categories[0].Id);
         _repository
             .Setup(mock => mock.DeleteAsync(It.IsAny<string>(), _cancellationToken))
             .ReturnsAsync(Result<Empty>.Success())

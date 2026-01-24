@@ -36,14 +36,14 @@ public sealed class PatchCategoryCommandHandlerTests
     [Theory]
     [MemberData(nameof(CategoriesMock.GetCategories), MemberType = typeof(CategoriesMock))]
     public async Task PatchCategoryCommandHandler_ShouldPatchCategoryAndPublishEventAsync(
-        IEnumerable<Category> categories
+        IReadOnlyList<Category> categories
     )
     {
         // Arrange
         var request = new PatchCategoryCommand(
-            categories.First().Id,
-            categories.First().Name,
-            categories.First().Description
+            categories[0].Id,
+            categories[0].Name,
+            categories[0].Description
         );
         _repository
             .Setup(mock => mock.PatchAsync(It.IsAny<Category>(), _cancellationToken))

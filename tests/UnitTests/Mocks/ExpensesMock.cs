@@ -4,13 +4,20 @@ public static class ExpensesMock
 {
     private const int _items = 5;
 
-    public static IEnumerable<object[]> GetExpensesWithUsers()
+    public static TheoryData<
+        IReadOnlyList<Expense>,
+        IReadOnlyList<ApplicationUser>
+    > GetExpensesWithUsers()
     {
         var fixture = new Fixture();
         fixture.Behaviors.Add(new OmitOnRecursionBehavior(1));
-        var expenses = fixture.Build<Expense>().CreateMany(_items);
-        var users = fixture.Build<ApplicationUser>().CreateMany(_items);
 
-        yield return new object[] { expenses, users };
+        return new TheoryData<IReadOnlyList<Expense>, IReadOnlyList<ApplicationUser>>
+        {
+            {
+                [.. fixture.Build<Expense>().CreateMany(_items)],
+                [.. fixture.Build<ApplicationUser>().CreateMany(_items)]
+            },
+        };
     }
 }
