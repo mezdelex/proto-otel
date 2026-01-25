@@ -33,10 +33,9 @@ public sealed class GetPaginatedExpensesQueryHandlerTests
     }
 
     [Theory]
-    [MemberData(nameof(ExpensesMock.GetExpensesWithUsers), MemberType = typeof(ExpensesMock))]
+    [MemberData(nameof(ExpensesMock.GetExpenses), MemberType = typeof(ExpensesMock))]
     public async Task GetPaginatedExpensesQueryHandler_WhenExceptionIsThrown_ShouldPropagateException(
-        IReadOnlyList<Expense> expenses,
-        IReadOnlyList<ApplicationUser> _
+        IReadOnlyList<Expense> expenses
     )
     {
         // Arrange
@@ -94,10 +93,9 @@ public sealed class GetPaginatedExpensesQueryHandlerTests
     }
 
     [Theory]
-    [MemberData(nameof(ExpensesMock.GetExpensesWithUsers), MemberType = typeof(ExpensesMock))]
+    [MemberData(nameof(ExpensesMock.GetExpenses), MemberType = typeof(ExpensesMock))]
     public async Task GetPaginatedExpensesQueryHandler_WhenValidQuery_ShouldReturnPaginatedListOfExtraExpenseDTO(
-        IReadOnlyList<Expense> expenses,
-        IReadOnlyList<ApplicationUser> _
+        IReadOnlyList<Expense> expenses
     )
     {
         // Arrange

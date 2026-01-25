@@ -34,10 +34,9 @@ public sealed class PatchExpenseCommandHandlerTests
     }
 
     [Theory]
-    [MemberData(nameof(ExpensesMock.GetExpensesWithUsers), MemberType = typeof(ExpensesMock))]
+    [MemberData(nameof(ExpensesMock.GetExpenses), MemberType = typeof(ExpensesMock))]
     public async Task PatchExpenseCommandHandler_WhenExpenseToPatchNotFound_ShouldReturnNotFoundResultErrorAsync(
-        IReadOnlyList<Expense> expenses,
-        IReadOnlyList<ApplicationUser> _
+        IReadOnlyList<Expense> expenses
     )
     {
         // Arrange
@@ -96,10 +95,9 @@ public sealed class PatchExpenseCommandHandlerTests
     }
 
     [Theory]
-    [MemberData(nameof(ExpensesMock.GetExpensesWithUsers), MemberType = typeof(ExpensesMock))]
+    [MemberData(nameof(ExpensesMock.GetExpenses), MemberType = typeof(ExpensesMock))]
     public async Task PatchExpenseCommandHandler_WhenExceptionIsThrown_ShouldPropagateException(
-        IReadOnlyList<Expense> expenses,
-        IReadOnlyList<ApplicationUser> _
+        IReadOnlyList<Expense> expenses
     )
     {
         // Arrange
@@ -140,10 +138,9 @@ public sealed class PatchExpenseCommandHandlerTests
     }
 
     [Theory]
-    [MemberData(nameof(ExpensesMock.GetExpensesWithUsers), MemberType = typeof(ExpensesMock))]
+    [MemberData(nameof(ExpensesMock.GetExpenses), MemberType = typeof(ExpensesMock))]
     public async Task PatchExpenseCommandHandler_WhenValidCommand_ShouldPatchExpenseAndPublishEventAsync(
-        IReadOnlyList<Expense> expenses,
-        IReadOnlyList<ApplicationUser> _
+        IReadOnlyList<Expense> expenses
     )
     {
         // Arrange

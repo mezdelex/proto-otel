@@ -8,6 +8,13 @@ public static class CategoriesMock
     {
         var fixture = new Fixture();
         fixture.Behaviors.Add(new OmitOnRecursionBehavior(1));
+        fixture.Customizations.Add(
+            new StringPropertyTruncateSpecimenBuilder<Category>(
+                (x => x.Id, CategoryConstraints.IdMaxLength),
+                (x => x.Name, CategoryConstraints.NameMaxLength),
+                (x => x.Description, CategoryConstraints.DescriptionMaxLength)
+            )
+        );
 
         return new TheoryData<IReadOnlyList<Category>>
         {

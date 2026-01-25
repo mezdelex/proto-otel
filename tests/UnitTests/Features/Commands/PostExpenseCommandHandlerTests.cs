@@ -40,10 +40,9 @@ public sealed class PostExpenseCommandHandlerTests
     }
 
     [Theory]
-    [MemberData(nameof(ExpensesMock.GetExpensesWithUsers), MemberType = typeof(ExpensesMock))]
+    [MemberData(nameof(ExpensesMock.GetExpenses), MemberType = typeof(ExpensesMock))]
     public async Task PostExpenseCommandHandler_WhenApplicationUserNotFound_ShouldReturnNotFoundResultErrorAsync(
-        IReadOnlyList<Expense> expenses,
-        IReadOnlyList<ApplicationUser> users
+        IReadOnlyList<Expense> expenses
     )
     {
         // Arrange
@@ -55,7 +54,7 @@ public sealed class PostExpenseCommandHandlerTests
         );
         _httpContextAccessor
             .Setup(mock => mock.HttpContext.User.Identity!.Name)
-            .Returns(users[0].Email)
+            .Returns(expenses[0].ApplicationUser.Email)
             .Verifiable();
         _applicationUserRepository
             .Setup(mock =>
@@ -106,10 +105,9 @@ public sealed class PostExpenseCommandHandlerTests
     }
 
     [Theory]
-    [MemberData(nameof(ExpensesMock.GetExpensesWithUsers), MemberType = typeof(ExpensesMock))]
+    [MemberData(nameof(ExpensesMock.GetExpenses), MemberType = typeof(ExpensesMock))]
     public async Task PostExpenseCommandHandler_WhenExceptionIsThrown_ShoulPropagateException(
-        IReadOnlyList<Expense> expenses,
-        IReadOnlyList<ApplicationUser> users
+        IReadOnlyList<Expense> expenses
     )
     {
         // Arrange
@@ -121,7 +119,7 @@ public sealed class PostExpenseCommandHandlerTests
         );
         _httpContextAccessor
             .Setup(mock => mock.HttpContext.User.Identity!.Name)
-            .Returns(users[0].Email)
+            .Returns(expenses[0].ApplicationUser.Email)
             .Verifiable();
         _applicationUserRepository
             .Setup(mock =>
@@ -162,10 +160,9 @@ public sealed class PostExpenseCommandHandlerTests
     }
 
     [Theory]
-    [MemberData(nameof(ExpensesMock.GetExpensesWithUsers), MemberType = typeof(ExpensesMock))]
+    [MemberData(nameof(ExpensesMock.GetExpenses), MemberType = typeof(ExpensesMock))]
     public async Task PostExpenseCommandHandler_WhenValidCommand_ShouldPostExpenseAndPublishEventAsync(
-        IReadOnlyList<Expense> expenses,
-        IReadOnlyList<ApplicationUser> users
+        IReadOnlyList<Expense> expenses
     )
     {
         // Arrange
@@ -177,13 +174,13 @@ public sealed class PostExpenseCommandHandlerTests
         );
         _httpContextAccessor
             .Setup(mock => mock.HttpContext.User.Identity!.Name)
-            .Returns(users[0].Email)
+            .Returns(expenses[0].ApplicationUser.Email)
             .Verifiable();
         _applicationUserRepository
             .Setup(mock =>
                 mock.GetBySpecAsync(It.IsAny<ApplicationUsersSpecification>(), _cancellationToken)
             )
-            .ReturnsAsync(users[0])
+            .ReturnsAsync(expenses[0].ApplicationUser)
             .Verifiable();
         _repository
             .Setup(mock => mock.PostAsync(It.IsAny<Expense>(), _cancellationToken))

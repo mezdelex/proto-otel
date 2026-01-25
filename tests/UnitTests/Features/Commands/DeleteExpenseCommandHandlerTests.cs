@@ -23,10 +23,9 @@ public sealed class DeleteExpenseCommandHandlerTests
     }
 
     [Theory]
-    [MemberData(nameof(ExpensesMock.GetExpensesWithUsers), MemberType = typeof(ExpensesMock))]
+    [MemberData(nameof(ExpensesMock.GetExpenses), MemberType = typeof(ExpensesMock))]
     public async Task DeleteExpenseCommandHandler_WhenExpenseToDeleteNotFound_ShouldReturnNotFoundResultErrorAsync(
-        IReadOnlyList<Expense> expenses,
-        IReadOnlyList<ApplicationUser> _
+        IReadOnlyList<Expense> expenses
     )
     {
         // Arrange
@@ -70,10 +69,9 @@ public sealed class DeleteExpenseCommandHandlerTests
     }
 
     [Theory]
-    [MemberData(nameof(ExpensesMock.GetExpensesWithUsers), MemberType = typeof(ExpensesMock))]
+    [MemberData(nameof(ExpensesMock.GetExpenses), MemberType = typeof(ExpensesMock))]
     public async Task DeleteExpenseCommandHandler_WhenExceptionIsThrown_ShouldPropagateException(
-        IReadOnlyList<Expense> expenses,
-        IReadOnlyList<ApplicationUser> _
+        IReadOnlyList<Expense> expenses
     )
     {
         // Arrange
@@ -99,10 +97,9 @@ public sealed class DeleteExpenseCommandHandlerTests
     }
 
     [Theory]
-    [MemberData(nameof(ExpensesMock.GetExpensesWithUsers), MemberType = typeof(ExpensesMock))]
+    [MemberData(nameof(ExpensesMock.GetExpenses), MemberType = typeof(ExpensesMock))]
     public async Task DeleteExpenseCommandHandler_WhenValidCommand_ShouldDeleteExpense(
-        IReadOnlyList<Expense> expenses,
-        IReadOnlyList<ApplicationUser> _
+        IReadOnlyList<Expense> expenses
     )
     {
         // Arrange

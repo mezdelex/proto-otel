@@ -21,10 +21,9 @@ public sealed class GetExpenseQueryHandlerTests
     }
 
     [Theory]
-    [MemberData(nameof(ExpensesMock.GetExpensesWithUsers), MemberType = typeof(ExpensesMock))]
+    [MemberData(nameof(ExpensesMock.GetExpenses), MemberType = typeof(ExpensesMock))]
     public async Task GetExpenseQuery_WhenExceptionIsThrown_ShouldPropagateException(
-        IReadOnlyList<Expense> expenses,
-        IReadOnlyList<ApplicationUser> _
+        IReadOnlyList<Expense> expenses
     )
     {
         // Arrange
@@ -48,10 +47,9 @@ public sealed class GetExpenseQueryHandlerTests
     }
 
     [Theory]
-    [MemberData(nameof(ExpensesMock.GetExpensesWithUsers), MemberType = typeof(ExpensesMock))]
+    [MemberData(nameof(ExpensesMock.GetExpenses), MemberType = typeof(ExpensesMock))]
     public async Task GetExpenseQuery_WhenExpenseNotFound_ShouldReturnNotFoundResultErrorAsync(
-        IReadOnlyList<Expense> expenses,
-        IReadOnlyList<ApplicationUser> _
+        IReadOnlyList<Expense> expenses
     )
     {
         // Arrange
@@ -85,10 +83,9 @@ public sealed class GetExpenseQueryHandlerTests
     }
 
     [Theory]
-    [MemberData(nameof(ExpensesMock.GetExpensesWithUsers), MemberType = typeof(ExpensesMock))]
+    [MemberData(nameof(ExpensesMock.GetExpenses), MemberType = typeof(ExpensesMock))]
     public async Task GetExpenseQuery_WhenValidQuery_ShouldReturnExpenseDTOAsync(
-        IReadOnlyList<Expense> expenses,
-        IReadOnlyList<ApplicationUser> _
+        IReadOnlyList<Expense> expenses
     )
     {
         // Arrange
