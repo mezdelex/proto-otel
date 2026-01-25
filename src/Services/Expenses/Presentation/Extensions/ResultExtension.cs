@@ -15,10 +15,10 @@ public static class ResultExtension
                     detail: errors[0].Description,
                     statusCode: errors[0].Type switch
                     {
-                        ErrorTypes.Conflict => 409,
-                        ErrorTypes.NotFound => 404,
-                        ErrorTypes.Validation => 400,
-                        _ => 500,
+                        ErrorTypes.Conflict => StatusCodes.Status409Conflict,
+                        ErrorTypes.NotFound => StatusCodes.Status404NotFound,
+                        ErrorTypes.Validation => StatusCodes.Status400BadRequest,
+                        _ => StatusCodes.Status500InternalServerError,
                     },
                     title: errors[0].Code
                 )
