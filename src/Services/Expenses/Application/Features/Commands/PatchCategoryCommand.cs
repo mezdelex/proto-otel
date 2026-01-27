@@ -32,7 +32,7 @@ public sealed record PatchCategoryCommand(string Id, string Name, string Descrip
 
             await _uow.SaveChangesAsync(cancellationToken);
             await Task.WhenAll([
-                _redisCache.RemoveKeysByPattern(nameof(Category)),
+                _redisCache.RemoveKeysByTags(nameof(Category)),
                 _eventBus.PublishAsync(
                     _mapper.Map<PatchedCategoryEvent>(categoryToPatch),
                     cancellationToken

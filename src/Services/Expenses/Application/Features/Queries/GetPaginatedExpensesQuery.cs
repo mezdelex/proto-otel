@@ -27,8 +27,17 @@ public sealed record GetPaginatedExpensesQuery
             CancellationToken cancellationToken
         )
         {
-            var redisKey =
-                $"{nameof(Expense)}#{request.Name}#{request.Keyword}#{request.MinDate}#{request.MaxDate}#{request.CategoryId}#{request.ApplicationUserId}#{request.Email}#{nameof(Category)}#{nameof(ApplicationUser)}#{request.Page}#{request.PageSize}";
+            var redisKey = _redisCache.GenerateKey(
+                request.Name,
+                request.Keyword,
+                request.MinDate,
+                request.MaxDate,
+                request.CategoryId,
+                request.ApplicationUserId,
+                request.Email,
+                request.Page,
+                request.PageSize
+            );
             var cachedPaginatedExpenses = await _redisCache.GetCachedData<
                 PaginatedList<ExtraExpenseDTO>
             >(redisKey);
@@ -57,7 +66,10 @@ public sealed record GetPaginatedExpensesQuery
             await _redisCache.SetCachedData(
                 redisKey,
                 paginatedExpenses,
-                DateTimeOffset.Now.AddMinutes(5)
+                TimeSpan.FromMinutes(5),
+                nameof(Expense),
+                nameof(Category),
+                nameof(ApplicationUser)
             );
 
             return Result<PaginatedList<ExtraExpenseDTO>>.Success(paginatedExpenses);

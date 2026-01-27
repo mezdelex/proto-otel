@@ -48,8 +48,8 @@ public sealed class GetPaginatedExpensesQueryHandlerTests
             Page = 0,
             PageSize = expenses.Count,
         };
-        var redisKey =
-            $"{nameof(Expense)}#{request.Name}#{request.Keyword}#{request.MinDate}#{request.MaxDate}#{request.CategoryId}#{request.ApplicationUserId}#{request.Email}#{nameof(Category)}#{nameof(ApplicationUser)}#{request.Page}#{request.PageSize}";
+        var redisKey = $"TestKey";
+        _redisCache.Setup(mock => mock.GenerateKey(It.IsAny<object?[]>())).Returns(redisKey);
         _redisCache
             .Setup(mock => mock.GetCachedData<PaginatedList<ExtraExpenseDTO>>(redisKey))
             .ReturnsAsync((PaginatedList<ExtraExpenseDTO>)null!);
@@ -62,7 +62,8 @@ public sealed class GetPaginatedExpensesQueryHandlerTests
                 mock.SetCachedData(
                     redisKey,
                     It.IsAny<PaginatedList<ExtraExpenseDTO>>(),
-                    It.IsAny<DateTimeOffset>()
+                    It.IsAny<TimeSpan>(),
+                    It.IsAny<string[]>()
                 )
             )
             .Returns(Task.CompletedTask)
@@ -73,6 +74,7 @@ public sealed class GetPaginatedExpensesQueryHandlerTests
             .Invoking(x => x.Handle(request, _cancellationToken))
             .Should()
             .ThrowAsync<Exception>();
+        _redisCache.Verify(mock => mock.GenerateKey(It.IsAny<object?[]>()), Times.Once);
         _redisCache.Verify(
             mock => mock.GetCachedData<PaginatedList<ExtraExpenseDTO>>(redisKey),
             Times.Once
@@ -86,7 +88,8 @@ public sealed class GetPaginatedExpensesQueryHandlerTests
                 mock.SetCachedData(
                     redisKey,
                     It.IsAny<PaginatedList<ExtraExpenseDTO>>(),
-                    It.IsAny<DateTimeOffset>()
+                    It.IsAny<TimeSpan>(),
+                    It.IsAny<string[]>()
                 ),
             Times.Never
         );
@@ -108,8 +111,8 @@ public sealed class GetPaginatedExpensesQueryHandlerTests
             Page = 0,
             PageSize = expenses.Count,
         };
-        var redisKey =
-            $"{nameof(Expense)}#{request.Name}#{request.Keyword}#{request.MinDate}#{request.MaxDate}#{request.CategoryId}#{request.ApplicationUserId}#{request.Email}#{nameof(Category)}#{nameof(ApplicationUser)}#{request.Page}#{request.PageSize}";
+        var redisKey = $"TestKey";
+        _redisCache.Setup(mock => mock.GenerateKey(It.IsAny<object?[]>())).Returns(redisKey);
         _redisCache
             .Setup(mock => mock.GetCachedData<PaginatedList<ExtraExpenseDTO>>(redisKey))
             .ReturnsAsync((PaginatedList<ExtraExpenseDTO>)null!);
@@ -122,7 +125,8 @@ public sealed class GetPaginatedExpensesQueryHandlerTests
                 mock.SetCachedData(
                     redisKey,
                     It.IsAny<PaginatedList<ExtraExpenseDTO>>(),
-                    It.IsAny<DateTimeOffset>()
+                    It.IsAny<TimeSpan>(),
+                    It.IsAny<string[]>()
                 )
             )
             .Returns(Task.CompletedTask)
@@ -146,6 +150,7 @@ public sealed class GetPaginatedExpensesQueryHandlerTests
                     )
                 )
             );
+        _redisCache.Verify(mock => mock.GenerateKey(It.IsAny<object?[]>()), Times.Once);
         _redisCache.Verify(
             mock => mock.GetCachedData<PaginatedList<ExtraExpenseDTO>>(redisKey),
             Times.Once
@@ -159,7 +164,8 @@ public sealed class GetPaginatedExpensesQueryHandlerTests
                 mock.SetCachedData(
                     redisKey,
                     It.IsAny<PaginatedList<ExtraExpenseDTO>>(),
-                    It.IsAny<DateTimeOffset>()
+                    It.IsAny<TimeSpan>(),
+                    It.IsAny<string[]>()
                 ),
             Times.Once
         );

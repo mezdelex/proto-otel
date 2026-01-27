@@ -26,7 +26,7 @@ public sealed record PostCategoryCommand(string Name, string Description) : IReq
             await _repository.PostAsync(categoryToPost, cancellationToken);
             await _uow.SaveChangesAsync(cancellationToken);
             await Task.WhenAll([
-                _redisCache.RemoveKeysByPattern(nameof(Category)),
+                _redisCache.RemoveKeysByTags(nameof(Category)),
                 _eventBus.PublishAsync(
                     _mapper.Map<PostedCategoryEvent>(categoryToPost),
                     cancellationToken

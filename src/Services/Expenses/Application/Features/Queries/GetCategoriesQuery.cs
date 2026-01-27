@@ -20,7 +20,7 @@ public sealed record GetCategoriesQuery : IRequest<Result<List<CategoryDTO>>>
             CancellationToken cancellationToken
         )
         {
-            var redisKey = $"{nameof(Category)}#{request.Name}#{request.Keyword}";
+            var redisKey = _redisCache.GenerateKey([request.Name, request.Keyword]);
             var cachedCategories = await _redisCache.GetCachedData<List<CategoryDTO>>(redisKey);
             if (cachedCategories != null)
             {
@@ -35,7 +35,12 @@ public sealed record GetCategoriesQuery : IRequest<Result<List<CategoryDTO>>>
                 .ProjectTo<CategoryDTO>(_mapper.ConfigurationProvider)
                 .ToListAsync(cancellationToken);
 
-            await _redisCache.SetCachedData(redisKey, categories, DateTimeOffset.Now.AddMinutes(5));
+            await _redisCache.SetCachedData(
+                redisKey,
+                categories,
+                TimeSpan.FromMinutes(5),
+                nameof(Category)
+            );
 
             return Result<List<CategoryDTO>>.Success(categories);
         }

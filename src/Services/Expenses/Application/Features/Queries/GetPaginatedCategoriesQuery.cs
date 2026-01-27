@@ -22,8 +22,12 @@ public sealed record GetPaginatedCategoriesQuery
             CancellationToken cancellationToken
         )
         {
-            var redisKey =
-                $"{nameof(Category)}#{request.Name}#{request.Keyword}#{request.Page}#{request.PageSize}";
+            var redisKey = _redisCache.GenerateKey(
+                request.Name,
+                request.Keyword,
+                request.Page,
+                request.PageSize
+            );
             var cachedPaginatedCategories = await _redisCache.GetCachedData<
                 PaginatedList<CategoryDTO>
             >(redisKey);
@@ -43,7 +47,8 @@ public sealed record GetPaginatedCategoriesQuery
             await _redisCache.SetCachedData(
                 redisKey,
                 paginatedCategories,
-                DateTimeOffset.Now.AddMinutes(5)
+                TimeSpan.FromMinutes(5),
+                nameof(Category)
             );
 
             return Result<PaginatedList<CategoryDTO>>.Success(paginatedCategories);

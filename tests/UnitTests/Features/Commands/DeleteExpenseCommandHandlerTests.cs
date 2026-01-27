@@ -43,7 +43,7 @@ public sealed class DeleteExpenseCommandHandlerTests
             )
             .Verifiable();
         _uow.Setup(mock => mock.SaveChangesAsync(_cancellationToken)).Verifiable();
-        _redisCache.Setup(mock => mock.RemoveKeysByPattern(It.IsAny<string>())).Verifiable();
+        _redisCache.Setup(mock => mock.RemoveKeysByTags(It.IsAny<string>())).Verifiable();
 
         // Act
         var result = await _handler.Handle(request, _cancellationToken);
@@ -65,7 +65,7 @@ public sealed class DeleteExpenseCommandHandlerTests
             Times.Once
         );
         _uow.Verify(mock => mock.SaveChangesAsync(_cancellationToken), Times.Never);
-        _redisCache.Verify(mock => mock.RemoveKeysByPattern(It.IsAny<string>()), Times.Never);
+        _redisCache.Verify(mock => mock.RemoveKeysByTags(It.IsAny<string>()), Times.Never);
     }
 
     [Theory]
@@ -81,7 +81,7 @@ public sealed class DeleteExpenseCommandHandlerTests
             .ThrowsAsync(new Exception())
             .Verifiable();
         _uow.Setup(mock => mock.SaveChangesAsync(_cancellationToken)).Verifiable();
-        _redisCache.Setup(mock => mock.RemoveKeysByPattern(It.IsAny<string>())).Verifiable();
+        _redisCache.Setup(mock => mock.RemoveKeysByTags(It.IsAny<string>())).Verifiable();
 
         // Act & Assert
         await _handler
@@ -93,7 +93,7 @@ public sealed class DeleteExpenseCommandHandlerTests
             Times.Once
         );
         _uow.Verify(mock => mock.SaveChangesAsync(_cancellationToken), Times.Never);
-        _redisCache.Verify(mock => mock.RemoveKeysByPattern(It.IsAny<string>()), Times.Never);
+        _redisCache.Verify(mock => mock.RemoveKeysByTags(It.IsAny<string>()), Times.Never);
     }
 
     [Theory]
@@ -109,7 +109,7 @@ public sealed class DeleteExpenseCommandHandlerTests
             .ReturnsAsync(Result<Empty>.Success())
             .Verifiable();
         _uow.Setup(mock => mock.SaveChangesAsync(_cancellationToken)).Verifiable();
-        _redisCache.Setup(mock => mock.RemoveKeysByPattern(It.IsAny<string>())).Verifiable();
+        _redisCache.Setup(mock => mock.RemoveKeysByTags(It.IsAny<string>())).Verifiable();
 
         // Act
         var result = await _handler.Handle(request, _cancellationToken);
@@ -121,6 +121,6 @@ public sealed class DeleteExpenseCommandHandlerTests
             Times.Once
         );
         _uow.Verify(mock => mock.SaveChangesAsync(_cancellationToken), Times.Once);
-        _redisCache.Verify(mock => mock.RemoveKeysByPattern(It.IsAny<string>()), Times.Once);
+        _redisCache.Verify(mock => mock.RemoveKeysByTags(It.IsAny<string>()), Times.Once);
     }
 }

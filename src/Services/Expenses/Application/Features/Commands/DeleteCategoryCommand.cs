@@ -24,7 +24,7 @@ public sealed record DeleteCategoryCommand(string Id) : IRequest<Result<Empty>>
             }
 
             await _uow.SaveChangesAsync(cancellationToken);
-            await _redisCache.RemoveKeysByPattern(nameof(Expense));
+            await _redisCache.RemoveKeysByTags(nameof(Expense));
 
             return Result<Empty>.Success();
         }

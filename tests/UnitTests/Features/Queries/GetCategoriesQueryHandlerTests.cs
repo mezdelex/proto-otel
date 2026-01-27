@@ -39,7 +39,8 @@ public sealed class GetCategoriesQueryHandlerTests
             Name = categories[0].Name,
             Keyword = categories[0].Name,
         };
-        var redisKey = $"{nameof(Category)}#{request.Name}#{request.Keyword}";
+        var redisKey = $"TestKey";
+        _redisCache.Setup(mock => mock.GenerateKey(It.IsAny<object?[]>())).Returns(redisKey);
         _redisCache
             .Setup(mock => mock.GetCachedData<List<CategoryDTO>>(redisKey))
             .ReturnsAsync((List<CategoryDTO>)null!);
@@ -52,7 +53,8 @@ public sealed class GetCategoriesQueryHandlerTests
                 mock.SetCachedData(
                     redisKey,
                     It.IsAny<List<CategoryDTO>>(),
-                    It.IsAny<DateTimeOffset>()
+                    It.IsAny<TimeSpan>(),
+                    It.IsAny<string[]>()
                 )
             )
             .Returns(Task.CompletedTask)
@@ -63,6 +65,7 @@ public sealed class GetCategoriesQueryHandlerTests
             .Invoking(x => x.Handle(request, _cancellationToken))
             .Should()
             .ThrowAsync<Exception>();
+        _redisCache.Verify(mock => mock.GenerateKey(It.IsAny<object?[]>()), Times.Once());
         _redisCache.Verify(mock => mock.GetCachedData<List<CategoryDTO>>(redisKey), Times.Once);
         _repository.Verify(
             mock => mock.ApplySpecification(It.IsAny<CategoriesSpecification>()),
@@ -73,7 +76,8 @@ public sealed class GetCategoriesQueryHandlerTests
                 mock.SetCachedData(
                     redisKey,
                     It.IsAny<List<CategoryDTO>>(),
-                    It.IsAny<DateTimeOffset>()
+                    It.IsAny<TimeSpan>(),
+                    It.IsAny<string[]>()
                 ),
             Times.Never
         );
@@ -91,7 +95,8 @@ public sealed class GetCategoriesQueryHandlerTests
             Name = categories[0].Name,
             Keyword = categories[0].Name,
         };
-        var redisKey = $"{nameof(Category)}#{request.Name}#{request.Keyword}";
+        var redisKey = $"TestKey";
+        _redisCache.Setup(mock => mock.GenerateKey(It.IsAny<object?[]>())).Returns(redisKey);
         _redisCache
             .Setup(mock => mock.GetCachedData<List<CategoryDTO>>(redisKey))
             .ReturnsAsync((List<CategoryDTO>)null!);
@@ -104,7 +109,8 @@ public sealed class GetCategoriesQueryHandlerTests
                 mock.SetCachedData(
                     redisKey,
                     It.IsAny<List<CategoryDTO>>(),
-                    It.IsAny<DateTimeOffset>()
+                    It.IsAny<TimeSpan>(),
+                    It.IsAny<string[]>()
                 )
             )
             .Returns(Task.CompletedTask)
@@ -119,6 +125,7 @@ public sealed class GetCategoriesQueryHandlerTests
             .BeEquivalentTo(
                 Result<List<CategoryDTO>>.Success([.. categories.Select(_mapper.Map<CategoryDTO>)])
             );
+        _redisCache.Verify(mock => mock.GenerateKey(It.IsAny<object?[]>()), Times.Once());
         _redisCache.Verify(mock => mock.GetCachedData<List<CategoryDTO>>(redisKey), Times.Once);
         _repository.Verify(
             mock => mock.ApplySpecification(It.IsAny<CategoriesSpecification>()),
@@ -129,7 +136,8 @@ public sealed class GetCategoriesQueryHandlerTests
                 mock.SetCachedData(
                     redisKey,
                     It.IsAny<List<CategoryDTO>>(),
-                    It.IsAny<DateTimeOffset>()
+                    It.IsAny<TimeSpan>(),
+                    It.IsAny<string[]>()
                 ),
             Times.Once
         );

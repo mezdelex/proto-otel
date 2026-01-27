@@ -46,7 +46,7 @@ public sealed class PostCategoryCommandHandlerTests
             .ThrowsAsync(new Exception())
             .Verifiable();
         _uow.Setup(mock => mock.SaveChangesAsync(_cancellationToken)).Verifiable();
-        _redisCache.Setup(mock => mock.RemoveKeysByPattern(It.IsAny<string>())).Verifiable();
+        _redisCache.Setup(mock => mock.RemoveKeysByTags(It.IsAny<string>())).Verifiable();
         _eventBus
             .Setup(mock => mock.PublishAsync(It.IsAny<PostedCategoryEvent>(), _cancellationToken))
             .Verifiable();
@@ -61,7 +61,7 @@ public sealed class PostCategoryCommandHandlerTests
             Times.Once
         );
         _uow.Verify(mock => mock.SaveChangesAsync(_cancellationToken), Times.Never);
-        _redisCache.Verify(mock => mock.RemoveKeysByPattern(It.IsAny<string>()), Times.Never);
+        _redisCache.Verify(mock => mock.RemoveKeysByTags(It.IsAny<string>()), Times.Never);
         _eventBus.Verify(
             mock => mock.PublishAsync(It.IsAny<PostedCategoryEvent>(), _cancellationToken),
             Times.Never
@@ -80,7 +80,7 @@ public sealed class PostCategoryCommandHandlerTests
             .Setup(mock => mock.PostAsync(It.IsAny<Category>(), _cancellationToken))
             .Verifiable();
         _uow.Setup(mock => mock.SaveChangesAsync(_cancellationToken)).Verifiable();
-        _redisCache.Setup(mock => mock.RemoveKeysByPattern(It.IsAny<string>())).Verifiable();
+        _redisCache.Setup(mock => mock.RemoveKeysByTags(It.IsAny<string>())).Verifiable();
         _eventBus
             .Setup(mock => mock.PublishAsync(It.IsAny<PostedCategoryEvent>(), _cancellationToken))
             .Verifiable();
@@ -95,7 +95,7 @@ public sealed class PostCategoryCommandHandlerTests
             Times.Once
         );
         _uow.Verify(mock => mock.SaveChangesAsync(_cancellationToken), Times.Once);
-        _redisCache.Verify(mock => mock.RemoveKeysByPattern(It.IsAny<string>()), Times.Once());
+        _redisCache.Verify(mock => mock.RemoveKeysByTags(It.IsAny<string>()), Times.Once());
         _eventBus.Verify(
             mock => mock.PublishAsync(It.IsAny<PostedCategoryEvent>(), _cancellationToken),
             Times.Once

@@ -26,8 +26,12 @@ public sealed record GetPaginatedApplicationUsersQuery
             CancellationToken cancellationToken
         )
         {
-            var redisKey =
-                $"{nameof(ApplicationUser)}#{request.Email}#{request.Keyword}#{request.Page}#{request.PageSize}";
+            var redisKey = _redisCache.GenerateKey(
+                request.Email,
+                request.Keyword,
+                request.Page,
+                request.PageSize
+            );
             var cachedPaginatedApplicationUsers = await _redisCache.GetCachedData<
                 PaginatedList<ApplicationUserDTO>
             >(redisKey);
@@ -52,7 +56,8 @@ public sealed record GetPaginatedApplicationUsersQuery
             await _redisCache.SetCachedData(
                 redisKey,
                 paginatedApplicationUsers,
-                DateTimeOffset.Now.AddMinutes(5)
+                TimeSpan.FromMinutes(5),
+                nameof(ApplicationUser)
             );
 
             return Result<PaginatedList<ApplicationUserDTO>>.Success(paginatedApplicationUsers);

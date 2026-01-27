@@ -58,7 +58,7 @@ public sealed class PatchCategoryCommandHandlerTests
             )
             .Verifiable();
         _uow.Setup(mock => mock.SaveChangesAsync(_cancellationToken)).Verifiable();
-        _redisCache.Setup(mock => mock.RemoveKeysByPattern(It.IsAny<string>())).Verifiable();
+        _redisCache.Setup(mock => mock.RemoveKeysByTags(It.IsAny<string>())).Verifiable();
         _eventBus
             .Setup(mock => mock.PublishAsync(It.IsAny<PatchedCategoryEvent>(), _cancellationToken))
             .Verifiable();
@@ -83,7 +83,7 @@ public sealed class PatchCategoryCommandHandlerTests
             Times.Once
         );
         _uow.Verify(mock => mock.SaveChangesAsync(_cancellationToken), Times.Never);
-        _redisCache.Verify(mock => mock.RemoveKeysByPattern(It.IsAny<string>()), Times.Never);
+        _redisCache.Verify(mock => mock.RemoveKeysByTags(It.IsAny<string>()), Times.Never);
         _eventBus.Verify(
             mock => mock.PublishAsync(It.IsAny<PatchedCategoryEvent>(), _cancellationToken),
             Times.Never
@@ -107,7 +107,7 @@ public sealed class PatchCategoryCommandHandlerTests
             .ThrowsAsync(new Exception())
             .Verifiable();
         _uow.Setup(mock => mock.SaveChangesAsync(_cancellationToken)).Verifiable();
-        _redisCache.Setup(mock => mock.RemoveKeysByPattern(It.IsAny<string>())).Verifiable();
+        _redisCache.Setup(mock => mock.RemoveKeysByTags(It.IsAny<string>())).Verifiable();
         _eventBus
             .Setup(mock => mock.PublishAsync(It.IsAny<PatchedCategoryEvent>(), _cancellationToken))
             .Verifiable();
@@ -122,7 +122,7 @@ public sealed class PatchCategoryCommandHandlerTests
             Times.Once
         );
         _uow.Verify(mock => mock.SaveChangesAsync(_cancellationToken), Times.Never);
-        _redisCache.Verify(mock => mock.RemoveKeysByPattern(It.IsAny<string>()), Times.Never);
+        _redisCache.Verify(mock => mock.RemoveKeysByTags(It.IsAny<string>()), Times.Never);
         _eventBus.Verify(
             mock => mock.PublishAsync(It.IsAny<PatchedCategoryEvent>(), _cancellationToken),
             Times.Never
@@ -146,7 +146,7 @@ public sealed class PatchCategoryCommandHandlerTests
             .ReturnsAsync(Result<Empty>.Success())
             .Verifiable();
         _uow.Setup(mock => mock.SaveChangesAsync(_cancellationToken)).Verifiable();
-        _redisCache.Setup(mock => mock.RemoveKeysByPattern(It.IsAny<string>())).Verifiable();
+        _redisCache.Setup(mock => mock.RemoveKeysByTags(It.IsAny<string>())).Verifiable();
         _eventBus
             .Setup(mock => mock.PublishAsync(It.IsAny<PatchedCategoryEvent>(), _cancellationToken))
             .Verifiable();
@@ -161,7 +161,7 @@ public sealed class PatchCategoryCommandHandlerTests
             Times.Once
         );
         _uow.Verify(mock => mock.SaveChangesAsync(_cancellationToken), Times.Once);
-        _redisCache.Verify(mock => mock.RemoveKeysByPattern(It.IsAny<string>()), Times.Once());
+        _redisCache.Verify(mock => mock.RemoveKeysByTags(It.IsAny<string>()), Times.Once());
         _eventBus.Verify(
             mock => mock.PublishAsync(It.IsAny<PatchedCategoryEvent>(), _cancellationToken),
             Times.Once

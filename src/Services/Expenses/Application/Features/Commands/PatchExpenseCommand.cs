@@ -39,7 +39,7 @@ public sealed record PatchExpenseCommand(
 
             await _uow.SaveChangesAsync(cancellationToken);
             await Task.WhenAll([
-                _redisCache.RemoveKeysByPattern(nameof(Expense)),
+                _redisCache.RemoveKeysByTags(nameof(Expense)),
                 _eventBus.PublishAsync(
                     _mapper.Map<PatchedExpenseEvent>(expenseToPatch),
                     cancellationToken

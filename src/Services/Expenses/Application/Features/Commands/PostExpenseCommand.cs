@@ -53,7 +53,7 @@ public sealed record PostExpenseCommand(
             await _repository.PostAsync(expenseToPost, cancellationToken);
             await _uow.SaveChangesAsync(cancellationToken);
             await Task.WhenAll(
-                _redisCache.RemoveKeysByPattern(nameof(Expense)),
+                _redisCache.RemoveKeysByTags(nameof(Expense)),
                 _eventBus.PublishAsync(
                     _mapper.Map<PostedExpenseEvent>(expenseToPost),
                     cancellationToken
