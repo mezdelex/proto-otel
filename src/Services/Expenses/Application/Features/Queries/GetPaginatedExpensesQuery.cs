@@ -28,7 +28,7 @@ public sealed record GetPaginatedExpensesQuery
         )
         {
             var redisKey =
-                $"{nameof(Expense)}#{request.Name}#{request.Keyword}#{request.MinDate}#{request.MaxDate}#{request.CategoryId}#{request.ApplicationUserId}#{request.Email}#{request.Page}#{request.PageSize}";
+                $"{nameof(Expense)}#{request.Name}#{request.Keyword}#{request.MinDate}#{request.MaxDate}#{request.CategoryId}#{request.ApplicationUserId}#{request.Email}#{nameof(Category)}#{nameof(ApplicationUser)}#{request.Page}#{request.PageSize}";
             var cachedPaginatedExpenses = await _redisCache.GetCachedData<
                 PaginatedList<ExtraExpenseDTO>
             >(redisKey);
@@ -47,7 +47,7 @@ public sealed record GetPaginatedExpensesQuery
                         categoryId: request.CategoryId,
                         applicationUserId: request.ApplicationUserId,
                         email: request.Email,
-                        includes: _ => _.Include(x => x.ApplicationUser).Include(x => x.Category)
+                        includes: _ => _.Include(x => x.Category).Include(x => x.ApplicationUser)
                     )
                 )
                 .AsNoTracking()

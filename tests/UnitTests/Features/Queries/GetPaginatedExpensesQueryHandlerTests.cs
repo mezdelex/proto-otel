@@ -49,7 +49,7 @@ public sealed class GetPaginatedExpensesQueryHandlerTests
             PageSize = expenses.Count,
         };
         var redisKey =
-            $"{nameof(Expense)}#{request.Name}#{request.Keyword}#{request.MinDate}#{request.MaxDate}#{request.CategoryId}#{request.ApplicationUserId}#{request.Email}#{request.Page}#{request.PageSize}";
+            $"{nameof(Expense)}#{request.Name}#{request.Keyword}#{request.MinDate}#{request.MaxDate}#{request.CategoryId}#{request.ApplicationUserId}#{request.Email}#{nameof(Category)}#{nameof(ApplicationUser)}#{request.Page}#{request.PageSize}";
         _redisCache
             .Setup(mock => mock.GetCachedData<PaginatedList<ExtraExpenseDTO>>(redisKey))
             .ReturnsAsync((PaginatedList<ExtraExpenseDTO>)null!);
@@ -109,7 +109,7 @@ public sealed class GetPaginatedExpensesQueryHandlerTests
             PageSize = expenses.Count,
         };
         var redisKey =
-            $"{nameof(Expense)}#{request.Name}#{request.Keyword}#{request.MinDate}#{request.MaxDate}#{request.CategoryId}#{request.ApplicationUserId}#{request.Email}#{request.Page}#{request.PageSize}";
+            $"{nameof(Expense)}#{request.Name}#{request.Keyword}#{request.MinDate}#{request.MaxDate}#{request.CategoryId}#{request.ApplicationUserId}#{request.Email}#{nameof(Category)}#{nameof(ApplicationUser)}#{request.Page}#{request.PageSize}";
         _redisCache
             .Setup(mock => mock.GetCachedData<PaginatedList<ExtraExpenseDTO>>(redisKey))
             .ReturnsAsync((PaginatedList<ExtraExpenseDTO>)null!);
@@ -146,12 +146,12 @@ public sealed class GetPaginatedExpensesQueryHandlerTests
                     )
                 )
             );
-        _repository.Verify(
-            mock => mock.ApplySpecification(It.IsAny<ExpensesSpecification>()),
-            Times.Once
-        );
         _redisCache.Verify(
             mock => mock.GetCachedData<PaginatedList<ExtraExpenseDTO>>(redisKey),
+            Times.Once
+        );
+        _repository.Verify(
+            mock => mock.ApplySpecification(It.IsAny<ExpensesSpecification>()),
             Times.Once
         );
         _redisCache.Verify(
