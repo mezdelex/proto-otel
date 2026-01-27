@@ -16,8 +16,8 @@ jobs:
         with:
           dotnet-version: 10
       - name: Build Expenses
-        run: dotnet build ./src/Services/Expenses/Expenses.sln
+        run: dotnet build ./src/Services/Expenses/Expenses.slnx
       - name: Build Notifications
-        run: dotnet build ./src/Services/Notifications/Notifications.sln
+        run: dotnet build ./src/Services/Notifications/Notifications.slnx
       - name: Test
-        run: dotnet test ./tests/UnitTests/UnitTests.csproj -v q
+        run: dotnet test ./tests/Tests.slnx -v q
