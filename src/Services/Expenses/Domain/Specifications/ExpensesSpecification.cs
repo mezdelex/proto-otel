@@ -36,7 +36,7 @@ public sealed class ExpensesSpecification : Specification<Expense>
 
         if (maxDate.HasValue)
         {
-            Query.Where(x => x.Date.CompareTo(maxDate.Value) <= 0);
+            Query.Where(x => x.Date.CompareTo(maxDate.Value.AddDays(1).AddTicks(-1)) <= 0);
         }
 
         if (!string.IsNullOrWhiteSpace(categoryId))
