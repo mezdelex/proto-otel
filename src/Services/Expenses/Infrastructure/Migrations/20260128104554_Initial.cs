@@ -58,7 +58,11 @@ namespace Infrastructure.Migrations
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false)
+                    Description = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2(3)", precision: 3, nullable: false),
+                    ModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "datetime2(3)", precision: 3, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -181,7 +185,11 @@ namespace Infrastructure.Migrations
                     Value = table.Column<decimal>(type: "decimal(19,4)", precision: 19, scale: 4, nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2(3)", precision: 3, nullable: false),
                     CategoryId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ApplicationUserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    ApplicationUserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2(3)", precision: 3, nullable: false),
+                    ModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "datetime2(3)", precision: 3, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -211,13 +219,13 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.InsertData(
                 table: "Categories",
-                columns: new[] { "Id", "Description", "Name" },
+                columns: new[] { "Id", "CreatedBy", "CreatedOn", "Description", "ModifiedBy", "ModifiedOn", "Name" },
                 values: new object[,]
                 {
-                    { "8b3e5182-e3d4-42f5-8d91-384157d692a8", "Leisure category.", "Leisure" },
-                    { "a9c12b73-0f1c-4b34-8975-57321689104c", "Transportation category.", "Transportation" },
-                    { "d42f928e-671c-4972-881b-5e8396123924", "Utilities category.", "Utilities" },
-                    { "f5a8a867-27b1-477d-8f9c-59e354964951", "Groceries category.", "Groceries" }
+                    { "8b3e5182-e3d4-42f5-8d91-384157d692a8", "system@proto-otel.com", new DateTime(2025, 1, 28, 0, 0, 0, 0, DateTimeKind.Unspecified), "Leisure category.", "system@proto-otel.com", new DateTime(2025, 1, 28, 0, 0, 0, 0, DateTimeKind.Unspecified), "Leisure" },
+                    { "a9c12b73-0f1c-4b34-8975-57321689104c", "system@proto-otel.com", new DateTime(2025, 1, 28, 0, 0, 0, 0, DateTimeKind.Unspecified), "Transportation category.", "system@proto-otel.com", new DateTime(2025, 1, 28, 0, 0, 0, 0, DateTimeKind.Unspecified), "Transportation" },
+                    { "d42f928e-671c-4972-881b-5e8396123924", "system@proto-otel.com", new DateTime(2025, 1, 28, 0, 0, 0, 0, DateTimeKind.Unspecified), "Utilities category.", "system@proto-otel.com", new DateTime(2025, 1, 28, 0, 0, 0, 0, DateTimeKind.Unspecified), "Utilities" },
+                    { "f5a8a867-27b1-477d-8f9c-59e354964951", "system@proto-otel.com", new DateTime(2025, 1, 28, 0, 0, 0, 0, DateTimeKind.Unspecified), "Groceries category.", "system@proto-otel.com", new DateTime(2025, 1, 28, 0, 0, 0, 0, DateTimeKind.Unspecified), "Groceries" }
                 });
 
             migrationBuilder.CreateIndex(

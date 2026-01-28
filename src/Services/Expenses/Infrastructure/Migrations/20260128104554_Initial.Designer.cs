@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260123131515_Initial")]
+    [Migration("20260128104554_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -30,10 +30,26 @@ namespace Infrastructure.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasPrecision(3)
+                        .HasColumnType("datetime2(3)");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ModifiedOn")
+                        .HasPrecision(3)
+                        .HasColumnType("datetime2(3)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -51,25 +67,41 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = "f5a8a867-27b1-477d-8f9c-59e354964951",
+                            CreatedBy = "system@proto-otel.com",
+                            CreatedOn = new DateTime(2025, 1, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Groceries category.",
+                            ModifiedBy = "system@proto-otel.com",
+                            ModifiedOn = new DateTime(2025, 1, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "Groceries"
                         },
                         new
                         {
                             Id = "a9c12b73-0f1c-4b34-8975-57321689104c",
+                            CreatedBy = "system@proto-otel.com",
+                            CreatedOn = new DateTime(2025, 1, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Transportation category.",
+                            ModifiedBy = "system@proto-otel.com",
+                            ModifiedOn = new DateTime(2025, 1, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "Transportation"
                         },
                         new
                         {
                             Id = "8b3e5182-e3d4-42f5-8d91-384157d692a8",
+                            CreatedBy = "system@proto-otel.com",
+                            CreatedOn = new DateTime(2025, 1, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Leisure category.",
+                            ModifiedBy = "system@proto-otel.com",
+                            ModifiedOn = new DateTime(2025, 1, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "Leisure"
                         },
                         new
                         {
                             Id = "d42f928e-671c-4972-881b-5e8396123924",
+                            CreatedBy = "system@proto-otel.com",
+                            CreatedOn = new DateTime(2025, 1, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Utilities category.",
+                            ModifiedBy = "system@proto-otel.com",
+                            ModifiedOn = new DateTime(2025, 1, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "Utilities"
                         });
                 });
@@ -87,6 +119,14 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasPrecision(3)
+                        .HasColumnType("datetime2(3)");
+
                     b.Property<DateTime>("Date")
                         .HasPrecision(3)
                         .HasColumnType("datetime2(3)");
@@ -95,6 +135,14 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ModifiedOn")
+                        .HasPrecision(3)
+                        .HasColumnType("datetime2(3)");
 
                     b.Property<string>("Name")
                         .IsRequired()

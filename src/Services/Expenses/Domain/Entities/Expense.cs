@@ -1,6 +1,6 @@
 namespace Domain.Entities;
 
-public class Expense : IBaseEntity
+public class Expense : AuditEntity, IBaseEntity
 {
     public string Id { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;

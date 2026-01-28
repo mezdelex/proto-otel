@@ -7,10 +7,14 @@ public static class InfrastructureExtension
         IConfiguration configuration
     )
     {
-        services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlServer(
-                $"Server=sqlserver;Database={configuration["DATABASE"]};User Id=sa;Password={configuration["PASSWORD"]};TrustServerCertificate=True"
-            )
+        services.AddScoped<AuditingInterceptor>();
+        services.AddDbContext<ApplicationDbContext>(
+            (serviceProvider, dbContextOptionsBuilder) =>
+                dbContextOptionsBuilder
+                    .AddInterceptors(serviceProvider.GetRequiredService<AuditingInterceptor>())
+                    .UseSqlServer(
+                        $"Server=sqlserver;Database={configuration["DATABASE"]};User Id=sa;Password={configuration["PASSWORD"]};TrustServerCertificate=True"
+                    )
         );
         services.AddScoped<IApplicationDbContext>(provider =>
             provider.GetRequiredService<ApplicationDbContext>()
