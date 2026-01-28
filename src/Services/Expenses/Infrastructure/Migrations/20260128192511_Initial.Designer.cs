@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260128104554_Initial")]
+    [Migration("20260128192511_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -127,9 +127,9 @@ namespace Infrastructure.Migrations
                         .HasPrecision(3)
                         .HasColumnType("datetime2(3)");
 
-                    b.Property<DateTime>("Date")
+                    b.Property<DateTimeOffset>("Date")
                         .HasPrecision(3)
-                        .HasColumnType("datetime2(3)");
+                        .HasColumnType("datetimeoffset(3)");
 
                     b.Property<string>("Description")
                         .IsRequired()

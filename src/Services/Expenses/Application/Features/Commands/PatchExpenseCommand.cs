@@ -5,7 +5,7 @@ public sealed record PatchExpenseCommand(
     string Name,
     string Description,
     decimal Value,
-    DateTime Date,
+    DateTimeOffset Date,
     string CategoryId,
     string ApplicationUserId
 ) : IRequest<Result<Empty>>

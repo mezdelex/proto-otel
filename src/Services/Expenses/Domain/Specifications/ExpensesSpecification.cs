@@ -6,8 +6,8 @@ public sealed class ExpensesSpecification : Specification<Expense>
         string? id = null,
         string? name = null,
         string? keyword = null,
-        DateTime? minDate = null,
-        DateTime? maxDate = null,
+        DateTimeOffset? minDate = null,
+        DateTimeOffset? maxDate = null,
         string? categoryId = null,
         string? applicationUserId = null,
         string? email = null,
@@ -29,19 +29,14 @@ public sealed class ExpensesSpecification : Specification<Expense>
             Query.Where(x => x.Name.Contains(keyword) || x.Description.Contains(keyword));
         }
 
-        /*TODO: add TimeZoneOffset by passing the TimeZone in the request (recommended method)*/
         if (minDate.HasValue)
         {
-            Query.Where(x =>
-                x.Date.CompareTo(DateTimeNormalizer.NormalizeToUtc(minDate.Value)) >= 0
-            );
+            Query.Where(x => x.Date.CompareTo(minDate.Value) >= 0);
         }
 
         if (maxDate.HasValue)
         {
-            Query.Where(x =>
-                x.Date.CompareTo(DateTimeNormalizer.NormalizeToUtc(maxDate.Value)) <= 0
-            );
+            Query.Where(x => x.Date.CompareTo(maxDate.Value) <= 0);
         }
 
         if (!string.IsNullOrWhiteSpace(categoryId))

@@ -183,7 +183,7 @@ namespace Infrastructure.Migrations
                     Name = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     Value = table.Column<decimal>(type: "decimal(19,4)", precision: 19, scale: 4, nullable: false),
-                    Date = table.Column<DateTime>(type: "datetime2(3)", precision: 3, nullable: false),
+                    Date = table.Column<DateTimeOffset>(type: "datetimeoffset(3)", precision: 3, nullable: false),
                     CategoryId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ApplicationUserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),

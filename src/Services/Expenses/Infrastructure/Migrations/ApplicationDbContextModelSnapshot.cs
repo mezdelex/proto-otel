@@ -124,9 +124,9 @@ namespace Infrastructure.Migrations
                         .HasPrecision(3)
                         .HasColumnType("datetime2(3)");
 
-                    b.Property<DateTime>("Date")
+                    b.Property<DateTimeOffset>("Date")
                         .HasPrecision(3)
-                        .HasColumnType("datetime2(3)");
+                        .HasColumnType("datetimeoffset(3)");
 
                     b.Property<string>("Description")
                         .IsRequired()
