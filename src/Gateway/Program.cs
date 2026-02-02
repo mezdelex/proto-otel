@@ -1,12 +1,13 @@
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddCors(options =>
+builder.Services.AddCors(corsOptions =>
 {
-    options.AddPolicy(
+    corsOptions.AddPolicy(
         Constants.DefaultCorsPolicy,
-        cpb =>
+        corsPolicyBuilder =>
         {
-            cpb.WithOrigins("http://localhost:4200")
+            corsPolicyBuilder
+                .WithOrigins("http://localhost:4200")
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .AllowCredentials();
@@ -19,15 +20,18 @@ builder
 builder
     .Services.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
-    .AddTransforms(tbc =>
+    .AddTransforms(transformBuilderContext =>
     {
-        tbc.AddRequestTransform(async rtc =>
+        transformBuilderContext.AddRequestTransform(async requestTransformContext =>
         {
-            if (rtc.HttpContext.User.Identity?.IsAuthenticated == true)
+            if (requestTransformContext.HttpContext.User.Identity?.IsAuthenticated == true)
             {
-                rtc.ProxyRequest.Headers.Authorization = new(
+                requestTransformContext.ProxyRequest.Headers.Authorization = new(
                     "Bearer",
-                    TokenUtils.CreateGatewayToken(rtc.HttpContext.User, builder.Configuration)
+                    TokenUtils.CreateGatewayToken(
+                        requestTransformContext.HttpContext.User,
+                        builder.Configuration
+                    )
                 );
             }
         });
@@ -43,29 +47,32 @@ builder.Services.AddOpenApi();
 
 builder
     .Services.AddOpenTelemetry()
-    .ConfigureResource(rb => rb.AddService("gateway"))
-    .WithMetrics(mpb =>
-        mpb.AddAspNetCoreInstrumentation()
+    .ConfigureResource(resourceBuilder => resourceBuilder.AddService("gateway"))
+    .WithMetrics(meterProviderBuilder =>
+        meterProviderBuilder
+            .AddAspNetCoreInstrumentation()
             .AddHttpClientInstrumentation()
             .AddRuntimeInstrumentation()
-            .AddOtlpExporter(options =>
+            .AddOtlpExporter(otlpExporterOptions =>
             {
-                options.Endpoint = new Uri("http://otel-collector:4317");
-                options.Protocol = OtlpExportProtocol.Grpc;
+                otlpExporterOptions.Endpoint = new Uri("http://otel-collector:4317");
+                otlpExporterOptions.Protocol = OtlpExportProtocol.Grpc;
             })
     )
-    .WithTracing(tpb =>
-        tpb.AddAspNetCoreInstrumentation()
+    .WithTracing(tracerProviderBuilder =>
+        tracerProviderBuilder
+            .AddAspNetCoreInstrumentation()
             .AddHttpClientInstrumentation()
-            .AddOtlpExporter(options =>
+            .AddOtlpExporter(otlpExporterOptions =>
             {
-                options.Endpoint = new Uri("http://otel-collector:4317");
-                options.Protocol = OtlpExportProtocol.Grpc;
+                otlpExporterOptions.Endpoint = new Uri("http://otel-collector:4317");
+                otlpExporterOptions.Protocol = OtlpExportProtocol.Grpc;
             })
     );
 
 builder.Host.UseSerilog(
-    (context, configuration) => configuration.ReadFrom.Configuration(context.Configuration)
+    (hostBuilderContext, loggerConfiguration) =>
+        loggerConfiguration.ReadFrom.Configuration(hostBuilderContext.Configuration)
 );
 
 var app = builder.Build();

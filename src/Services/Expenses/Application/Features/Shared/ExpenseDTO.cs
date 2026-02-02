@@ -13,6 +13,6 @@ public record ExpenseDTO
 
 public sealed record ExtraExpenseDTO : ExpenseDTO
 {
-    public ApplicationUserDTO ApplicationUser { get; init; } = default!;
     public CategoryDTO Category { get; init; } = default!;
+    public ApplicationUserDTO ApplicationUser { get; init; } = default!;
 }

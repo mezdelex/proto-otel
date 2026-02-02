@@ -24,30 +24,33 @@ builder.Services.AddMassTransit(busRegistrationConfigurator =>
 });
 builder
     .Services.AddOpenTelemetry()
-    .ConfigureResource(rb => rb.AddService("notifications"))
-    .WithMetrics(mpb =>
-        mpb.AddAspNetCoreInstrumentation()
+    .ConfigureResource(resourceBuilder => resourceBuilder.AddService("notifications"))
+    .WithMetrics(meterProviderBuilder =>
+        meterProviderBuilder
+            .AddAspNetCoreInstrumentation()
             .AddHttpClientInstrumentation()
             .AddRuntimeInstrumentation()
-            .AddOtlpExporter(options =>
+            .AddOtlpExporter(otlpExporterOptions =>
             {
-                options.Endpoint = new Uri("http://otel-collector:4317");
-                options.Protocol = OtlpExportProtocol.Grpc;
+                otlpExporterOptions.Endpoint = new Uri("http://otel-collector:4317");
+                otlpExporterOptions.Protocol = OtlpExportProtocol.Grpc;
             })
     )
-    .WithTracing(tpb =>
-        tpb.AddAspNetCoreInstrumentation()
+    .WithTracing(tracerProviderBuilder =>
+        tracerProviderBuilder
+            .AddAspNetCoreInstrumentation()
             .AddHttpClientInstrumentation()
             .AddSource(DiagnosticHeaders.DefaultListenerName)
-            .AddOtlpExporter(options =>
+            .AddOtlpExporter(otlpExporterOptions =>
             {
-                options.Endpoint = new Uri("http://otel-collector:4317");
-                options.Protocol = OtlpExportProtocol.Grpc;
+                otlpExporterOptions.Endpoint = new Uri("http://otel-collector:4317");
+                otlpExporterOptions.Protocol = OtlpExportProtocol.Grpc;
             })
     );
 
 builder.Host.UseSerilog(
-    (context, configuration) => configuration.ReadFrom.Configuration(context.Configuration)
+    (hostBuilderContext, loggerConfiguration) =>
+        loggerConfiguration.ReadFrom.Configuration(hostBuilderContext.Configuration)
 );
 
 var app = builder.Build();

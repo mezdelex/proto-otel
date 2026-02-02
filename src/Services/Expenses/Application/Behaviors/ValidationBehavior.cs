@@ -20,7 +20,10 @@ public class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TReq
         var validationResults = await Task.WhenAll(
             validators.Select(x => x.ValidateAsync(context, cancellationToken))
         );
-        var failures = validationResults.SelectMany(x => x.Errors).Where(f => f != null).ToList();
+        var failures = validationResults
+            .SelectMany(x => x.Errors)
+            .Where(validationFailure => validationFailure != null)
+            .ToList();
         if (failures.Count != 0)
         {
             return CreateValidationResult<TResponse>(failures);

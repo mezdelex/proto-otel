@@ -5,16 +5,16 @@ public class StringPropertyTruncateSpecimenBuilder<TEntity>(
 ) : ISpecimenBuilder
 {
     private readonly Dictionary<string, int> _propertyLengths = constraints.ToDictionary(
-        c => GetPropertyInfo(c.Getter).Name,
-        c => c.Length
+        x => GetPropertyInfo(x.Getter).Name,
+        x => x.Length
     );
 
     public object Create(object request, ISpecimenContext context)
     {
         if (
-            request is PropertyInfo pi
-            && pi.DeclaringType == typeof(TEntity)
-            && _propertyLengths.TryGetValue(pi.Name, out var maxLength)
+            request is PropertyInfo propertyInfo
+            && propertyInfo.DeclaringType == typeof(TEntity)
+            && _propertyLengths.TryGetValue(propertyInfo.Name, out var maxLength)
         )
         {
             var value = context.Create<string>();

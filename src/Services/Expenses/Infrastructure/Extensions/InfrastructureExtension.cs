@@ -27,7 +27,7 @@ public static class InfrastructureExtension
         );
         services.AddScoped<IEventBus, RabbitMQEventBus>();
         services.AddScoped<IRedisCache, RedisCache>();
-        services.AddScoped<ISpecificationEvaluator>(provider => new SpecificationEvaluator());
+        services.AddScoped<ISpecificationEvaluator>(_ => new SpecificationEvaluator());
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddMassTransit(busRegistrationConfigurator =>
         {
@@ -53,7 +53,7 @@ public static class InfrastructureExtension
         });
         services
             .AddOpenTelemetry()
-            .ConfigureResource(rb => rb.AddService("expenses"))
+            .ConfigureResource(resourceBuilder => resourceBuilder.AddService("expenses"))
             .WithMetrics(mpb =>
                 mpb.AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
@@ -70,10 +70,10 @@ public static class InfrastructureExtension
                     .AddHttpClientInstrumentation()
                     .AddRedisInstrumentation()
                     .AddSource(DiagnosticHeaders.DefaultListenerName)
-                    .AddOtlpExporter(options =>
+                    .AddOtlpExporter(otlpExporterOptions =>
                     {
-                        options.Endpoint = new Uri("http://otel-collector:4317");
-                        options.Protocol = OtlpExportProtocol.Grpc;
+                        otlpExporterOptions.Endpoint = new Uri("http://otel-collector:4317");
+                        otlpExporterOptions.Protocol = OtlpExportProtocol.Grpc;
                     })
             );
         services
@@ -133,11 +133,11 @@ public static class InfrastructureExtension
                 new DirectoryInfo(configuration["APP_DATA_PROTECTION_KEY_PATH"] ?? string.Empty)
             )
             .SetApplicationName(nameof(DataProtectionProvider));
-        services.ConfigureApplicationCookie(options =>
+        services.ConfigureApplicationCookie(cookieAuthenticationOptions =>
         {
-            options.Cookie.HttpOnly = true;
-            options.Cookie.SameSite = SameSiteMode.None;
-            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            cookieAuthenticationOptions.Cookie.HttpOnly = true;
+            cookieAuthenticationOptions.Cookie.SameSite = SameSiteMode.None;
+            cookieAuthenticationOptions.Cookie.SecurePolicy = CookieSecurePolicy.Always;
         });
 
         services.AddScoped<IApplicationUsersRepository, ApplicationUsersRepository>();

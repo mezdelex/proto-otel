@@ -6,12 +6,14 @@ public static class ApplicationExtension
     {
         var assembly = typeof(ApplicationExtension).Assembly;
 
-        services.AddAutoMapper(mce => mce.AddMaps(assembly));
-        services.AddMediatR(configuration =>
+        services.AddAutoMapper(mapperConfigurationExpression =>
+            mapperConfigurationExpression.AddMaps(assembly)
+        );
+        services.AddMediatR(mediatRServiceConfiguration =>
         {
-            configuration.AddOpenBehavior(typeof(LoggingBehavior<,>));
-            configuration.AddOpenBehavior(typeof(ValidationBehavior<,>));
-            configuration.RegisterServicesFromAssembly(assembly);
+            mediatRServiceConfiguration.AddOpenBehavior(typeof(LoggingBehavior<,>));
+            mediatRServiceConfiguration.AddOpenBehavior(typeof(ValidationBehavior<,>));
+            mediatRServiceConfiguration.RegisterServicesFromAssembly(assembly);
         });
         services.AddValidatorsFromAssembly(assembly);
     }
