@@ -32,13 +32,13 @@ public class BaseRepository<TEntity>(
             .FirstOrDefaultAsync(x => x.Id.Equals(entity.Id), cancellationToken);
         if (foundEntity is null)
         {
-            return Result<Empty>.Error([
+            return Result<Empty>.Failure(
                 new Error(
                     Errors.NotFoundError,
                     Errors.NotFoundErrorDetail(typeof(TEntity).Name),
                     ErrorTypes.NotFound
-                ),
-            ]);
+                )
+            );
         }
 
         _context.Set<TEntity>().Entry(foundEntity).CurrentValues.SetValues(entity);
@@ -53,13 +53,13 @@ public class BaseRepository<TEntity>(
             .FirstOrDefaultAsync(x => x.Id.Equals(id), cancellationToken);
         if (foundEntity is null)
         {
-            return Result<Empty>.Error([
+            return Result<Empty>.Failure(
                 new Error(
                     Errors.NotFoundError,
                     Errors.NotFoundErrorDetail(typeof(TEntity).Name),
                     ErrorTypes.NotFound
-                ),
-            ]);
+                )
+            );
         }
 
         _context.Set<TEntity>().Remove(foundEntity);

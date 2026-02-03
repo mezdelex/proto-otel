@@ -3,7 +3,7 @@ namespace Application.Behaviors;
 public class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TRequest>> validators)
     : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
-    where TResponse : IResult<TResponse>
+    where TResponse : IResult
 {
     public async Task<TResponse> Handle(
         TRequest request,
@@ -11,34 +11,24 @@ public class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TReq
         CancellationToken cancellationToken
     )
     {
-        if (!validators.Any())
-        {
-            return await next(cancellationToken);
-        }
-
-        var context = new ValidationContext<TRequest>(request);
-        var validationResults = await Task.WhenAll(
-            validators.Select(x => x.ValidateAsync(context, cancellationToken))
-        );
-        var failures = validationResults
+        var validationFailure = (
+            await Task.WhenAll(validators.Select(x => x.ValidateAsync(request, cancellationToken)))
+        )
+            .Where(x => !x.IsValid)
             .SelectMany(x => x.Errors)
-            .Where(validationFailure => validationFailure != null)
-            .ToList();
-        if (failures.Count != 0)
-        {
-            return CreateValidationResult<TResponse>(failures);
-        }
+            .FirstOrDefault();
 
-        return await next(cancellationToken);
+        return validationFailure is null
+            ? await next(cancellationToken)
+            : CreateValidationResult(validationFailure);
     }
 
-    private static TResponse CreateValidationResult<T>(List<ValidationFailure> failures)
-    {
-        var errors = failures
-            .Select(x => new Error(x.ErrorCode, x.ErrorMessage, ErrorTypes.Validation))
-            .ToList();
-
-        return (TResponse)
-            typeof(T).GetMethod(nameof(Error), [typeof(List<Error>)])!.Invoke(null, [errors])!;
-    }
+    private static TResponse CreateValidationResult(ValidationFailure failure) =>
+        (TResponse)
+            typeof(TResponse)
+                .GetMethod(nameof(Result<>.Failure), [typeof(Error)])!
+                .Invoke(
+                    null,
+                    [new Error(failure.ErrorCode, failure.ErrorMessage, ErrorTypes.Validation)]
+                )!;
 }

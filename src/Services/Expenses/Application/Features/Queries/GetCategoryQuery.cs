@@ -19,13 +19,13 @@ public sealed record GetCategoryQuery(string Id) : IRequest<Result<CategoryDTO>>
             );
             if (category is null)
             {
-                return Result<CategoryDTO>.Error([
+                return Result<CategoryDTO>.Failure(
                     new Error(
                         Errors.NotFoundError,
                         Errors.NotFoundErrorDetail(nameof(Category)),
                         ErrorTypes.NotFound
-                    ),
-                ]);
+                    )
+                );
             }
 
             return Result<CategoryDTO>.Success(_mapper.Map<CategoryDTO>(category));

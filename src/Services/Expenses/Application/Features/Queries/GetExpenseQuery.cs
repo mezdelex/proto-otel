@@ -19,13 +19,13 @@ public sealed record GetExpenseQuery(string Id) : IRequest<Result<ExpenseDTO>>
             );
             if (expense is null)
             {
-                return Result<ExpenseDTO>.Error([
+                return Result<ExpenseDTO>.Failure(
                     new Error(
                         Errors.NotFoundError,
                         Errors.NotFoundErrorDetail(nameof(Expense)),
                         ErrorTypes.NotFound
-                    ),
-                ]);
+                    )
+                );
             }
 
             return Result<ExpenseDTO>.Success(_mapper.Map<ExpenseDTO>(expense));

@@ -33,13 +33,13 @@ public sealed class DeleteCategoryCommandHandlerTests
         _repository
             .Setup(mock => mock.DeleteAsync(It.IsAny<string>(), _cancellationToken))
             .ReturnsAsync(
-                Result<Empty>.Error([
+                Result<Empty>.Failure(
                     new Error(
                         Errors.NotFoundError,
                         Errors.NotFoundErrorDetail(nameof(Expense)),
                         ErrorTypes.NotFound
-                    ),
-                ])
+                    )
+                )
             )
             .Verifiable();
         _uow.Setup(mock => mock.SaveChangesAsync(_cancellationToken)).Verifiable();
@@ -52,13 +52,13 @@ public sealed class DeleteCategoryCommandHandlerTests
         result
             .Should()
             .BeEquivalentTo(
-                Result<Empty>.Error([
+                Result<Empty>.Failure(
                     new Error(
                         Errors.NotFoundError,
                         Errors.NotFoundErrorDetail(nameof(Expense)),
                         ErrorTypes.NotFound
-                    ),
-                ])
+                    )
+                )
             );
         _repository.Verify(
             mock => mock.DeleteAsync(It.IsAny<string>(), _cancellationToken),

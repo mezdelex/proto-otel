@@ -4,7 +4,7 @@ public class LoggingBehavior<TRequest, TResponse>(
     ILogger<LoggingBehavior<TRequest, TResponse>> logger
 ) : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
-    where TResponse : IResult<TResponse>
+    where TResponse : IResult
 {
     public async Task<TResponse> Handle(
         TRequest request,
@@ -30,8 +30,8 @@ public class LoggingBehavior<TRequest, TResponse>(
         if (response.IsError)
         {
             logger.LogError(
-                message: "Request {RequestName} failed after {Elapsed}ms. Errors: {@Errors}",
-                args: [requestName, stopwatch.ElapsedMilliseconds, response.Errors]
+                message: "Request {RequestName} failed after {Elapsed}ms. Error: {@Error}",
+                args: [requestName, stopwatch.ElapsedMilliseconds, response.Error]
             );
         }
         else

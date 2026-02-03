@@ -47,13 +47,13 @@ public sealed class GetCategoryQueryHandlerTests
         result
             .Should()
             .BeEquivalentTo(
-                Result<CategoryDTO>.Error([
+                Result<CategoryDTO>.Failure(
                     new Error(
                         Errors.NotFoundError,
                         Errors.NotFoundErrorDetail(nameof(Category)),
                         ErrorTypes.NotFound
-                    ),
-                ])
+                    )
+                )
             );
         _repository.Verify(
             mock => mock.GetBySpecAsync(It.IsAny<CategoriesSpecification>(), _cancellationToken),

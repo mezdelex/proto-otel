@@ -10,17 +10,17 @@ public static class ResultExtension
                     Empty => Results.NoContent(),
                     _ => Results.Ok(value),
                 },
-            errors =>
+            error =>
                 Results.Problem(
-                    detail: errors[0].Description,
-                    statusCode: errors[0].Type switch
+                    detail: error.Description,
+                    statusCode: error.Type switch
                     {
                         ErrorTypes.Conflict => StatusCodes.Status409Conflict,
                         ErrorTypes.NotFound => StatusCodes.Status404NotFound,
                         ErrorTypes.Validation => StatusCodes.Status400BadRequest,
                         _ => StatusCodes.Status500InternalServerError,
                     },
-                    title: errors[0].Code
+                    title: error.Code
                 )
         );
 }

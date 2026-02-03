@@ -55,7 +55,7 @@ public sealed record GetPaginatedCategoriesQuery
         }
     }
 
-    public class GetPaginatedCategoriesQueryValidator
+    public sealed class GetPaginatedCategoriesQueryValidator
         : AbstractValidator<GetPaginatedCategoriesQuery>
     {
         public GetPaginatedCategoriesQueryValidator()

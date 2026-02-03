@@ -68,13 +68,13 @@ public sealed class GetExpenseQueryHandlerTests
         result
             .Should()
             .BeEquivalentTo(
-                Result<ExpenseDTO>.Error([
+                Result<ExpenseDTO>.Failure(
                     new Error(
                         Errors.NotFoundError,
                         Errors.NotFoundErrorDetail(nameof(Expense)),
                         ErrorTypes.NotFound
-                    ),
-                ])
+                    )
+                )
             );
         _repository.Verify(
             mock => mock.GetBySpecAsync(It.IsAny<ExpensesSpecification>(), _cancellationToken),

@@ -23,13 +23,13 @@ public sealed record GetApplicationUserQuery(string Id)
             );
             if (applicationUser is null)
             {
-                return Result<ApplicationUserDTO>.Error([
+                return Result<ApplicationUserDTO>.Failure(
                     new Error(
                         Errors.NotFoundError,
                         Errors.NotFoundErrorDetail(nameof(ApplicationUser)),
                         ErrorTypes.NotFound
-                    ),
-                ]);
+                    )
+                );
             }
 
             return Result<ApplicationUserDTO>.Success(

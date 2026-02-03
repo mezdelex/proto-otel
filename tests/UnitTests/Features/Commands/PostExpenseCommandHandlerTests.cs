@@ -78,13 +78,13 @@ public sealed class PostExpenseCommandHandlerTests
         result
             .Should()
             .BeEquivalentTo(
-                Result<Empty>.Error([
+                Result<Empty>.Failure(
                     new Error(
                         Errors.NotFoundError,
                         Errors.NotFoundErrorDetail(nameof(ApplicationUser)),
                         ErrorTypes.NotFound
-                    ),
-                ])
+                    )
+                )
             );
         _httpContextAccessor.Verify(mock => mock.HttpContext.User.Identity!.Name, Times.Once());
         _applicationUserRepository.Verify(

@@ -48,13 +48,13 @@ public sealed class PatchCategoryCommandHandlerTests
         _repository
             .Setup(mock => mock.PatchAsync(It.IsAny<Category>(), _cancellationToken))
             .ReturnsAsync(
-                Result<Empty>.Error([
+                Result<Empty>.Failure(
                     new Error(
                         Errors.NotFoundError,
                         Errors.NotFoundErrorDetail(nameof(Category)),
                         ErrorTypes.NotFound
-                    ),
-                ])
+                    )
+                )
             )
             .Verifiable();
         _uow.Setup(mock => mock.SaveChangesAsync(_cancellationToken)).Verifiable();
@@ -70,13 +70,13 @@ public sealed class PatchCategoryCommandHandlerTests
         result
             .Should()
             .BeEquivalentTo(
-                Result<Empty>.Error([
+                Result<Empty>.Failure(
                     new Error(
                         Errors.NotFoundError,
                         Errors.NotFoundErrorDetail(nameof(Category)),
                         ErrorTypes.NotFound
-                    ),
-                ])
+                    )
+                )
             );
         _repository.Verify(
             mock => mock.PatchAsync(It.IsAny<Category>(), _cancellationToken),

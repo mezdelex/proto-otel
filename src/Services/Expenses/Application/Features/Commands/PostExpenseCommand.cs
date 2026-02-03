@@ -38,13 +38,13 @@ public sealed record PostExpenseCommand(
             );
             if (user is null)
             {
-                return Result<Empty>.Error([
+                return Result<Empty>.Failure(
                     new Error(
                         Errors.NotFoundError,
                         Errors.NotFoundErrorDetail(nameof(ApplicationUser)),
                         ErrorTypes.NotFound
-                    ),
-                ]);
+                    )
+                );
             }
 
             var expenseToPost = _mapper.Map<Expense>(request);

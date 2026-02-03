@@ -76,7 +76,8 @@ public sealed record GetPaginatedExpensesQuery
         }
     }
 
-    public class GetPaginatedExpensesQueryValidator : AbstractValidator<GetPaginatedExpensesQuery>
+    public sealed class GetPaginatedExpensesQueryValidator
+        : AbstractValidator<GetPaginatedExpensesQuery>
     {
         public GetPaginatedExpensesQueryValidator()
         {

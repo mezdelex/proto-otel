@@ -1,30 +1,27 @@
 namespace Application.Responses;
 
-public interface IResult<TValue>
+public interface IResult
 {
-    public TValue? Value { get; }
-    public List<Error>? Errors { get; }
+    public Error? Error { get; }
     public bool IsError { get; }
 }
 
-public record Result<TValue> : IResult<TValue>
+public sealed record Result<TValue> : IResult
 {
     public TValue? Value { get; init; }
-    public List<Error>? Errors { get; init; }
-    public bool IsError => Errors?.Count > 0;
+    public Error? Error { get; init; }
+    public bool IsError => Error != null;
 
     private Result(TValue value) => Value = value;
 
-    private Result(List<Error> errors) => Errors = errors;
+    private Result(Error error) => Error = error;
 
     public static Result<TValue> Success(TValue value) => new(value);
 
     public static Result<Empty> Success() => Result<Empty>.Success(new Empty());
 
-    public static Result<TValue> Error(List<Error> errors) => new(errors);
+    public static Result<TValue> Failure(Error error) => new(error);
 
-    public TResult Match<TResult>(
-        Func<TValue, TResult> onSuccess,
-        Func<List<Error>, TResult> onError
-    ) => IsError ? onError(Errors!) : onSuccess(Value!);
+    public TResult Match<TResult>(Func<TValue, TResult> onSuccess, Func<Error, TResult> onError) =>
+        IsError ? onError(Error!) : onSuccess(Value!);
 }

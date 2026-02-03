@@ -52,13 +52,13 @@ public sealed class PatchExpenseCommandHandlerTests
         _repository
             .Setup(mock => mock.PatchAsync(It.IsAny<Expense>(), _cancellationToken))
             .ReturnsAsync(
-                Result<Empty>.Error([
+                Result<Empty>.Failure(
                     new Error(
                         Errors.NotFoundError,
                         Errors.NotFoundErrorDetail(nameof(Expense)),
                         ErrorTypes.NotFound
-                    ),
-                ])
+                    )
+                )
             )
             .Verifiable();
         _uow.Setup(mock => mock.SaveChangesAsync(_cancellationToken)).Verifiable();
@@ -74,13 +74,13 @@ public sealed class PatchExpenseCommandHandlerTests
         result
             .Should()
             .BeEquivalentTo(
-                Result<Empty>.Error([
+                Result<Empty>.Failure(
                     new Error(
                         Errors.NotFoundError,
                         Errors.NotFoundErrorDetail(nameof(Expense)),
                         ErrorTypes.NotFound
-                    ),
-                ])
+                    )
+                )
             );
         _repository.Verify(
             mock => mock.PatchAsync(It.IsAny<Expense>(), _cancellationToken),
