@@ -1,12 +1,13 @@
 namespace Application.Responses;
 
-public interface IResult
+public interface IResult<TValue>
 {
-    public bool IsError { get; }
+    public TValue? Value { get; }
     public List<Error>? Errors { get; }
+    public bool IsError { get; }
 }
 
-public record Result<TValue> : IResult
+public record Result<TValue> : IResult<TValue>
 {
     public TValue? Value { get; init; }
     public List<Error>? Errors { get; init; }
