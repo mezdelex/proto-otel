@@ -119,7 +119,7 @@ services:
       sqlserver:
         condition: service_started
     environment:
-      APP_DATA_PROTECTION_KEY_PATH: ${APP_DATA_PROTECTION_KEY_PATH}
+      APP_DATA_PROTECTION_KEY_PATH: /app/keys
       ASPNETCORE_HTTPS_PORTS: 8100
       ASPNETCORE_HTTP_PORTS: 8000
       ASPNETCORE_Kestrel__Certificates__Default__Password: ${APP_PASSWORD}
@@ -132,7 +132,7 @@ services:
       - "8100:8100"
     volumes:
       - ${USERPROFILE}/.certs/localhost.pfx:/app/localhost.pfx
-      - .containers/keys/:${APP_DATA_PROTECTION_KEY_PATH}
+      - .containers/keys/:/app/keys
 
   expenses:
     build:
@@ -146,7 +146,7 @@ services:
       sqlserver:
         condition: service_started
     environment:
-      APP_DATA_PROTECTION_KEY_PATH: ${APP_DATA_PROTECTION_KEY_PATH}
+      APP_DATA_PROTECTION_KEY_PATH: /app/keys
       ASPNETCORE_HTTPS_PORTS: 8101
       ASPNETCORE_HTTP_PORTS: 8001
       ASPNETCORE_Kestrel__Certificates__Default__Password: ${APP_PASSWORD}
@@ -162,7 +162,7 @@ services:
       - "8101:8101"
     volumes:
       - ${USERPROFILE}/.certs/localhost.pfx:/app/localhost.pfx
-      - .containers/keys/:${APP_DATA_PROTECTION_KEY_PATH}
+      - .containers/keys/:/app/keys
 
   notifications:
     build:
