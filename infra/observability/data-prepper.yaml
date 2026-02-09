@@ -25,7 +25,7 @@ spec:
           volumeMounts:
             - name: data-prepper-pipelines
               mountPath: /usr/share/data-prepper/pipelines/pipelines.yaml
-              subPath: pipelines.yaml
+              subPath: data-prepper-pipelines.yaml
             - name: data-prepper-config
               mountPath: /usr/share/data-prepper/config/data-prepper-config.yaml
               subPath: data-prepper-config.yaml
@@ -39,7 +39,7 @@ spec:
       volumes:
         - name: data-prepper-pipelines
           configMap:
-            name: data-prepper-pipelines-config
+            name: data-prepper-pipelines
         - name: data-prepper-config
           configMap:
             name: data-prepper-config
@@ -47,10 +47,60 @@ spec:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: data-prepper-pipelines-config
+  name: data-prepper-pipelines
 data:
-  pipelines.yaml: |
-    # Data Prepper pipelines config - add your configuration here
+  data-prepper-pipelines.yaml: |
+    version: 2
+
+    otel-telemetry:
+      source:
+        otlp:
+          output_format: opensearch
+          ssl: false
+      route:
+        - logs: 'getEventType() == "LOG"'
+        - metrics: 'getEventType() == "METRIC"'
+        - traces: 'getEventType() == "TRACE"'
+      sink:
+        - opensearch:
+            routes:
+              - logs
+            hosts: ["http://opensearch:9200"]
+            index: ss4o_logs-%{yyyy.MM.dd}
+            insecure: true
+        - pipeline:
+            name: otel-metrics
+            routes:
+              - metrics
+        - pipeline:
+            name: otel-traces
+            routes:
+              - traces
+
+    otel-metrics:
+      source:
+        pipeline:
+          name: otel-telemetry
+      processor:
+        - otel_metrics:
+      sink:
+        - opensearch:
+            hosts: ["http://opensearch:9200"]
+            index: ss4o_metrics-otel-%{yyyy.MM.dd}
+            index_type: custom
+            insecure: true
+
+    otel-traces:
+      source:
+        pipeline:
+          name: otel-telemetry
+      processor:
+        - otel_trace_raw:
+      sink:
+        - opensearch:
+            hosts: ["http://opensearch:9200"]
+            index_type: trace-analytics-raw
+            insecure: true
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -58,7 +108,9 @@ metadata:
   name: data-prepper-config
 data:
   data-prepper-config.yaml: |
-    # Data Prepper config - add your configuration here
+    ssl: false
+    peer_forwarder:
+      ssl: false
 ---
 apiVersion: v1
 kind: Service

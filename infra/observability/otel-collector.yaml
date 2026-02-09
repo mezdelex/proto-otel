@@ -53,27 +53,41 @@ data:
             endpoint: 0.0.0.0:4317
           http:
             endpoint: 0.0.0.0:4318
+
     processors:
       batch:
+        send_batch_size: 100
+        timeout: 10s
+
     exporters:
-      otlp:
-        endpoint: opensearch:4317
+      debug:
+        verbosity: detailed
+      otlp/data-prepper:
+        endpoint: data-prepper:21893
         tls:
           insecure: true
+
+    extensions:
+      health_check:
+        endpoint: 0.0.0.0:13133
+      pprof:
+        endpoint: 0.0.0.0:1777
+
     service:
+      extensions: [health_check, pprof]
       pipelines:
-        traces:
-          receivers: [otlp]
-          processors: [batch]
-          exporters: [otlp]
-        metrics:
-          receivers: [otlp]
-          processors: [batch]
-          exporters: [otlp]
         logs:
           receivers: [otlp]
           processors: [batch]
-          exporters: [otlp]
+          exporters: [debug, otlp/data-prepper]
+        metrics:
+          receivers: [otlp]
+          processors: [batch]
+          exporters: [debug, otlp/data-prepper]
+        traces:
+          receivers: [otlp]
+          processors: [batch]
+          exporters: [debug, otlp/data-prepper]
 ---
 apiVersion: v1
 kind: Service
