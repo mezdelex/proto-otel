@@ -82,3 +82,6 @@ kubectl apply -k .\infra\
 - kubectl v1.29.0+
 - kustomize v5.8.0+
 - PowerShell 7+
+
+## Current WIP Status
+<img width="1919" height="1023" alt="image" src="https://github.com/user-attachments/assets/b5490968-8251-45cf-a281-7b4dae84c752" />
