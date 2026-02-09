@@ -1,0 +1,109 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway
+  labels:
+    app: gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway
+  template:
+    metadata:
+      labels:
+        app: gateway
+    spec:
+      containers:
+        - name: gateway
+          image: localhost/gateway:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8000
+            - containerPort: 8100
+          env:
+            - name: ASPNETCORE_HTTP_PORTS
+              valueFrom:
+                configMapKeyRef:
+                  name: gateway-env
+                  key: ASPNETCORE_HTTP_PORTS
+            - name: ASPNETCORE_HTTPS_PORTS
+              valueFrom:
+                configMapKeyRef:
+                  name: gateway-env
+                  key: ASPNETCORE_HTTPS_PORTS
+            - name: APP_DATA_PROTECTION_KEY_PATH
+              valueFrom:
+                configMapKeyRef:
+                  name: gateway-env
+                  key: APP_DATA_PROTECTION_KEY_PATH
+            - name: AUDIENCES
+              valueFrom:
+                configMapKeyRef:
+                  name: gateway-env
+                  key: AUDIENCES
+            - name: CLIENT_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: gateway-env
+                  key: CLIENT_ID
+            - name: CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: APP_CLIENT_SECRET
+            - name: ASPNETCORE_Kestrel__Certificates__Default__Password
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: APP_PASSWORD
+            - name: ASPNETCORE_Kestrel__Certificates__Default__Path
+              value: /app/localhost.pfx
+          volumeMounts:
+            - name: certs
+              mountPath: /app/localhost.pfx
+              subPath: localhost.pfx
+            - name: keys
+              mountPath: /app/keys
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 60
+            periodSeconds: 15
+      volumes:
+        - name: certs
+          hostPath:
+            path: ${USERPROFILE}/.certs/localhost.pfx
+            type: File
+        - name: keys
+          persistentVolumeClaim:
+            claimName: keys-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway
+spec:
+  selector:
+    app: gateway
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000
+    - name: https
+      port: 8100
+      targetPort: 8100

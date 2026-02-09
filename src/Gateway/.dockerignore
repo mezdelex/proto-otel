@@ -1,0 +1,8 @@
+# .dockerignore for Gateway service
+obj
+bin
+*.swp
+*.swo
+*.csproj.user
+*.sln
+*.slnx

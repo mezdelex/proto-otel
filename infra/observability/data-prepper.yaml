@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-prepper
+  labels:
+    app: data-prepper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: data-prepper
+  template:
+    metadata:
+      labels:
+        app: data-prepper
+    spec:
+      containers:
+        - name: data-prepper
+          image: opensearchproject/data-prepper:latest
+          env:
+            - name: OPENSEARCH_ENDPOINT
+              value: "http://opensearch:9200"
+          ports:
+            - containerPort: 21893
+          volumeMounts:
+            - name: data-prepper-pipelines
+              mountPath: /usr/share/data-prepper/pipelines/pipelines.yaml
+              subPath: pipelines.yaml
+            - name: data-prepper-config
+              mountPath: /usr/share/data-prepper/config/data-prepper-config.yaml
+              subPath: data-prepper-config.yaml
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+      volumes:
+        - name: data-prepper-pipelines
+          configMap:
+            name: data-prepper-pipelines-config
+        - name: data-prepper-config
+          configMap:
+            name: data-prepper-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: data-prepper-pipelines-config
+data:
+  pipelines.yaml: |
+    # Data Prepper pipelines config - add your configuration here
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: data-prepper-config
+data:
+  data-prepper-config.yaml: |
+    # Data Prepper config - add your configuration here
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: data-prepper
+spec:
+  selector:
+    app: data-prepper
+  ports:
+    - port: 21893
+      targetPort: 21893

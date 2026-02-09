@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notifications
+  labels:
+    app: notifications
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notifications
+  template:
+    metadata:
+      labels:
+        app: notifications
+    spec:
+      containers:
+        - name: notifications
+          image: localhost/notifications:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8002
+            - containerPort: 8102
+          env:
+            - name: ASPNETCORE_HTTP_PORTS
+              valueFrom:
+                configMapKeyRef:
+                  name: notifications-env
+                  key: ASPNETCORE_HTTP_PORTS
+            - name: ASPNETCORE_HTTPS_PORTS
+              valueFrom:
+                configMapKeyRef:
+                  name: notifications-env
+                  key: ASPNETCORE_HTTPS_PORTS
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: APP_PASSWORD
+            - name: USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: APP_USERNAME
+            - name: ASPNETCORE_Kestrel__Certificates__Default__Password
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: APP_PASSWORD
+            - name: ASPNETCORE_Kestrel__Certificates__Default__Path
+              value: /app/localhost.pfx
+          volumeMounts:
+            - name: certs
+              mountPath: /app/localhost.pfx
+              subPath: localhost.pfx
+            - name: keys
+              mountPath: /app/keys
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8002
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8002
+            initialDelaySeconds: 60
+            periodSeconds: 15
+      volumes:
+        - name: certs
+          hostPath:
+            path: ${USERPROFILE}/.certs/localhost.pfx
+            type: File
+        - name: keys
+          persistentVolumeClaim:
+            claimName: keys-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notifications
+spec:
+  selector:
+    app: notifications
+  ports:
+    - name: http
+      port: 8002
+      targetPort: 8002
+    - name: https
+      port: 8102
+      targetPort: 8102

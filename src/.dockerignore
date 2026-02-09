@@ -1,0 +1,56 @@
+# .dockerignore for microservices
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test files
+test
+tests
+*_test.cs
+*.spec.js
+*.spec.ts
+
+# Documentation
+README*.md
+docs
+*.md
+
+# Logs
+logs
+*.log
+
+# Build artifacts
+bin
+obj
+dist
+build
+out
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Kubernetes manifests
+infra/
+
+# Docker
+Dockerfile*
+.dockerignore
+docker-compose*.yml
+
+# Coverage
+coverage
