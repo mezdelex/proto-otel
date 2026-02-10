@@ -5,37 +5,37 @@ Kubernetes infrastructure for deploying `proto-otel` application to a local `kin
 ## Directory Structure
 
 ```
-infra/
-├── core/
-│   ├── configmaps.yaml
-│   ├── kustomization.yaml
-│   └── volumes.yaml
+├───kustomization.yaml
+├───README.md
 │
-├── services/
-│   ├── expenses-deployment.yaml
-│   ├── gateway-deployment.yaml
-│   ├── kustomization.yaml
-│   ├── notifications-deployment.yaml
-│   ├── rabbitmq-deployment.yaml
-│   ├── redis-deployment.yaml
-│   └── sqlserver-deployment.yaml
+├───core
+│   ├───configmaps.yaml
+│   ├───kustomization.yaml
+│   └───volumes.yaml
 │
-├── observability/
-│   ├── data-prepper.yaml
-│   ├── kustomization.yaml
-│   ├── opensearch-dashboards.yaml
-│   ├── opensearch.yaml
-│   └── otel-collector.yaml
+├───networking
+│   ├───ingress.yaml
+│   └───kustomization.yaml
 │
-├── networking/
-│   ├── ingress.yaml
-│   └── kustomization.yaml
+├───observability
+│   ├───data-prepper.yaml
+│   ├───kustomization.yaml
+│   ├───opensearch-dashboards.yaml
+│   ├───opensearch.yaml
+│   └───otel-collector.yaml
 │
-├── scripts/
-│   ├── BuildAndLoad.ps1
-│   └── CleanUp.ps1
+├───scripts
+│   ├───BuildAndLoad.ps1
+│   └───CleanUp.ps1
 │
-└── kustomization.yaml
+└───services
+    ├───expenses-deployment.yaml
+    ├───gateway-deployment.yaml
+    ├───kustomization.yaml
+    ├───notifications-deployment.yaml
+    ├───rabbitmq-deployment.yaml
+    ├───redis-deployment.yaml
+    └───sqlserver-deployment.yaml
 ```
 
 ## Deployment
@@ -86,4 +86,5 @@ kubectl apply -k .\infra\
 - PowerShell 7+
 
 ## Current WIP Status
+
 <img width="1919" height="1026" alt="image" src="https://github.com/user-attachments/assets/e9622a98-432c-4a5d-b88d-3183eb6f1e8f" />
