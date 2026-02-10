@@ -24,22 +24,13 @@ spec:
               mountPath: /data
             - name: redis-config
               mountPath: /usr/local/etc/redis/redis.conf
-              subPath: redis.conf
       volumes:
         - name: redis-data
           persistentVolumeClaim:
             claimName: redis-data-pvc
         - name: redis-config
-          configMap:
-            name: redis-config
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: redis-config
-data:
-  redis.conf: |
-    # Redis config placeholder
+          persistentVolumeClaim:
+            claimName: redis-config-pvc
 ---
 apiVersion: v1
 kind: Service

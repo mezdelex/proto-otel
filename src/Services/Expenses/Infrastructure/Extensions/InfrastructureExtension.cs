@@ -20,7 +20,9 @@ public static class InfrastructureExtension
             provider.GetRequiredService<ApplicationDbContext>()
         );
         services.AddSingleton<IConnectionMultiplexer>(_ =>
-            ConnectionMultiplexer.Connect($"redis,password={configuration["PASSWORD"]}")
+            ConnectionMultiplexer.Connect(
+                $"redis,password={configuration["PASSWORD"]},abortConnect=false"
+            )
         );
         services.AddScoped(provider =>
             provider.GetRequiredService<IConnectionMultiplexer>().GetDatabase()

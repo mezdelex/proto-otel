@@ -42,9 +42,9 @@ spec:
           livenessProbe:
             exec:
               command:
-                - /opt/mssql-tools18/bin/sqlcmd
-                - -Q
-                - "SELECT 1"
+                - /bin/sh
+                - -c
+                - /opt/mssql-tools18/bin/sqlcmd -U sa -P "$MSSQL_SA_PASSWORD" -C -Q "SELECT 1"
             initialDelaySeconds: 60
             periodSeconds: 10
             timeoutSeconds: 5

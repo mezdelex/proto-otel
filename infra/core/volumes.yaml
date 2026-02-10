@@ -34,6 +34,17 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
+  name: redis-config-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
   name: mssql-data-pvc
 spec:
   accessModes:
