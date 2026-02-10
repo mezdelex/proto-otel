@@ -9,7 +9,6 @@ infra/
 ├── core/
 │   ├── configmaps.yaml
 │   ├── kustomization.yaml
-│   ├── secrets.yaml
 │   └── volumes.yaml
 │
 ├── services/
@@ -45,10 +44,13 @@ infra/
 # 1. Create kind cluster
 kind create cluster --name kind
 
-# 2. Build and load Docker images
+# 2. Build and load Docker images to kind
 .\infra\scripts\BuildAndLoad.ps1
 
-# 3. Deploy with kustomize
+# 3. Generate the secrets in kubernetes
+kubectl create secret generic app-certs --from-file=localhost.pfx=$HOME/.certs/localhost.pfx && kubectl create secret generic app-secrets --from-env-file=.env
+
+# 4. Deploy with kustomize
 kubectl apply -k .\infra\
 ```
 
@@ -84,4 +86,5 @@ kubectl apply -k .\infra\
 - PowerShell 7+
 
 ## Current WIP Status
+
 <img width="1919" height="1023" alt="image" src="https://github.com/user-attachments/assets/b5490968-8251-45cf-a281-7b4dae84c752" />

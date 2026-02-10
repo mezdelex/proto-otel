@@ -123,7 +123,7 @@ services:
       ASPNETCORE_HTTPS_PORTS: 8100
       ASPNETCORE_HTTP_PORTS: 8000
       ASPNETCORE_Kestrel__Certificates__Default__Password: ${APP_PASSWORD}
-      ASPNETCORE_Kestrel__Certificates__Default__Path: /app/localhost.pfx
+      ASPNETCORE_Kestrel__Certificates__Default__Path: /app/https/localhost.pfx
       AUDIENCES: ${APP_CLIENT_ID_EXPENSES}
       CLIENT_ID: ${APP_CLIENT_ID_GATEWAY}
       CLIENT_SECRET: ${APP_CLIENT_SECRET}
@@ -131,7 +131,7 @@ services:
       - "8000:8000"
       - "8100:8100"
     volumes:
-      - ${USERPROFILE}/.certs/localhost.pfx:/app/localhost.pfx
+      - ${USERPROFILE}/.certs/localhost.pfx:/app/https/localhost.pfx
       - .containers/keys/:/app/keys
 
   expenses:
@@ -150,7 +150,7 @@ services:
       ASPNETCORE_HTTPS_PORTS: 8101
       ASPNETCORE_HTTP_PORTS: 8001
       ASPNETCORE_Kestrel__Certificates__Default__Password: ${APP_PASSWORD}
-      ASPNETCORE_Kestrel__Certificates__Default__Path: /app/localhost.pfx
+      ASPNETCORE_Kestrel__Certificates__Default__Path: /app/https/localhost.pfx
       CLIENT_ID: ${APP_CLIENT_ID_EXPENSES}
       CLIENT_SECRET: ${APP_CLIENT_SECRET}
       DATABASE: ${APP_DATABASE_EXPENSES}
@@ -161,7 +161,7 @@ services:
       - "8001:8001"
       - "8101:8101"
     volumes:
-      - ${USERPROFILE}/.certs/localhost.pfx:/app/localhost.pfx
+      - ${USERPROFILE}/.certs/localhost.pfx:/app/https/localhost.pfx
       - .containers/keys/:/app/keys
 
   notifications:
@@ -179,11 +179,11 @@ services:
       ASPNETCORE_HTTPS_PORTS: 8102
       ASPNETCORE_HTTP_PORTS: 8002
       ASPNETCORE_Kestrel__Certificates__Default__Password: ${APP_PASSWORD}
-      ASPNETCORE_Kestrel__Certificates__Default__Path: /app/localhost.pfx
+      ASPNETCORE_Kestrel__Certificates__Default__Path: /app/https/localhost.pfx
       PASSWORD: ${APP_PASSWORD}
       USERNAME: ${APP_USERNAME}
     ports:
       - "8002:8002"
       - "8102:8102"
     volumes:
-      - ${USERPROFILE}/.certs/localhost.pfx:/app/localhost.pfx
+      - ${USERPROFILE}/.certs/localhost.pfx:/app/https/localhost.pfx

@@ -33,6 +33,7 @@ if ($LASTEXITCODE -ne 0)
     Write-Host "Error: Failed to build gateway image" -ForegroundColor Red
     exit 1
 }
+Write-Host ""
 Write-Host "✓ Gateway image built" -ForegroundColor Green
 
 Write-Host "Building Expenses image..." -ForegroundColor Gray
@@ -44,6 +45,7 @@ if ($LASTEXITCODE -ne 0)
     Write-Host "Error: Failed to build expenses image" -ForegroundColor Red
     exit 1
 }
+Write-Host ""
 Write-Host "✓ Expenses image built" -ForegroundColor Green
 
 Write-Host "Building Notifications image..." -ForegroundColor Gray
@@ -55,6 +57,7 @@ if ($LASTEXITCODE -ne 0)
     Write-Host "Error: Failed to build notifications image" -ForegroundColor Red
     exit 1
 }
+Write-Host ""
 Write-Host "✓ Notifications image built" -ForegroundColor Green
 
 Write-Host ""
@@ -65,16 +68,19 @@ Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "" 
 Write-Host "Loading gateway image..." -ForegroundColor Gray
 kind load docker-image "localhost/gateway:$ImageVersion" --name $ClusterName
+Write-Host ""
 Write-Host "✓ Gateway image loaded" -ForegroundColor Green
 
 Write-Host "" 
 Write-Host "Loading expenses image..." -ForegroundColor Gray
 kind load docker-image "localhost/expenses:$ImageVersion" --name $ClusterName
+Write-Host ""
 Write-Host "✓ Expenses image loaded" -ForegroundColor Green
 
 Write-Host "" 
 Write-Host "Loading notifications image..." -ForegroundColor Gray
 kind load docker-image "localhost/notifications:$ImageVersion" --name $ClusterName
+Write-Host ""
 Write-Host "✓ Notifications image loaded" -ForegroundColor Green
 
 Write-Host ""

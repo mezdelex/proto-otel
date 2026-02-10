@@ -3,7 +3,6 @@ kind: Kustomization
 
 resources:
   - configmaps.yaml
-  - secrets.yaml
   - volumes.yaml
 labels:
   - includeSelectors: true

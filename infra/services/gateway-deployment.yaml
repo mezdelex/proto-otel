@@ -58,11 +58,11 @@ spec:
                   name: app-secrets
                   key: APP_PASSWORD
             - name: ASPNETCORE_Kestrel__Certificates__Default__Path
-              value: /app/localhost.pfx
+              value: /app/https/localhost.pfx
           volumeMounts:
-            - name: certs
-              mountPath: /app/localhost.pfx
-              subPath: localhost.pfx
+            - name: app-certs
+              mountPath: /app/https
+              readOnly: true
             - name: keys
               mountPath: /app/keys
           resources:
@@ -73,22 +73,24 @@ spec:
               memory: "512Mi"
               cpu: "500m"
           readinessProbe:
-            httpGet:
-              path: /health
+            tcpSocket:
               port: 8000
             initialDelaySeconds: 30
             periodSeconds: 10
+            timeoutSeconds: 5
           livenessProbe:
-            httpGet:
-              path: /health
+            tcpSocket:
               port: 8000
             initialDelaySeconds: 60
             periodSeconds: 15
+            timeoutSeconds: 5
       volumes:
-        - name: certs
-          hostPath:
-            path: ${USERPROFILE}/.certs/localhost.pfx
-            type: File
+        - name: app-certs
+          secret:
+            secretName: app-certs
+        - name: app-secrets
+          secret:
+            secretName: app-secrets
         - name: keys
           persistentVolumeClaim:
             claimName: keys-pvc
