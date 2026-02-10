@@ -5,6 +5,7 @@ Kubernetes infrastructure for deploying `proto-otel` application to a local `kin
 ## Directory Structure
 
 ```
+├───kind-config.yaml
 ├───kustomization.yaml
 ├───README.md
 │
@@ -41,8 +42,8 @@ Kubernetes infrastructure for deploying `proto-otel` application to a local `kin
 ## Deployment
 
 ```powershell
-# 1. Create kind cluster
-kind create cluster --name kind
+# 1. Create kind cluster and expose needed node ports
+kind create cluster --name kind --config .\infra\kind-config.yaml
 
 # 2. Build and load Docker images to kind
 .\infra\scripts\BuildAndLoad.ps1
