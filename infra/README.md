@@ -86,5 +86,4 @@ kubectl apply -k .\infra\
 - PowerShell 7+
 
 ## Current WIP Status
-
-<img width="1919" height="1023" alt="image" src="https://github.com/user-attachments/assets/b5490968-8251-45cf-a281-7b4dae84c752" />
+<img width="1919" height="1026" alt="image" src="https://github.com/user-attachments/assets/e9622a98-432c-4a5d-b88d-3183eb6f1e8f" />
