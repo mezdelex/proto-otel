@@ -89,3 +89,7 @@ kubectl apply -k .\infra\
 ## Current WIP Status
 
 <img width="1919" height="1026" alt="image" src="https://github.com/user-attachments/assets/e9622a98-432c-4a5d-b88d-3183eb6f1e8f" />
+<img width="1919" height="1022" alt="image" src="https://github.com/user-attachments/assets/e83011c3-474d-428c-aa70-e0bc84ee95be" />
+
+> [!IMPORTANT]
+> Requests are being redirected properly, but the services are not accepting them; pending further investigation
