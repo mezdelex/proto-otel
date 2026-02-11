@@ -64,8 +64,8 @@ metadata:
 spec:
   selector:
     app: sqlserver
+  type: NodePort
   ports:
     - port: 1433
       targetPort: 1433
       nodePort: 30433
-  type: NodePort

@@ -42,16 +42,19 @@ Kubernetes infrastructure for deploying `proto-otel` application to a local `kin
 ## Deployment
 
 ```powershell
-# 1. Create kind cluster and expose needed node ports
+# 1. Create kind cluster and expose needed ports (80/433 for Ingress http/https respectively and 1433 for database access through NodePort)
 kind create cluster --name kind --config .\infra\kind-config.yaml
 
-# 2. Build and load Docker images to kind
+# 2. Install Ingress controller
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+
+# 3. Build and load proto-otel Docker images to kind
 .\infra\scripts\BuildAndLoad.ps1
 
-# 3. Generate the secrets in kubernetes
+# 4. Generate the secrets
 kubectl create secret generic app-certs --from-file=localhost.pfx=$HOME/.certs/localhost.pfx && kubectl create secret generic app-secrets --from-env-file=.env
 
-# 4. Deploy with kustomize
+# 5. Deploy with kustomize
 kubectl apply -k .\infra\
 ```
 

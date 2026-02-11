@@ -2,39 +2,25 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
   name: main-ingress
 spec:
   ingressClassName: nginx
   rules:
-    - host: microservices.local
-      http:
+    - http:
         paths:
-          - path: /gateway
+          - path: /gateway(/|$)(.*)
             backend:
               service:
                 name: gateway
                 port:
                   number: 8000
-            pathType: Prefix
-          - path: /expenses
-            backend:
-              service:
-                name: expenses
-                port:
-                  number: 8001
-            pathType: Prefix
-          - path: /notifications
-            backend:
-              service:
-                name: notifications
-                port:
-                  number: 8002
-            pathType: Prefix
-          - path: /dashboard
+            pathType: ImplementationSpecific
+          - path: /dashboard(/|$)(.*)
             backend:
               service:
                 name: opensearch-dashboards
                 port:
                   number: 5601
-            pathType: Prefix
+            pathType: ImplementationSpecific

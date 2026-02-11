@@ -22,26 +22,21 @@ spec:
             - containerPort: 8002
             - containerPort: 8102
           env:
-            - name: ASPNETCORE_HTTP_PORTS
+            - name: ASPNETCORE_URLS
               valueFrom:
                 configMapKeyRef:
                   name: notifications-env
-                  key: ASPNETCORE_HTTP_PORTS
-            - name: ASPNETCORE_HTTPS_PORTS
-              valueFrom:
-                configMapKeyRef:
-                  name: notifications-env
-                  key: ASPNETCORE_HTTPS_PORTS
-            - name: PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: app-secrets
-                  key: APP_PASSWORD
+                  key: ASPNETCORE_URLS
             - name: USERNAME
               valueFrom:
                 configMapKeyRef:
                   name: app-config
                   key: APP_USERNAME
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: APP_PASSWORD
             - name: ASPNETCORE_Kestrel__Certificates__Default__Password
               valueFrom:
                 secretKeyRef:

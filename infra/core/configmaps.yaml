@@ -3,9 +3,6 @@ kind: ConfigMap
 metadata:
   name: app-config
 data:
-  APP_CLIENT_ID_EXPENSES: "expenses-app"
-  APP_CLIENT_ID_GATEWAY: "gateway-app"
-  APP_DATABASE_EXPENSES: "expenses"
   APP_USERNAME: "mezdelex"
 ---
 apiVersion: v1
@@ -14,8 +11,7 @@ metadata:
   name: gateway-env
 data:
   APP_DATA_PROTECTION_KEY_PATH: "/app/keys"
-  ASPNETCORE_HTTPS_PORTS: "8100"
-  ASPNETCORE_HTTP_PORTS: "8000"
+  ASPNETCORE_URLS: "http://+:8000;https://+:8100"
   AUDIENCES: "expenses-app"
   CLIENT_ID: "gateway-app"
 ---
@@ -25,8 +21,7 @@ metadata:
   name: expenses-env
 data:
   APP_DATA_PROTECTION_KEY_PATH: "/app/keys"
-  ASPNETCORE_HTTPS_PORTS: "8101"
-  ASPNETCORE_HTTP_PORTS: "8001"
+  ASPNETCORE_URLS: "http://+:8001;https://+:8101"
   CLIENT_ID: "expenses-app"
   DATABASE: "expenses"
   ISSUER: "gateway-app"
@@ -36,5 +31,4 @@ kind: ConfigMap
 metadata:
   name: notifications-env
 data:
-  ASPNETCORE_HTTPS_PORTS: "8102"
-  ASPNETCORE_HTTP_PORTS: "8002"
+  ASPNETCORE_URLS: "http://+:8002;https://+:8102"
